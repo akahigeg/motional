@@ -11,16 +11,21 @@ class MotionAssetTree
     # TODO support NSData and NSURL(video)
     def create(image, meta, &callback)
       # image => CGImage or NSData or NSURL(video)
-      library = ALAssetsLibrary.alloc.init
-      library.writeImageToSavedPhotosAlbum(
+      App.al_asset_library.writeImageToSavedPhotosAlbum(
         image,
         metadata: meta,
         completionBlock: lambda {|asset_url, error|
-          #asset = find_by_url(asset_url) do |asset, error|
-            callback.call(asset_url, error)
-          #end
+          find_by_url(asset_url) do |asset, error|
+            callback.call(asset, error)
+          end
         }
       )
+    end
+
+    def find_by_url(asset_url, &block)
+      MotionAssetTree::Asset.find_by_url(asset_url) do |asset, error|
+        block.call(asset, error)
+      end
     end
 
     # TODO: support IndexSet
