@@ -2,6 +2,7 @@
 
 class MotionAssetTree
   class Group
+    attr_accessor :al_asset_group
     def initialize(al_asset_group)
       @al_asset_group = al_asset_group
     end
