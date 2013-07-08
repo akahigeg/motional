@@ -6,7 +6,7 @@ class MotionAssetTree
 
     def initialize(al_asset)
       @al_asset = al_asset
-      @representation = al_asset.defaultRepresentation
+      @al_representation = al_asset.defaultRepresentation
     end
 
     def representations
@@ -14,7 +14,6 @@ class MotionAssetTree
     end
 
     def self.find_by_url(asset_url, &callback)
-      ap asset_url
       App.al_asset_library.assetForURL(
         asset_url, 
         resultBlock: lambda {|al_asset|
@@ -42,12 +41,12 @@ class MotionAssetTree
       duration: ALAssetPropertyDuration, # for video
       orientation: ALAssetPropertyOrientation,
       date: ALAssetPropertyDate,
-      al_representations: ALAssetPropertyRepresentations,
+      al_representation_utis: ALAssetPropertyRepresentations,
       urls: ALAssetPropertyURLs,
       url: ALAssetPropertyAssetURL
     }.each do |method_name, property_name|
       define_method(method_name) do 
-        @al_asset_group.valueForProperty(property_name)
+        @al_asset.valueForProperty(property_name)
       end
     end
     alias_method :reps, :representations

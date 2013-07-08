@@ -8,12 +8,14 @@ class MotionAssetTree
     end
 
     def find_by_uti(uti)
-      # representationForUTI
+      @asset.al_asset.representationForUTI(uti)
     end
 
     def all(&block)
-      asset.al_representations.each do |al_rep|
-        block.call(Representation.new(al_rep))
+
+      @asset.al_representation_utis.each do |uti|
+        rep = Representation.new(find_by_uti(uti))
+        block.call(Representation.new(rep))
       end
     end
 
