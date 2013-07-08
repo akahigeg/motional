@@ -12,6 +12,20 @@ class MotionAssetTree
       @representations ||= Representations.new(self)
     end
 
+    # TODO support NSData and NSURL(video)
+    def self.create(image, meta, &callback)
+      # image => CGImage or NSData or NSURL(video)
+      App.al_asset_library.writeImageToSavedPhotosAlbum(
+        image,
+        metadata: meta,
+        completionBlock: lambda {|asset_url, error|
+          find_by_url(asset_url) do |asset, error|
+            callback.call(asset, error)
+          end
+        }
+      )
+    end
+
     def self.find_by_url(asset_url, &callback)
       App.al_asset_library.assetForURL(
         asset_url, 
@@ -67,7 +81,7 @@ class MotionAssetTree
     # create (save to new asset)
     # – writeModifiedImageDataToSavedPhotosAlbum:metadata:completionBlock:
     # – writeModifiedVideoAtPathToSavedPhotosAlbum:completionBlock:
-    def create(source, metadata = nil, &block) 
+    def save(source, metadata = nil, &block) 
       if source.kind_of? NSURL
         create_by_video(source) {|asset, error| block.call(asset, error) }
       else
@@ -101,15 +115,16 @@ class MotionAssetTree
     # update (save to same asset. need editable flag)
     # – setImageData:metadata:completionBlock:
     # – setVideoAtPath:completionBlock:
-    def update(source, metadata = nil, &block)
+    def overwrite(source, metadata = nil, &block)
       if source.kind_of? NSURL
-        update_by_video(source) {|asset, error| block.call(asset, error) }
+        overwrite_by_video(source) {|asset, error| block.call(asset, error) }
       else
-        update_by_image(source, metadata) {|asset, error| block.call(asset, error) }
+        overwrite_by_image(source, metadata) {|asset, error| block.call(asset, error) }
       end
     end
+    alias_method :update, :overwrite
 
-    def update_by_image(image_data, metadata, &block)
+    def overwrite_by_image(image_data, metadata, &block)
       @al_asset.setImageData(
         source, 
         metadata: metadata,
@@ -121,7 +136,7 @@ class MotionAssetTree
       )
     end
 
-    def update_by_video(video_path, &block)
+    def overwrite_by_video(video_path, &block)
       @al_asset.setVideoAtPath(
         video_path,
         completionBlock: lambda {|asset_url, error|

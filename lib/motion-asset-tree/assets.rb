@@ -8,18 +8,10 @@ class MotionAssetTree
       load_assets
     end
 
-    # TODO support NSData and NSURL(video)
-    def create(image, meta, &callback)
-      # image => CGImage or NSData or NSURL(video)
-      App.al_asset_library.writeImageToSavedPhotosAlbum(
-        image,
-        metadata: meta,
-        completionBlock: lambda {|asset_url, error|
-          find_by_url(asset_url) do |asset, error|
-            callback.call(asset, error)
-          end
-        }
-      )
+    def create(image, meta, &block)
+      Asset.create(image, meta) do |asset, error|
+        block.call(asset, error)
+      end
     end
 
     def find_by_url(asset_url, &block)
@@ -29,12 +21,12 @@ class MotionAssetTree
     end
 
     # TODO: support IndexSet
-    def all(options = nil, &callback)
+    def all(options = nil, &block)
       if options.nil?
         @group.al_asset_group.enumerateAssetsUsingBlock(
           lambda{|al_asset, index, stop| 
             asset = Asset.new(al_asset) if !al_asset.nil?
-            callback.call(asset, index, stop) 
+            block.call(asset, index, stop) 
           }
         )
       elsif options[:order]
@@ -43,7 +35,7 @@ class MotionAssetTree
           enum_option, 
           usingBlock: lambda {|al_asset, index, stop| 
             asset = Asset.new(al_asset) if !al_asset.nil?
-            callback.call(asset, index, stop) 
+            block.call(asset, index, stop) 
           }
         )
       elsif options[:indexset]
@@ -52,7 +44,7 @@ class MotionAssetTree
           options: enum_option, 
           usingBlock: lambda {|al_asset, index, stop| 
             asset = Asset.new(al_asset) if !al_asset.nil?
-            callback.call(asset, index, stop) 
+            block.call(asset, index, stop) 
           }
         )
       end
