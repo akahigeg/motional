@@ -14,7 +14,7 @@ class MotionAssetTree
     end
 
     def create(name, &block)
-      Group.create(name) do |group, error|
+      MotionAssetTree::Group.create(name) do |group, error|
         block.call(group, error)
       end
     end

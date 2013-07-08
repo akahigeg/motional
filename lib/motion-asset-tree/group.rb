@@ -47,20 +47,16 @@ class MotionAssetTree
     end
 
     # wrapper of valueForProperty
-    def name
-      @al_asset_group.valueForProperty(ALAssetsGroupPropertyName)
-    end
+    {
+      name: ALAssetsGroupPropertyName,
+      asset_group_type: ALAssetsGroupPropertyType,
+      persistent_id: ALAssetsGroupPropertyPersistentID,
+      url: ALAssetsGroupPropertyURL
+    }.each do |method_name, property_name|
+      define_method(method_name) do 
+        @al_asset_group.valueForProperty(property_name)
 
-    def asset_group_type
-      @al_asset_group.valueForProperty(ALAssetsGroupPropertyType)
-    end
-
-    def persistent_id
-      @al_asset_group.valueForProperty(ALAssetsGroupPropertyPersistentID)
-    end
-
-    def url
-      @al_asset_group.valueForProperty(ALAssetsGroupPropertyURL)
+      end
     end
   end
 end
