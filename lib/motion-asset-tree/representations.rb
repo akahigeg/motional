@@ -12,10 +12,9 @@ class MotionAssetTree
     end
 
     def all(&block)
-
-      @asset.al_representation_utis.each do |uti|
+      @asset.representation_utis.each do |uti|
         rep = Representation.new(find_by_uti(uti))
-        block.call(Representation.new(rep))
+        block.call(rep)
       end
     end
 

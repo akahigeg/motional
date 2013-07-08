@@ -6,7 +6,6 @@ class MotionAssetTree
 
     def initialize(al_asset)
       @al_asset = al_asset
-      @al_representation = al_asset.defaultRepresentation
     end
 
     def representations
@@ -26,22 +25,36 @@ class MotionAssetTree
       )
     end
 
-    [:editable, :originalAsset, :defaultRepresentation, 
-     :thumbnail, :aspectRatioThumbnail].each do |method_name|
+    # wrapper method
+    [:thumbnail, :aspectRatioThumbnail].each do |method_name|
        underscored_method_name = method_name.gsub(/([A-Z])/){|m| "_#{m}" }.downcase
        define_method(underscored_method_name) do 
          self.al_asset_representation.send(method_name)
        end
     end
+
+    def editable?
+      @al_asset.editable
+    end
+
+    def original_asset
+      original_al_asset = @al_asset.originalAsset
+      Asset.new(original_al_asset) if original_al_asset
+    end
+
+    def default_representation
+      Representation.new(@al_asset.defaultRepresentation)
+    end
     alias_method :rep, :default_representation
 
+    # wrapper for valurForProperty
     {
       asset_type: ALAssetPropertyType, # ALAssetTypePhoto or ALAssetTypeVideo or ALAssetTypeUnknown
       location: ALAssetPropertyLocation,
       duration: ALAssetPropertyDuration, # for video
       orientation: ALAssetPropertyOrientation,
       date: ALAssetPropertyDate,
-      al_representation_utis: ALAssetPropertyRepresentations,
+      representation_utis: ALAssetPropertyRepresentations,
       urls: ALAssetPropertyURLs,
       url: ALAssetPropertyAssetURL
     }.each do |method_name, property_name|
@@ -51,21 +64,74 @@ class MotionAssetTree
     end
     alias_method :reps, :representations
 
-    # – setImageData:metadata:completionBlock:
-    def set_image_data()
-
-    end
-
-    # – setVideoAtPath:completionBlock:
-    def set_video_at_path()
-
-    end
-
+    # create (save to new asset)
     # – writeModifiedImageDataToSavedPhotosAlbum:metadata:completionBlock:
-    def update()
+    # – writeModifiedVideoAtPathToSavedPhotosAlbum:completionBlock:
+    def create(source, metadata = nil, &block) 
+      if source.kind_of? NSURL
+        create_by_video(source) {|asset, error| block.call(asset, error) }
+      else
+        create_by_image(source, metadata) {|asset, error| block.call(asset, error) }
+      end
     end
-    
-    #– writeModifiedVideoAtPathToSavedPhotosAlbum:completionBlock:
+
+    def create_by_image(image_data, metadata, &block)
+      @al_asset.writeModifiedImageDataToSavedPhotosAlbum(
+        source, 
+        metadata: metadata,
+        completionBlock: lambda {|asset_url, error|
+          # should reload?
+          asset = self.new(@al_asset) if asset_url
+          block.call(asset, error)
+        }
+      )
+    end
+
+    def create_by_video(video_path, &block)
+      @al_asset.writeModifiedVideoAtPathToSavedPhotosAlbum(
+        video_path,
+        completionBlock: lambda {|asset_url, error|
+          # should reload?
+          asset = self.new(@al_asset) if asset_url
+          block.call(asset, error)
+        }
+      )
+    end
+
+    # update (save to same asset. need editable flag)
+    # – setImageData:metadata:completionBlock:
+    # – setVideoAtPath:completionBlock:
+    def update(source, metadata = nil, &block)
+      if source.kind_of? NSURL
+        update_by_video(source) {|asset, error| block.call(asset, error) }
+      else
+        update_by_image(source, metadata) {|asset, error| block.call(asset, error) }
+      end
+    end
+
+    def update_by_image(image_data, metadata, &block)
+      @al_asset.setImageData(
+        source, 
+        metadata: metadata,
+        completionBlock: lambda {|asset_url, error|
+          # should reload?
+          asset = self.new(@al_asset) if asset_url
+          block.call(asset, error)
+        }
+      )
+    end
+
+    def update_by_video(video_path, &block)
+      @al_asset.setVideoAtPath(
+        video_path,
+        completionBlock: lambda {|asset_url, error|
+          # should reload?
+          asset = self.new(@al_asset) if asset_url
+          block.call(asset, error)
+        }
+      )
+    end
+
   end
 end
 
