@@ -12,6 +12,14 @@ class MotionAssetTree
       @representations ||= Representations.new(self)
     end
 
+    def self.asset_types
+      {
+        :photo => ALAssetTypePhoto,
+        :video => ALAssetTypeVideo,
+        :unknown => ALAssetTypeUnknown
+      }
+    end
+
     # TODO support NSData and NSURL(video)
     #– writeImageToSavedPhotosAlbum:orientation:completionBlock:
     #– writeImageDataToSavedPhotosAlbum:metadata:completionBlock:
@@ -23,29 +31,6 @@ class MotionAssetTree
       else
         self.create_by_cg_image(source, meta) do |asset, error|
           block.call(asset, error)
-        end
-      end
-    end
-
-    def self.create_by_cg_image(cg_image, meta, &block)
-      App.al_asset_library.writeImageToSavedPhotosAlbum(
-        cg_image,
-        metadata: meta,
-        completionBlock: self.completion_block_for_create(block)
-      )
-    end
-
-    def self.create_by_video_path(video_path_url, &block)
-      App.al_asset_library.writeVideoAtPathToSavedPhotosAlbum(
-        video_path_url,
-        completionBlock:  self.completion_block_for_create(block)
-      )
-    end
-
-    def self.completion_block_for_create(callback)
-      Proc.new do |asset_url, error|
-        self.find_by_url(asset_url) do |asset, error|
-          callback.call(asset, error)
         end
       end
     end
@@ -65,7 +50,7 @@ class MotionAssetTree
 
     # wrapper method
     def video_compatible?(video_path_url)
-      APp.al_asset_library.videoAtPathIsCompatibleWithSavedPhotosAlbum(video_path_url)
+      App.al_asset_library.videoAtPathIsCompatibleWithSavedPhotosAlbum(video_path_url)
     end
 
     [:thumbnail, :aspectRatioThumbnail].each do |method_name|
@@ -91,7 +76,7 @@ class MotionAssetTree
 
     # wrapper for valurForProperty
     {
-      asset_type: ALAssetPropertyType, # ALAssetTypePhoto or ALAssetTypeVideo or ALAssetTypeUnknown
+      asset_type: Asset.asset_types.key(ALAssetPropertyType),
       location: ALAssetPropertyLocation,
       duration: ALAssetPropertyDuration, # for video
       orientation: ALAssetPropertyOrientation,
@@ -112,66 +97,103 @@ class MotionAssetTree
     def save(source, metadata = nil, &block) 
       case self.asset_type
       when ALAssetTypePhoto
-        create_by_image(source, metadata) {|asset, error| block.call(asset, error) }
+        create_by_image_data(source, metadata) {|asset, error| block.call(asset, error) }
       when
-        create_by_video(source) {|asset, error| block.call(asset, error) }
+        create_by_video_path(source) {|asset, error| block.call(asset, error) }
       else
         raise "ALAssetTypeUnknown"
       end
     end
 
-    def create_by_image(image_data, metadata, &block)
-      @al_asset.writeModifiedImageDataToSavedPhotosAlbum(
-        source, 
-        metadata: metadata,
-        completionBlock: completion_block_for_create(block)
-      )
-    end
-
-    def create_by_video(video_path, &block)
-      @al_asset.writeModifiedVideoAtPathToSavedPhotosAlbum(
-        video_path,
-        completionBlock: completion_block_for_create(block)
-      )
-    end
-
     # update (save to same asset. need editable flag)
     # – setImageData:metadata:completionBlock:
     # – setVideoAtPath:completionBlock:
+    #
+    # asset.overwrite(image_data, metadata) do |updated_asset, error|
+    #   asset = updated_asset
+    # end
+    #
     def overwrite(source, metadata = nil, &block)
       case self.asset_type
       when ALAssetTypePhoto
-        overwrite_by_image(source, metadata) {|asset, error| block.call(asset, error) }
+        overwrite_by_image_data(source, metadata) {|asset, error| block.call(asset, error) }
       when
-        overwrite_by_video(source) {|asset, error| block.call(asset, error) }
+        overwrite_by_video_path(source) {|asset, error| block.call(asset, error) }
       else
         raise "ALAssetTypeUnknown"
       end
     end
     alias_method :update, :overwrite
 
-    def overwrite_by_image(image_data, metadata, &block)
-      @al_asset.setImageData(
-        source, 
-        metadata: metadata,
-        completionBlock: completion_block_for_create(block)
+    private
+    def self.create_by_cg_image(cg_image, meta, &block)
+      if meta && meta.size == 1 && meta[:orientation]
+        App.al_asset_library.writeImageToSavedPhotosAlbum(
+          cg_image,
+          orientation: meta[:orientation],
+          completionBlock: self.completion_block_for_create(block)
+        )
+      else
+        App.al_asset_library.writeImageToSavedPhotosAlbum(
+          cg_image,
+          metadata: meta,
+          completionBlock: self.completion_block_for_create(block)
+        )
+      end
+    end
+
+    def self.create_by_image_data(image_data, meta, &block)
+      App.al_asset_library.writeImageDataToSavedPhotosAlbum(
+        image_data,
+        metadata: meta,
+        completionBlock: self.completion_block_for_create(block)
       )
     end
 
-    def overwrite_by_video(video_path, &block)
+    def self.create_by_video_path(video_path_url, &block)
+      App.al_asset_library.writeVideoAtPathToSavedPhotosAlbum(
+        video_path_url,
+        completionBlock: self.completion_block_for_create(block)
+      )
+    end
+
+    def self.completion_block_for_create(callback)
+      Proc.new do |asset_url, error|
+        self.find_by_url(asset_url) do |asset, error|
+          callback.call(asset, error)
+        end
+      end
+    end
+
+    def create_by_image_data(image_data, metadata, &block)
+      @al_asset.writeModifiedImageDataToSavedPhotosAlbum(
+        source, 
+        metadata: metadata,
+        completionBlock: self.class.completion_block_for_create(block)
+      )
+    end
+
+    def create_by_video_path(video_path, &block)
+      @al_asset.writeModifiedVideoAtPathToSavedPhotosAlbum(
+        video_path,
+        completionBlock: self.class.completion_block_for_create(block)
+      )
+    end
+
+    def overwrite_by_image_data(image_data, metadata, &block)
+      @al_asset.setImageData(
+        source, 
+        metadata: metadata,
+        completionBlock: self.class.completion_block_for_create(block)
+      )
+    end
+
+    def overwrite_by_video_path(video_path, &block)
       @al_asset.setVideoAtPath(
         video_path,
-        completionBlock: completion_block_for_create(block)
+        completionBlock: self.class.completion_block_for_create(block)
       )
     end
 
   end
 end
-
-__END__
-
-
-Accessing Representations
-– representationForUTI:
-Saving to the Saved Photos Album
-
