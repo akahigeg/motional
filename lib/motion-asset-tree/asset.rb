@@ -6,10 +6,17 @@ class MotionAssetTree
 
     def initialize(al_asset)
       @al_asset = al_asset
+      @representation = al_asset.defaultRepresentation
     end
 
     def representations
       # キャッシュ＆遅延読み込み
+    end
+    method_alias :reps, :representations
+
+    # reporesentation
+    def current_representation
+
     end
 
     def self.find_by_url(asset_url, &callback)

@@ -4,8 +4,8 @@ class MotionAssetTree
   class Assets < Array
     def initialize(group)
       @group = group
-      self.clear
-      # load_assets
+      # self.clear
+      load_assets
     end
 
     # TODO support NSData and NSURL(video)
@@ -58,11 +58,21 @@ class MotionAssetTree
       end
     end
 
-    def <<(asset)
+    # add
+    def push(asset)
       super
-      p "add asset"
       @group.al_asset_group.addAsset(asset.al_asset)
+      self
     end
+    alias_method "<<", :push
+
+    def unshift(asset)
+      super
+      @group.al_asset_group.addAsset(asset.al_asset)
+      self
+    end
+
+    # note: cannot remove ALAsset from ALAssetGroup
 
     def load_assets
       self.clear
