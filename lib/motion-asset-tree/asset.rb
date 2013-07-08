@@ -17,34 +17,57 @@ class MotionAssetTree
     #– writeImageDataToSavedPhotosAlbum:metadata:completionBlock:
     #– writeImageToSavedPhotosAlbum:metadata:completionBlock:
     #– writeVideoAtPathToSavedPhotosAlbum:completionBlock:
-    def self.create(source, meta, &callback)
-      # image => CGImage or NSData or NSURL(video)
+    def self.create(source, meta = nil, &block)
+      # source => CGImage or NSData or NSURL(video)
+      if source.kind_of? NSURL
+      else
+        self.create_by_cg_image(source, meta) do |asset, error|
+          block.call(asset, error)
+        end
+      end
+    end
+
+    def self.create_by_cg_image(cg_image, meta, &block)
       App.al_asset_library.writeImageToSavedPhotosAlbum(
-        source,
+        cg_image,
         metadata: meta,
-        completionBlock: lambda {|asset_url, error|
-          find_by_url(asset_url) do |asset, error|
-            callback.call(asset, error)
-          end
-        }
+        completionBlock: self.completion_block_for_create(block)
       )
     end
-    #– videoAtPathIsCompatibleWithSavedPhotosAlbum:
 
-    def self.find_by_url(asset_url, &callback)
+    def self.create_by_video_path(video_path_url, &block)
+      App.al_asset_library.writeVideoAtPathToSavedPhotosAlbum(
+        video_path_url,
+        completionBlock:  self.completion_block_for_create(block)
+      )
+    end
+
+    def self.completion_block_for_create(callback)
+      Proc.new do |asset_url, error|
+        self.find_by_url(asset_url) do |asset, error|
+          callback.call(asset, error)
+        end
+      end
+    end
+
+    def self.find_by_url(asset_url, &block)
       App.al_asset_library.assetForURL(
         asset_url, 
         resultBlock: lambda {|al_asset|
           asset = self.new(al_asset)
-          callback.call(asset, nil)
+          block.call(asset, nil)
         }, 
         failureBlock: lambda {|error|
-          callback.call(nil, error)
+          block.call(nil, error)
         }
       )
     end
 
     # wrapper method
+    def video_compatible?(video_path_url)
+      APp.al_asset_library.videoAtPathIsCompatibleWithSavedPhotosAlbum(video_path_url)
+    end
+
     [:thumbnail, :aspectRatioThumbnail].each do |method_name|
        underscored_method_name = method_name.gsub(/([A-Z])/){|m| "_#{m}" }.downcase
        define_method(underscored_method_name) do 
@@ -101,22 +124,14 @@ class MotionAssetTree
       @al_asset.writeModifiedImageDataToSavedPhotosAlbum(
         source, 
         metadata: metadata,
-        completionBlock: lambda {|asset_url, error|
-          # should reload?
-          asset = self.new(@al_asset) if asset_url
-          block.call(asset, error)
-        }
+        completionBlock: completion_block_for_create(block)
       )
     end
 
     def create_by_video(video_path, &block)
       @al_asset.writeModifiedVideoAtPathToSavedPhotosAlbum(
         video_path,
-        completionBlock: lambda {|asset_url, error|
-          # should reload?
-          asset = self.new(@al_asset) if asset_url
-          block.call(asset, error)
-        }
+        completionBlock: completion_block_for_create(block)
       )
     end
 
@@ -139,22 +154,14 @@ class MotionAssetTree
       @al_asset.setImageData(
         source, 
         metadata: metadata,
-        completionBlock: lambda {|asset_url, error|
-          # should reload?
-          asset = self.new(@al_asset) if asset_url
-          block.call(asset, error)
-        }
+        completionBlock: completion_block_for_create(block)
       )
     end
 
     def overwrite_by_video(video_path, &block)
       @al_asset.setVideoAtPath(
         video_path,
-        completionBlock: lambda {|asset_url, error|
-          # should reload?
-          asset = self.new(@al_asset) if asset_url
-          block.call(asset, error)
-        }
+        completionBlock: completion_block_for_create(block)
       )
     end
 
