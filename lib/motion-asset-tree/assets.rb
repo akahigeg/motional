@@ -58,6 +58,12 @@ class MotionAssetTree
       end
     end
 
+    def <<(asset)
+      super
+      p "add asset"
+      @group.al_asset_group.addAsset(asset.al_asset)
+    end
+
     def load_assets
       self.clear
       self.all do |asset, index, stop|

@@ -7,6 +7,7 @@ class MotionAssetTree
       load_groups
     end
 
+    # TODO: エイリアスを残した本体はGroupに移動させる
     def find_by_url(group_url)
       @al_asset_library.groupForURL(
         group_url, 
