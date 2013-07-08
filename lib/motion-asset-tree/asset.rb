@@ -10,19 +10,7 @@ class MotionAssetTree
     end
 
     def representations
-      # キャッシュ＆遅延読み込み
-    end
-    alias_method :reps, :representations
-
-    def default_representation
-      # 透過的アクセス
-
-    end
-    alias_method :rep, :default_representation
-
-    # reporesentation
-    def current_representation
-
+      @representations ||= Representations.new(self)
     end
 
     def self.find_by_url(asset_url, &callback)
@@ -38,33 +26,54 @@ class MotionAssetTree
         }
       )
     end
+
+    [:editable, :originalAsset, :defaultRepresentation, 
+     :thumbnail, :aspectRatioThumbnail].each do |method_name|
+       underscored_method_name = method_name.gsub(/([A-Z])/){|m| "_#{m}" }.downcase
+       define_method(underscored_method_name) do 
+         self.al_asset_representation.send(method_name)
+       end
+    end
+    alias_method :rep, :default_representation
+
+    {
+      asset_type: ALAssetPropertyType, # ALAssetTypePhoto or ALAssetTypeVideo or ALAssetTypeUnknown
+      location: ALAssetPropertyLocation,
+      duration: ALAssetPropertyDuration, # for video
+      orientation: ALAssetPropertyOrientation,
+      date: ALAssetPropertyDate,
+      al_representations: ALAssetPropertyRepresentations,
+      urls: ALAssetPropertyURLs,
+      url: ALAssetPropertyAssetURL
+    }.each do |method_name, property_name|
+      define_method(method_name) do 
+        @al_asset_group.valueForProperty(property_name)
+      end
+    end
+    alias_method :reps, :representations
+
+    # – setImageData:metadata:completionBlock:
+    def set_image_data()
+
+    end
+
+    # – setVideoAtPath:completionBlock:
+    def set_video_at_path()
+
+    end
+
+    # – writeModifiedImageDataToSavedPhotosAlbum:metadata:completionBlock:
+    def update()
+    end
+    
+    #– writeModifiedVideoAtPathToSavedPhotosAlbum:completionBlock:
   end
 end
 
 __END__
 
-NSString *const ALAssetPropertyType;
-NSString *const ALAssetPropertyLocation;
-NSString *const ALAssetPropertyDuration;
-NSString *const ALAssetPropertyOrientation;
-NSString *const ALAssetPropertyDate;
-NSString *const ALAssetPropertyRepresentations;
-NSString *const ALAssetPropertyURLs;
-NSString *const ALAssetPropertyAssetURL;
 
-Asset Properties
-– valueForProperty:
-  editable  property
-  originalAsset  property
 Accessing Representations
-– defaultRepresentation
 – representationForUTI:
-– thumbnail
-– aspectRatioThumbnail
-Setting New Image and Video Data
-– setImageData:metadata:completionBlock:
-– setVideoAtPath:completionBlock:
 Saving to the Saved Photos Album
-– writeModifiedImageDataToSavedPhotosAlbum:metadata:completionBlock:
-– writeModifiedVideoAtPathToSavedPhotosAlbum:completionBlock:
 

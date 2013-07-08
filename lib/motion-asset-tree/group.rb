@@ -55,7 +55,6 @@ class MotionAssetTree
     }.each do |method_name, property_name|
       define_method(method_name) do 
         @al_asset_group.valueForProperty(property_name)
-
       end
     end
   end
