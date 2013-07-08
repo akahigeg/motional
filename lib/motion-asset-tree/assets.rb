@@ -86,7 +86,5 @@ class MotionAssetTree
     def reload
       load_assets
     end
-
-    # each
   end
 end

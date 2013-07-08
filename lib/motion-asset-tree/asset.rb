@@ -12,7 +12,7 @@ class MotionAssetTree
     def representations
       # キャッシュ＆遅延読み込み
     end
-    method_alias :reps, :representations
+    alias_method :reps, :representations
 
     # reporesentation
     def current_representation

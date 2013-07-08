@@ -7,6 +7,19 @@ class MotionAssetTree
       @al_asset_group = al_asset_group
     end
 
+    def self.find_by_url(group_url)
+      App.al_asset_library.groupForURL(
+        group_url, 
+        resultBlock: lambda { |al_asset_group|
+          group = Group.new(al_asset_group) if !al_asset_group.nil?
+          callback.call(group, nil)
+        },
+        resultBlock: lambda { |error|
+          callback.call(nil, error)
+        }
+      )
+    end
+
     def assets
       @assets ||= Assets.new(self)
       # キャッシュ＆遅延読み込み

@@ -7,18 +7,10 @@ class MotionAssetTree
       load_groups
     end
 
-    # TODO: エイリアスを残した本体はGroupに移動させる
-    def find_by_url(group_url)
-      @al_asset_library.groupForURL(
-        group_url, 
-        resultBlock: lambda { |al_asset_group|
-          group = Group.new(al_asset_group) if !al_asset_group.nil?
-          callback.call(group, nil)
-        },
-        resultBlock: lambda { |error|
-          callback.call(nil, error)
-        }
-      )
+    def find_by_url(group_url, &block)
+      MotionAssetTree::Group.find_by_url(group_url) do |group, error|
+        block.call(group, error)
+      end
     end
 
     def create(name, &callback)
