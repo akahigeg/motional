@@ -62,16 +62,7 @@ end
 
 __END__
 
-– enumerateAssetsUsingBlock: => Assets
-– enumerateAssetsWithOptions:usingBlock: => Assets
-– enumerateAssetsAtIndexes:options:usingBlock: => Assets
-Adding Assets
-– addAsset: => Assets
-  editable
+
 Filtering
 – numberOfAssets => Assets
 – setAssetsFilter: => Assets
-Accessing Properties
-– valueForProperty:
-– posterImage
-

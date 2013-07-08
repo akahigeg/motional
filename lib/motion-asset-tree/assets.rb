@@ -6,11 +6,14 @@ class MotionAssetTree
       @group = group
       # self.clear
       load_assets
+
+      @current_filter = :all
     end
 
     def create(image, meta, &block)
       Asset.create(image, meta) do |asset, error|
         block.call(asset, error)
+        reload
       end
     end
 
@@ -27,6 +30,7 @@ class MotionAssetTree
           lambda{|al_asset, index, stop| 
             asset = Asset.new(al_asset) if !al_asset.nil?
             block.call(asset, index, stop) 
+            unset_filter
           }
         )
       elsif options[:order]
@@ -36,6 +40,7 @@ class MotionAssetTree
           usingBlock: lambda {|al_asset, index, stop| 
             asset = Asset.new(al_asset) if !al_asset.nil?
             block.call(asset, index, stop) 
+            unset_filter
           }
         )
       elsif options[:indexset]
@@ -45,9 +50,20 @@ class MotionAssetTree
           usingBlock: lambda {|al_asset, index, stop| 
             asset = Asset.new(al_asset) if !al_asset.nil?
             block.call(asset, index, stop) 
+            unset_filter
           }
         )
       end
+    end
+
+    def count
+      @group.al_asset_group.numberOfAssets
+      unset_filter
+    end
+
+    def filter(filter_name)
+      set_filter(filter_name)
+      self
     end
 
     # add
@@ -77,6 +93,26 @@ class MotionAssetTree
 
     def reload
       load_assets
+    end
+    
+    private
+    # filter_name :all, :photo, :video
+    def set_filter(filter_name)
+      @current_filter = filter_name
+      @group.al_asset_group.setAssetsFilter(filters[asset_filter_nane.to_sym])
+    end
+
+    def unset_filter
+      @group.al_asset_group.setAssetsFilter(asset_filters[:all])
+      @current_filter = :all
+    end
+
+    def asset_filters
+      {
+        :all => ALAssetsFilter.allAssets,
+        :photo => ALAssetsFilter.allPhotos,
+        :video => ALAssetsFilter.allVideos,
+      }
     end
   end
 end

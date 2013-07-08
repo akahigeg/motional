@@ -18,4 +18,8 @@ class MotionAssetTree
   def self.authorized?
     ALAssetsLibrary.authorizationStatus == ALAuthorizationStatusAuthorized
   end
+
+  def self.disable_shared_photo_streams_support
+    ALAssetsLibrary.disableSharedPhotoStreamsSupport
+  end
 end

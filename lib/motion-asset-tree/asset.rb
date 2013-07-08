@@ -13,6 +13,10 @@ class MotionAssetTree
     end
 
     # TODO support NSData and NSURL(video)
+    #– writeImageToSavedPhotosAlbum:orientation:completionBlock:
+    #– writeImageDataToSavedPhotosAlbum:metadata:completionBlock:
+    #– writeImageToSavedPhotosAlbum:metadata:completionBlock:
+    #– writeVideoAtPathToSavedPhotosAlbum:completionBlock:
     def self.create(image, meta, &callback)
       # image => CGImage or NSData or NSURL(video)
       App.al_asset_library.writeImageToSavedPhotosAlbum(
@@ -25,6 +29,7 @@ class MotionAssetTree
         }
       )
     end
+    #– videoAtPathIsCompatibleWithSavedPhotosAlbum:
 
     def self.find_by_url(asset_url, &callback)
       App.al_asset_library.assetForURL(
@@ -82,10 +87,13 @@ class MotionAssetTree
     # – writeModifiedImageDataToSavedPhotosAlbum:metadata:completionBlock:
     # – writeModifiedVideoAtPathToSavedPhotosAlbum:completionBlock:
     def save(source, metadata = nil, &block) 
-      if source.kind_of? NSURL
+      case self.asset_type
+      when ALAssetTypePhoto
+        create_by_image(source, metadata) {|asset, error| block.call(asset, error) }
+      when
         create_by_video(source) {|asset, error| block.call(asset, error) }
       else
-        create_by_image(source, metadata) {|asset, error| block.call(asset, error) }
+        raise "ALAssetTypeUnknown"
       end
     end
 
@@ -116,10 +124,13 @@ class MotionAssetTree
     # – setImageData:metadata:completionBlock:
     # – setVideoAtPath:completionBlock:
     def overwrite(source, metadata = nil, &block)
-      if source.kind_of? NSURL
+      case self.asset_type
+      when ALAssetTypePhoto
+        overwrite_by_image(source, metadata) {|asset, error| block.call(asset, error) }
+      when
         overwrite_by_video(source) {|asset, error| block.call(asset, error) }
       else
-        overwrite_by_image(source, metadata) {|asset, error| block.call(asset, error) }
+        raise "ALAssetTypeUnknown"
       end
     end
     alias_method :update, :overwrite
