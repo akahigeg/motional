@@ -13,17 +13,10 @@ class MotionAssetTree
       end
     end
 
-    def create(name, &callback)
-      @al_asset_library.addAssetsGroupAlbumWithName(
-        name, 
-        resultBlock: lambda { |al_asset_group|
-          group = Group.new(al_asset_group) if !al_asset_group.nil?
-          callback.call(group, nil)
-        },
-        failureBlock: lambda { |error|
-          callback.call(nil, error)
-        }
-      )
+    def create(name, &block)
+      Group.create(name) do |group, error|
+        block.call(group, error)
+      end
     end
 
     def all(&callback)

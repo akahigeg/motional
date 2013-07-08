@@ -15,5 +15,5 @@ require 'motion-asset-tree'
 
 Motion::Project::App.setup do |app|
   app.name = 'MotionAssetTree'
-  app.redgreen_style = :focused # :focused, :full
+  app.redgreen_style = :full # :focused, :full
 end
