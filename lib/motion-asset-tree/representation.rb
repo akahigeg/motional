@@ -8,6 +8,7 @@ class MotionAssetTree
       @al_asset_representation = al_asset_representation
     end
 
+    # wrapper method
     def cg_image_with_options(options)
       self.al_asset_representation.CGImageWithOptions(options)
     end

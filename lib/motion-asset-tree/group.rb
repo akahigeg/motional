@@ -7,9 +7,9 @@ class MotionAssetTree
       @al_asset_group = al_asset_group
     end
 
-    def self.create(name, &block)
+    def self.create(group_name, &block)
       App.al_asset_library.addAssetsGroupAlbumWithName(
-        name, 
+        group_name, 
         resultBlock: lambda { |al_asset_group|
           group = Group.new(al_asset_group) if !al_asset_group.nil?
           block.call(group, nil)
@@ -35,9 +35,9 @@ class MotionAssetTree
 
     def assets
       @assets ||= Assets.new(self)
-      # キャッシュ＆遅延読み込み
     end
 
+    # wrapper method
     def editable?
       @al_asset_group.editable?
     end
@@ -59,10 +59,3 @@ class MotionAssetTree
     end
   end
 end
-
-__END__
-
-
-Filtering
-– numberOfAssets => Assets
-– setAssetsFilter: => Assets

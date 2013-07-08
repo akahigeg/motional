@@ -1,17 +1,16 @@
 # -*- encoding : utf-8 -*-
 
 class MotionAssetTree
-  class Assets < Array
+  class Assets < Children
     def initialize(group)
       @group = group
-      # self.clear
-      load_assets
+      load_entries
 
       @current_filter = :all
     end
 
-    def create(image, meta, &block)
-      Asset.create(image, meta) do |asset, error|
+    def create(source, meta, &block)
+      Asset.create(source, meta) do |asset, error|
         block.call(asset, error)
         reload
       end
@@ -81,19 +80,6 @@ class MotionAssetTree
     end
 
     # note: cannot remove ALAsset from ALAssetGroup
-
-    def load_assets
-      self.clear
-      self.all do |asset, index, stop|
-        if !asset.nil?
-          self << asset
-        end
-      end
-    end
-
-    def reload
-      load_assets
-    end
     
     private
     # filter_name :all, :photo, :video

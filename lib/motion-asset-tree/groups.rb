@@ -1,10 +1,10 @@
 # -*- encoding : utf-8 -*-
 
 class MotionAssetTree
-  class Groups < Array
+  class Groups < Children
     def initialize(al_asset_library)
       @al_asset_library = al_asset_library
-      load_groups
+      load_entries
     end
 
     def find_by_url(group_url, &block)
@@ -13,8 +13,8 @@ class MotionAssetTree
       end
     end
 
-    def create(name, &block)
-      MotionAssetTree::Group.create(name) do |group, error|
+    def create(group_name, &block)
+      MotionAssetTree::Group.create(group_name) do |group, error|
         block.call(group, error)
       end
     end
@@ -32,17 +32,5 @@ class MotionAssetTree
       )
     end
 
-    def load_groups
-      self.clear
-      self.all do |group, error|
-        if error.nil? && !group.nil?
-          self << group
-        end
-      end
-    end
-
-    def reload
-      load_groups
-    end
   end
 end

@@ -17,10 +17,10 @@ class MotionAssetTree
     #– writeImageDataToSavedPhotosAlbum:metadata:completionBlock:
     #– writeImageToSavedPhotosAlbum:metadata:completionBlock:
     #– writeVideoAtPathToSavedPhotosAlbum:completionBlock:
-    def self.create(image, meta, &callback)
+    def self.create(source, meta, &callback)
       # image => CGImage or NSData or NSURL(video)
       App.al_asset_library.writeImageToSavedPhotosAlbum(
-        image,
+        source,
         metadata: meta,
         completionBlock: lambda {|asset_url, error|
           find_by_url(asset_url) do |asset, error|
