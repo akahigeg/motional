@@ -95,21 +95,22 @@ class MotionAssetTree
        end
      end
 
-    # create (save to new asset)
+    # fork, save_new (save to new asset with original asset property)
     # – writeModifiedImageDataToSavedPhotosAlbum:metadata:completionBlock:
     # – writeModifiedVideoAtPathToSavedPhotosAlbum:completionBlock:
-    def save(source, metadata = nil, &block) 
+    def fork(source, metadata = nil, &block) 
       case self.asset_type
       when ALAssetTypePhoto
-        create_by_image_data(source, metadata) {|asset, error| block.call(asset, error) }
+        fork_by_image_data(source, metadata) {|asset, error| block.call(asset, error) }
       when
-        create_by_video_path(source) {|asset, error| block.call(asset, error) }
+        fork_by_video_path(source) {|asset, error| block.call(asset, error) }
       else
         raise "ALAssetTypeUnknown"
       end
     end
+    alias_method :save_new, :fork
 
-    # update (save to same asset. need editable flag)
+    # overwrite, update (save to same asset. need editable flag)
     # – setImageData:metadata:completionBlock:
     # – setVideoAtPath:completionBlock:
     #
@@ -170,7 +171,7 @@ class MotionAssetTree
       end
     end
 
-    def create_by_image_data(image_data, metadata, &block)
+    def fork_by_image_data(image_data, metadata, &block)
       @al_asset.writeModifiedImageDataToSavedPhotosAlbum(
         source, 
         metadata: metadata,
@@ -178,7 +179,7 @@ class MotionAssetTree
       )
     end
 
-    def create_by_video_path(video_path, &block)
+    def fork_by_video_path(video_path, &block)
       @al_asset.writeModifiedVideoAtPathToSavedPhotosAlbum(
         video_path,
         completionBlock: self.class.completion_block_for_create(block)
