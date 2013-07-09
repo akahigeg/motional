@@ -10,24 +10,21 @@ class MotionAssetTree
     def self.create(group_name, &block)
       @created_group = nil
       if block_given?
-        self.call_origin_create_method(group_name, block)
+        self.call_origin_create(group_name, block)
       else
-        Dispatch.wait_async { self.call_origin_create_method(group_name) }
+        Dispatch.wait_async { self.call_origin_create(group_name) }
         return @created_group
       end
     end
 
     def self.find_by_url(group_url)
-      App.asset_library.al_asset_library.groupForURL(
-        group_url, 
-        resultBlock: lambda { |al_asset_group|
-          group = Group.new(al_asset_group) if !al_asset_group.nil?
-          callback.call(group, nil)
-        },
-        resultBlock: lambda { |error|
-          callback.call(nil, error)
-        }
-      )
+      @found_group = nil
+      if block_given?
+        self.call_origin_find_by_url(group_url, block)
+      else
+        Dispatch.wait_async { self.call_origin_find_by_url(group_url) }
+        return @found_group
+      end
     end
 
     def self.find_by_name(group_name)
@@ -60,12 +57,25 @@ class MotionAssetTree
     end
 
     private
-    def self.call_origin_create_method(group_name, callback = nil)
+    def self.call_origin_create(group_name, callback = nil)
       App.asset_library.al_asset_library.addAssetsGroupAlbumWithName(
         group_name, 
         resultBlock: lambda { |al_asset_group|
           @created_group = Group.new(al_asset_group) if !al_asset_group.nil?
           callback.call(@created_group, nil) if callback
+        },
+        failureBlock: lambda { |error|
+          callback.call(nil, error) if callback
+        }
+      )
+    end
+
+    def self.call_origin_find_by_url(group_url, callback = nil)
+      App.asset_library.al_asset_library.groupForURL(
+        group_url, 
+        resultBlock: lambda { |al_asset_group|
+          @found_group = Group.new(al_asset_group) if !al_asset_group.nil?
+          callback.call(@found_group, nil) if callback
         },
         failureBlock: lambda { |error|
           callback.call(nil, error) if callback
