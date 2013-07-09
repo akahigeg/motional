@@ -22,7 +22,6 @@ class MotionAssetTree
       end
     end
 
-    # TODO: support IndexSet
     def all(options = nil, &block)
       if options.nil?
         @group.al_asset_group.enumerateAssetsUsingBlock(

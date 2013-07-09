@@ -20,7 +20,6 @@ class MotionAssetTree
       }
     end
 
-    # TODO support NSData and NSURL(video)
     #– writeImageToSavedPhotosAlbum:orientation:completionBlock:
     #– writeImageDataToSavedPhotosAlbum:metadata:completionBlock:
     #– writeImageToSavedPhotosAlbum:metadata:completionBlock:

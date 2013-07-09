@@ -8,16 +8,13 @@ class MotionAssetTree
     end
 
     def self.create(group_name, &block)
-      App.asset_library.al_asset_library.addAssetsGroupAlbumWithName(
-        group_name, 
-        resultBlock: lambda { |al_asset_group|
-          group = Group.new(al_asset_group) if !al_asset_group.nil?
-          block.call(group, nil)
-        },
-        failureBlock: lambda { |error|
-          block.call(nil, error)
-        }
-      )
+      @created_group = nil
+      if block_given?
+        self.call_origin_create_method(group_name, block)
+      else
+        Dispatch.wait_async { self.call_origin_create_method(group_name) }
+        return @created_group
+      end
     end
 
     def self.find_by_url(group_url)
@@ -60,6 +57,20 @@ class MotionAssetTree
       define_method(method_name) do 
         @al_asset_group.valueForProperty(property_name)
       end
+    end
+
+    private
+    def self.call_origin_create_method(group_name, callback = nil)
+      App.asset_library.al_asset_library.addAssetsGroupAlbumWithName(
+        group_name, 
+        resultBlock: lambda { |al_asset_group|
+          @created_group = Group.new(al_asset_group) if !al_asset_group.nil?
+          callback.call(@created_group, nil) if callback
+        },
+        failureBlock: lambda { |error|
+          callback.call(nil, error) if callback
+        }
+      )
     end
   end
 end

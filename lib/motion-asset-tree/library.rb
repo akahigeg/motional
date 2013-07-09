@@ -6,21 +6,31 @@ class App
   end
 end
 
+class Dispatch
+  def self.wait_async(&block)
+    @@async_done = false
+    queue_group = Dispatch::Group.new
+    queue = Dispatch::Queue.concurrent(:default) 
+
+    queue.async(queue_group) do 
+      block.call
+    end
+    queue_group.notify(queue) { @@async_done = true }
+
+    CFRunLoopRunInMode(KCFRunLoopDefaultMode, 0.1, false) while !@@async_done
+    # 'queue_group.wait' is not work well. why?
+  end
+end
+
+#
+# App.asset_library.saved_photos.assets.each do |asset|
+#   
+# end
+#
+#
 class MotionAssetTree
   def self.al_asset_library
     @@al_asset_library ||= ALAssetsLibrary.new
-  end
-
-  def self.loading
-    @@loading ||= false
-  end
-
-  def self.start_loading
-    @@loading = true
-  end
-
-  def self.finish_loading
-    @@loading = false
   end
 
   def al_asset_library
@@ -34,7 +44,7 @@ class MotionAssetTree
     @groups ||= Groups.new(self)
   end
 
-  def saved_photos_group
+  def saved_photos
     @groups.find {|g| g.name == 'Saved Photos'}
   end
 
