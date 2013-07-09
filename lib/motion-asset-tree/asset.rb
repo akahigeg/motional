@@ -36,7 +36,7 @@ class MotionAssetTree
     end
 
     def self.find_by_url(asset_url, &block)
-      App.al_asset_library.assetForURL(
+      App.asset_library.al_asset_library.assetForURL(
         asset_url, 
         resultBlock: lambda {|al_asset|
           asset = self.new(al_asset)
@@ -50,7 +50,7 @@ class MotionAssetTree
 
     # wrapper method
     def video_compatible?(video_path_url)
-      App.al_asset_library.videoAtPathIsCompatibleWithSavedPhotosAlbum(video_path_url)
+      App.asset_library.al_asset_library.videoAtPathIsCompatibleWithSavedPhotosAlbum(video_path_url)
     end
 
     [:thumbnail, :aspectRatioThumbnail].each do |method_name|
@@ -128,13 +128,13 @@ class MotionAssetTree
     private
     def self.create_by_cg_image(cg_image, meta, &block)
       if meta && meta.size == 1 && meta[:orientation]
-        App.al_asset_library.writeImageToSavedPhotosAlbum(
+        App.asset_library.al_asset_library.writeImageToSavedPhotosAlbum(
           cg_image,
           orientation: meta[:orientation],
           completionBlock: self.completion_block_for_create(block)
         )
       else
-        App.al_asset_library.writeImageToSavedPhotosAlbum(
+        App.asset_library.al_asset_library.writeImageToSavedPhotosAlbum(
           cg_image,
           metadata: meta,
           completionBlock: self.completion_block_for_create(block)
@@ -143,7 +143,7 @@ class MotionAssetTree
     end
 
     def self.create_by_image_data(image_data, meta, &block)
-      App.al_asset_library.writeImageDataToSavedPhotosAlbum(
+      App.asset_library.al_asset_library.writeImageDataToSavedPhotosAlbum(
         image_data,
         metadata: meta,
         completionBlock: self.completion_block_for_create(block)
@@ -151,7 +151,7 @@ class MotionAssetTree
     end
 
     def self.create_by_video_path(video_path_url, &block)
-      App.al_asset_library.writeVideoAtPathToSavedPhotosAlbum(
+      App.asset_library.al_asset_library.writeVideoAtPathToSavedPhotosAlbum(
         video_path_url,
         completionBlock: self.completion_block_for_create(block)
       )

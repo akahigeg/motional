@@ -1,18 +1,25 @@
 # -*- encoding : utf-8 -*-
 
 class App
-  def self.al_asset_library
-    @@al_asset_library ||= ALAssetsLibrary.new
+  def self.asset_library
+    @@asset_library ||= MotionAssetTree.new
   end
 end
 
 class MotionAssetTree
+  def self.al_asset_library
+    @@al_asset_library ||= ALAssetsLibrary.new
+  end
+
+  def al_asset_library
+    self.class.al_asset_library
+  end
+
   def initialize
-    @al_asset_library = App.al_asset_library
   end
 
   def groups
-    @groups ||= Groups.new(@al_asset_library)
+    @groups ||= Groups.new(self)
   end
 
   def self.authorized?

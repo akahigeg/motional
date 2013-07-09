@@ -2,8 +2,8 @@
 
 class MotionAssetTree
   class Groups < Children
-    def initialize(al_asset_library)
-      @al_asset_library = al_asset_library
+    def initialize(asset_library)
+      @asset_library = asset_library
       load_entries
     end
 
@@ -20,7 +20,7 @@ class MotionAssetTree
     end
 
     def all(&callback)
-      @al_asset_library.enumerateGroupsWithTypes(
+      @asset_library.al_asset_library.enumerateGroupsWithTypes(
         ALAssetsGroupAll,
         usingBlock: lambda { |al_asset_group, stop|
           group = Group.new(al_asset_group) if !al_asset_group.nil?

@@ -8,7 +8,7 @@ class MotionAssetTree
     end
 
     def self.create(group_name, &block)
-      App.al_asset_library.addAssetsGroupAlbumWithName(
+      App.asset_library.al_asset_library.addAssetsGroupAlbumWithName(
         group_name, 
         resultBlock: lambda { |al_asset_group|
           group = Group.new(al_asset_group) if !al_asset_group.nil?
@@ -21,7 +21,7 @@ class MotionAssetTree
     end
 
     def self.find_by_url(group_url)
-      App.al_asset_library.groupForURL(
+      App.asset_library.al_asset_library.groupForURL(
         group_url, 
         resultBlock: lambda { |al_asset_group|
           group = Group.new(al_asset_group) if !al_asset_group.nil?
@@ -31,6 +31,9 @@ class MotionAssetTree
           callback.call(nil, error)
         }
       )
+    end
+
+    def self.find_by_name(group_name)
     end
 
     def assets
