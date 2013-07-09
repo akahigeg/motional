@@ -17,7 +17,7 @@ class MotionAssetTree
       end
     end
 
-    def self.find_by_url(group_url)
+    def self.find_by_url(group_url, &block)
       @found_group = nil
       if block_given?
         self.call_origin_find_by_url(group_url, block)
@@ -29,6 +29,16 @@ class MotionAssetTree
 
     def self.find_by_name(group_name)
       App.asset_library.groups.select{|g| g.name == group_name }.first
+    end
+
+    def self.all(&block)
+      @all_groups = []
+      if block_given?
+        call_origin_all(block)
+      else
+        Dispatch.wait_async { self.call_origin_all }
+        return @all_groups
+      end
     end
 
     def assets
@@ -76,6 +86,22 @@ class MotionAssetTree
         resultBlock: lambda { |al_asset_group|
           @found_group = Group.new(al_asset_group) if !al_asset_group.nil?
           callback.call(@found_group, nil) if callback
+        },
+        failureBlock: lambda { |error|
+          callback.call(nil, error) if callback
+        }
+      )
+    end
+
+    def self.call_origin_all(callback = nil)
+      App.asset_library.al_asset_library.enumerateGroupsWithTypes(
+        ALAssetsGroupAll,
+        usingBlock: lambda { |al_asset_group, stop|
+          if !al_asset_group.nil?
+            group = Group.new(al_asset_group) 
+            @all_groups << group
+            callback.call(group, nil) if callback
+          end
         },
         failureBlock: lambda { |error|
           callback.call(nil, error) if callback
