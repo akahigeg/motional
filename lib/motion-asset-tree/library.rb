@@ -11,6 +11,18 @@ class MotionAssetTree
     @@al_asset_library ||= ALAssetsLibrary.new
   end
 
+  def self.loading
+    @@loading ||= false
+  end
+
+  def self.start_loading
+    @@loading = true
+  end
+
+  def self.finish_loading
+    @@loading = false
+  end
+
   def al_asset_library
     self.class.al_asset_library
   end
@@ -20,6 +32,10 @@ class MotionAssetTree
 
   def groups
     @groups ||= Groups.new(self)
+  end
+
+  def saved_photos_group
+    @groups.find {|g| g.name == 'Saved Photos'}
   end
 
   def self.authorized?

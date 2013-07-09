@@ -28,7 +28,7 @@ class MotionAssetTree
         @group.al_asset_group.enumerateAssetsUsingBlock(
           lambda{|al_asset, index, stop| 
             asset = Asset.new(al_asset) if !al_asset.nil?
-            block.call(asset, index, stop) 
+            block.call(asset, nil) # not use 'index' and 'stop'
             unset_filter
           }
         )
@@ -38,7 +38,7 @@ class MotionAssetTree
           enum_option, 
           usingBlock: lambda {|al_asset, index, stop| 
             asset = Asset.new(al_asset) if !al_asset.nil?
-            block.call(asset, index, stop) 
+            block.call(asset, nil) 
             unset_filter
           }
         )
@@ -48,7 +48,7 @@ class MotionAssetTree
           options: enum_option, 
           usingBlock: lambda {|al_asset, index, stop| 
             asset = Asset.new(al_asset) if !al_asset.nil?
-            block.call(asset, index, stop) 
+            block.call(asset, nil) 
             unset_filter
           }
         )

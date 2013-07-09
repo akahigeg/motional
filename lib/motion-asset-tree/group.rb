@@ -34,6 +34,7 @@ class MotionAssetTree
     end
 
     def self.find_by_name(group_name)
+      App.asset_library.groups.select{|g| g.name == group_name }.first
     end
 
     def assets
