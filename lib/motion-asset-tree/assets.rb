@@ -10,9 +10,13 @@ class MotionAssetTree
     end
 
     def create(source, meta, &block)
-      Asset.create(source, meta) do |asset, error|
-        block.call(asset, error)
-        reload
+      if block_given?
+        Asset.create(source, meta) do |asset, error|
+          block.call(asset, error)
+          reload
+        end
+      else
+        Asset.create(source, meta)
       end
     end
 

@@ -20,17 +20,14 @@ class MotionAssetTree
       }
     end
 
-    #– writeImageToSavedPhotosAlbum:orientation:completionBlock:
-    #– writeImageDataToSavedPhotosAlbum:metadata:completionBlock:
-    #– writeImageToSavedPhotosAlbum:metadata:completionBlock:
-    #– writeVideoAtPathToSavedPhotosAlbum:completionBlock:
+    # @param source => CGImage or NSData or NSURL(video)
     def self.create(source, meta = nil, &block)
-      # source => CGImage or NSData or NSURL(video)
-      if source.kind_of? NSURL
+      @created_asset = nil
+      if block_given?
+        self.create_by_cg_image(source, meta, block)
       else
-        self.create_by_cg_image(source, meta) do |asset, error|
-          block.call(asset, error)
-        end
+        Dispatch.wait_async { self.create_by_cg_image(source, meta) }
+        return @created_asset
       end
     end
 
@@ -69,7 +66,7 @@ class MotionAssetTree
     end
 
     def default_representation
-      Representation.new(@al_asset.defaultRepresentation)
+      @default_representation ||= Representation.new(@al_asset.defaultRepresentation)
     end
     alias_method :rep, :default_representation
 
@@ -89,6 +86,14 @@ class MotionAssetTree
       end
     end
     alias_method :reps, :representations
+
+    # call through to the default representation's methods
+    [:full_resolution_image, :full_screen_image, :scale, 
+     :dimensions, :filename, :size, :metadata].each do |method_name|
+       define_method(method_name) do 
+         default_representation.send(method_name)
+       end
+     end
 
     # create (save to new asset)
     # – writeModifiedImageDataToSavedPhotosAlbum:metadata:completionBlock:
@@ -125,18 +130,18 @@ class MotionAssetTree
     alias_method :update, :overwrite
 
     private
-    def self.create_by_cg_image(cg_image, meta, &block)
+    def self.create_by_cg_image(cg_image, meta, callback = nil)
       if meta && meta.size == 1 && meta[:orientation]
         App.asset_library.al_asset_library.writeImageToSavedPhotosAlbum(
           cg_image,
           orientation: meta[:orientation],
-          completionBlock: self.completion_block_for_create(block)
+          completionBlock: self.completion_block_for_create(callback)
         )
       else
         App.asset_library.al_asset_library.writeImageToSavedPhotosAlbum(
           cg_image,
           metadata: meta,
-          completionBlock: self.completion_block_for_create(block)
+          completionBlock: self.completion_block_for_create(callback)
         )
       end
     end
@@ -156,10 +161,11 @@ class MotionAssetTree
       )
     end
 
-    def self.completion_block_for_create(callback)
+    def self.completion_block_for_create(callback = nil)
       Proc.new do |asset_url, error|
         self.find_by_url(asset_url) do |asset, error|
-          callback.call(asset, error)
+          @created_asset = asset
+          callback.call(asset, error) if callback
         end
       end
     end

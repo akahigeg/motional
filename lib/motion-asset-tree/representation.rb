@@ -35,6 +35,5 @@ class MotionAssetTree
          self.al_asset_representation.send(method_name)
        end
     end
-
   end
 end

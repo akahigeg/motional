@@ -6,18 +6,16 @@ class App
   end
 end
 
-class Dispatch
-  def self.wait_async(&block)
-    @@async_done = false
+module Dispatch
+  def self.wait_async(duration = 0.1, &block)
+    @async_done = false
     queue_group = Dispatch::Group.new
     queue = Dispatch::Queue.concurrent(:default) 
 
-    queue.async(queue_group) do 
-      block.call
-    end
-    queue_group.notify(queue) { @@async_done = true }
+    queue.async(queue_group) { block.call }
+    queue_group.notify(queue) { @async_done = true }
 
-    CFRunLoopRunInMode(KCFRunLoopDefaultMode, 0.1, false) while !@@async_done
+    CFRunLoopRunInMode(KCFRunLoopDefaultMode, duration, false) while !@async_done
     # 'queue_group.wait' is not work well. why?
   end
 end
