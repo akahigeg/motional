@@ -132,7 +132,7 @@ class MotionAssetTree
 
     private
     def self.create_by_cg_image(cg_image, meta, callback = nil)
-      if meta && meta.size == 1 && meta[:orientation]
+      if self.orientation?(meta)
         App.asset_library.al_asset_library.writeImageToSavedPhotosAlbum(
           cg_image,
           orientation: meta[:orientation],
@@ -145,6 +145,10 @@ class MotionAssetTree
           completionBlock: self.completion_block_for_create(callback)
         )
       end
+    end
+
+    def self.orientation?(meta)
+      meta && meta.size == 1 && meta[:orientation]
     end
 
     def self.create_by_image_data(image_data, meta, &block)

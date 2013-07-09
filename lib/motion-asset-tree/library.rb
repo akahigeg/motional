@@ -21,11 +21,6 @@ module Dispatch
 end
 
 #
-# App.asset_library.saved_photos.assets.each do |asset|
-#   
-# end
-#
-#
 class MotionAssetTree
   def self.al_asset_library
     @@al_asset_library ||= ALAssetsLibrary.new
@@ -43,7 +38,7 @@ class MotionAssetTree
   end
 
   def saved_photos
-    @groups.find {|g| g.name == 'Saved Photos'}
+    groups.find_by_name('Saved Photos')
   end
 
   def self.authorized?

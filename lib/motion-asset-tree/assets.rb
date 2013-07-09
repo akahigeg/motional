@@ -13,10 +13,12 @@ class MotionAssetTree
       if block_given?
         Asset.create(source, meta) do |asset, error|
           block.call(asset, error)
-          reload
+          self << asset
         end
       else
-        Asset.create(source, meta)
+        asset = Asset.create(source, meta)
+        self << asset
+        asset
       end
     end
 
@@ -59,8 +61,10 @@ class MotionAssetTree
     end
 
     def count
-      @group.al_asset_group.numberOfAssets
+      count = @group.al_asset_group.numberOfAssets
       unset_filter
+
+      count
     end
 
     def filter(filter_name)

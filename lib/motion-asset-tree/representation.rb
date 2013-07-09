@@ -9,7 +9,7 @@ class MotionAssetTree
     end
 
     # wrapper method
-    def cg_image_with_options(options)
+    def cg_image_with_options(options = {})
       self.al_asset_representation.CGImageWithOptions(options)
     end
     alias_method :cg_image, :cg_image_with_options
