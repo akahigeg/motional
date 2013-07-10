@@ -2,18 +2,18 @@
 
 # サンプルアプリの方でテストすることにした
 
-describe MotionAssetTree do
+describe MotionAL do
   before do
     @library = App.asset_library
 
-    @test_group_name = 'MotionAssetTree'
+    @test_group_name = 'MotionAL'
     @library.groups.create(@test_group_name)
     @test_group = @library.groups.find_by_name(@test_group_name)
   end
 
   describe ".saved_photos" do
     it "should instance of Group" do
-      @library.saved_photos.should.instance_of MotionAssetTree::Group
+      @library.saved_photos.should.instance_of MotionAL::Group
     end
   end
 
@@ -23,7 +23,7 @@ describe MotionAssetTree do
     end
   end
 
-  describe MotionAssetTree::Group do
+  describe MotionAL::Group do
     it "should work 'name' method" do
       @test_group.name.should == @test_group_name
     end
@@ -57,14 +57,14 @@ describe MotionAssetTree do
     end
   end
 
-  describe MotionAssetTree::Asset do
+  describe MotionAL::Asset do
     describe ".create" do
       it "should create new asset" do
         @library.saved_photos.assets.reload
         before_count = @library.saved_photos.assets.size
         original_asset = @library.saved_photos.assets.first
 
-        new_asset = MotionAssetTree::Asset.create(original_asset.full_resolution_image, original_asset.metadata)
+        new_asset = MotionAL::Asset.create(original_asset.full_resolution_image, original_asset.metadata)
         @library.saved_photos.assets.reload
         @library.saved_photos.assets.size.should == before_count + 1
       end
@@ -72,7 +72,7 @@ describe MotionAssetTree do
     end
   end
 
-  describe MotionAssetTree::Representations do
+  describe MotionAL::Representations do
     it "should be kind of Array" do
       @test_group.assets.first.representations.should.kind_of Array
     end

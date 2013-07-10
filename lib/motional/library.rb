@@ -2,7 +2,7 @@
 
 class App
   def self.asset_library
-    @@asset_library ||= MotionAssetTree.new # TODO: singleton
+    @@asset_library ||= MotionAL.new # TODO: singleton
   end
 end
 
@@ -71,7 +71,7 @@ end
 #
 # # asynchronous
 #
-class MotionAssetTree
+class MotionAL
   # TODO: singleton
   def self.library
     @@library ||= self.new

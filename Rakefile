@@ -11,9 +11,9 @@ require 'bundler'
 
 Bundler.require(:development)
 
-require 'motion-asset-tree'
+require 'motional'
 
 Motion::Project::App.setup do |app|
-  app.name = 'MotionAssetTree'
+  app.name = 'MotionAL'
   app.redgreen_style = :full # :focused, :full
 end

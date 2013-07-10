@@ -1,6 +1,6 @@
 # -*- encoding : utf-8 -*-
 
-class MotionAssetTree
+class MotionAL
   class Groups < Children
     def initialize(asset_library)
       @asset_library = asset_library
@@ -9,35 +9,35 @@ class MotionAssetTree
 
     def create(group_name, &block)
       if block_given?
-        MotionAssetTree::Group.create(group_name) do |group, error|
+        MotionAL::Group.create(group_name) do |group, error|
           block.call(group, error)
         end
       else
-        MotionAssetTree::Group.create(group_name)
+        MotionAL::Group.create(group_name)
       end
     end
 
     def find_by_url(group_url, &block)
       if block_given?
-        MotionAssetTree::Group.find_by_url(group_url) do |group, error|
+        MotionAL::Group.find_by_url(group_url) do |group, error|
           block.call(group, error)
         end
       else
-        MotionAssetTree::Group.find_by_url(group_url)
+        MotionAL::Group.find_by_url(group_url)
       end
     end
 
     def find_by_name(name, &block)
-      MotionAssetTree::Group.find_by_name(name)
+      MotionAL::Group.find_by_name(name)
     end
 
     def all(&block)
       if block_given?
-        MotionAssetTree::Group.all do |group, error|
+        MotionAL::Group.all do |group, error|
           block.call(group, error)
         end
       else
-        MotionAssetTree::Group.all
+        MotionAL::Group.all
       end
     end
 

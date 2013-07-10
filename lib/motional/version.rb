@@ -1,3 +1,3 @@
-class MotionAssetTree
+class MotionAL
   VERSION = "0.0.1"
 end

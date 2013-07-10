@@ -1,6 +1,6 @@
 # -*- encoding : utf-8 -*-
 
-class MotionAssetTree
+class MotionAL
   class Children < Array
     # TODO: consider performance
     def load_entries

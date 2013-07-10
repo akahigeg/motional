@@ -1,6 +1,6 @@
 # -*- encoding : utf-8 -*-
 
-class MotionAssetTree
+class MotionAL
   class Representations < Children
     def initialize(asset)
       @asset = asset

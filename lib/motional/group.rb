@@ -1,6 +1,6 @@
 # -*- encoding : utf-8 -*-
 
-class MotionAssetTree
+class MotionAL
   class Group
     attr_accessor :al_asset_group
     def initialize(al_asset_group)

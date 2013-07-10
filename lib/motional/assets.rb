@@ -1,14 +1,14 @@
 # -*- encoding : utf-8 -*-
 
-class MotionAssetTree
+class MotionAL
   class Assets < Children
     DEFAULT_FILTER = :all
 
     def initialize(group)
       @group = group
-      load_entries
 
       set_filter(DEFAULT_FILTER)
+      load_entries
     end
 
     def create(source, meta, &block)
@@ -25,7 +25,7 @@ class MotionAssetTree
     end
 
     def find_by_url(asset_url, &block)
-      MotionAssetTree::Asset.find_by_url(asset_url) do |asset, error|
+      MotionAL::Asset.find_by_url(asset_url) do |asset, error|
         block.call(asset, error)
       end
     end

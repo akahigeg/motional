@@ -1,6 +1,6 @@
 # -*- encoding : utf-8 -*-
 
-class MotionAssetTree
+class MotionAL
   class Representation
     attr_accessor :al_asset_representation
     

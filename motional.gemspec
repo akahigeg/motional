@@ -1,11 +1,11 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'motion-asset-tree/version'
+require 'motional/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "motion-asset-tree"
-  spec.version       = MotionAssetTree::VERSION
+  spec.name          = "motional"
+  spec.version       = MotionAL::VERSION
   spec.authors       = ["akahige"]
   spec.email         = ["akahigeg@gmail.com"]
   spec.description   = %q{TODO: Write a gem description}
