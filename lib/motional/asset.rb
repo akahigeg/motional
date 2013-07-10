@@ -41,6 +41,60 @@ class MotionAL
       end
     end
 
+    def self.all(options = nil, &block)
+      @all_assets = []
+      if block_given?
+        self.origin_all(options, block)
+      else
+        Dispatch.wait_async { self.origin_all(options) }
+        return @all_assets
+      end
+    end
+
+    # @params options :order, :filter, :group, :indexset
+    def self.origin_all(options, callback = nil)
+      # TODO: support :filter
+      @all_assets = []
+      group = options[:group] ? options[:group] : MotionAL.library.saved_photos
+
+      if options[:order]
+        enum_option = options[:order] == 'asc' ? NSEnumerationConcurrent : NSEnumerationReverse
+        group.al_asset_group.enumerateAssetsWithOptions(
+          enum_option, 
+          usingBlock: lambda {|al_asset, index, stop| 
+            if !al_asset.nil?
+              asset = Asset.new(al_asset)
+              @all_assets << asset
+              callback.call(asset, nil) if callback
+            end
+          }
+        )
+      elsif options[:indexset]
+        group.al_asset_group.enumerateAssetsAtIndexes(
+          options[:indexset],
+          options: enum_option, 
+          usingBlock: lambda {|al_asset, index, stop| 
+            if !al_asset.nil?
+              asset = Asset.new(al_asset)
+              @all_assets << asset
+              callback.call(asset, nil) if callback
+            end
+          }
+        )
+      else
+        group.al_asset_group.enumerateAssetsUsingBlock(
+          lambda{|al_asset, index, stop| 
+            if !al_asset.nil?
+              asset = Asset.new(al_asset) 
+              @all_assets << asset
+              callback.call(asset, nil) if callback # not use 'index' and 'stop'
+            end
+          }
+        )
+      end
+
+    end
+
     # wrapper method
     def video_compatible?(video_path_url)
       App.asset_library.al_asset_library.videoAtPathIsCompatibleWithSavedPhotosAlbum(video_path_url)

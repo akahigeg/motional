@@ -31,7 +31,7 @@ class MotionAL
       App.asset_library.groups.select{|g| g.name == group_name }.first
     end
 
-    def self.all(&block)
+    def self.all(options = nil, &block)
       @all_groups = []
       if block_given?
         origin_all(block)
@@ -94,6 +94,7 @@ class MotionAL
     end
 
     def self.origin_all(callback = nil)
+      # TODO: support more Type of Asset (now only support ALAssetsGroupAll)
       App.asset_library.al_asset_library.enumerateGroupsWithTypes(
         ALAssetsGroupAll,
         usingBlock: lambda { |al_asset_group, stop|

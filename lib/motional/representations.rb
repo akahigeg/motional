@@ -11,7 +11,7 @@ class MotionAL
       @asset.al_asset.representationForUTI(uti)
     end
 
-    def all(&block)
+    def all(options = {}, &block)
       @asset.representation_utis.each do |uti|
         rep = Representation.new(find_by_uti(uti))
         block.call(rep)

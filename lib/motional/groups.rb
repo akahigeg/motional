@@ -31,7 +31,7 @@ class MotionAL
       MotionAL::Group.find_by_name(name)
     end
 
-    def all(&block)
+    def all(options = {}, &block)
       if block_given?
         MotionAL::Group.all do |group, error|
           block.call(group, error)

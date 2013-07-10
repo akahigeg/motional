@@ -8,7 +8,7 @@ class MotionAL
       @group = group
 
       set_filter(DEFAULT_FILTER)
-      load_entries
+      load_entries({:filter => @current_filter})
     end
 
     def create(source, meta, &block)
@@ -34,35 +34,18 @@ class MotionAL
       end
     end
 
-    def all(options = nil, &block)
-      if options.nil?
-        @group.al_asset_group.enumerateAssetsUsingBlock(
-          lambda{|al_asset, index, stop| 
-            asset = Asset.new(al_asset) if !al_asset.nil?
-            block.call(asset, nil) # not use 'index' and 'stop'
-            unset_filter
-          }
-        )
-      elsif options[:order]
-        enum_options = options[:order] == 'asc' ? NSEnumerationConcurrent : NSEnumerationReverse
-        @group.al_asset_group.enumerateAssetsWithOptions(
-          enum_option, 
-          usingBlock: lambda {|al_asset, index, stop| 
-            asset = Asset.new(al_asset) if !al_asset.nil?
-            block.call(asset, nil) 
-            unset_filter
-          }
-        )
-      elsif options[:indexset]
-        @group.al_asset_group.enumerateAssetsAtIndexes(
-          options[:indexset],
-          options: enum_option, 
-          usingBlock: lambda {|al_asset, index, stop| 
-            asset = Asset.new(al_asset) if !al_asset.nil?
-            block.call(asset, nil) 
-            unset_filter
-          }
-        )
+    def all(options = {}, &block)
+      options[:group] = @group
+      options[:filter] = @current_filter
+
+      if block_given?
+        MotionAL::Asset.all(options) do |asset, error|
+          block.call(asset, error)
+          unset_filter
+        end
+      else
+        MotionAL::Asset.all(options)
+        unset_filter
       end
     end
 
