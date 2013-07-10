@@ -2,11 +2,13 @@
 
 class MotionAssetTree
   class Assets < Children
+    DEFAULT_FILTER = :all
+
     def initialize(group)
       @group = group
       load_entries
 
-      @current_filter = :all
+      set_filter(DEFAULT_FILTER)
     end
 
     def create(source, meta, &block)
@@ -92,12 +94,12 @@ class MotionAssetTree
     # filter_name :all, :photo, :video
     def set_filter(filter_name)
       @current_filter = filter_name
-      @group.al_asset_group.setAssetsFilter(filters[asset_filter_nane.to_sym])
+      @group.al_asset_group.setAssetsFilter(asset_filters[filter_name.to_sym])
     end
 
     def unset_filter
-      @group.al_asset_group.setAssetsFilter(asset_filters[:all])
-      @current_filter = :all
+      @current_filter = DEFAULT_FILTER
+      @group.al_asset_group.setAssetsFilter(asset_filters[@current_filter])
     end
 
     def asset_filters
@@ -107,5 +109,13 @@ class MotionAssetTree
         :video => ALAssetsFilter.allVideos,
       }
     end
+  end
+
+  class Photos < Assets
+    DEFAULT_FILTER = :photo
+  end
+
+  class Videos < Assets
+    DEFAULT_FILTER = :video
   end
 end

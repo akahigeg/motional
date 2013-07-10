@@ -109,4 +109,6 @@ class MotionAssetTree
       )
     end
   end
+
+  Album = Group
 end

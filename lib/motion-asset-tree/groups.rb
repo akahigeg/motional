@@ -42,4 +42,6 @@ class MotionAssetTree
     end
 
   end
+
+  Albums = Groups
 end

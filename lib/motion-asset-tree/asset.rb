@@ -204,6 +204,8 @@ class MotionAssetTree
         completionBlock: self.class.completion_block_for_create(block)
       )
     end
-
   end
+
+  Photo = Asset
+  Video = Asset
 end

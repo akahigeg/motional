@@ -18,4 +18,6 @@ class MotionAssetTree
       end
     end
   end
+
+  Files = Representations
 end
