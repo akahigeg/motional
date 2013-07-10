@@ -25,8 +25,12 @@ class MotionAL
     end
 
     def find_by_url(asset_url, &block)
-      MotionAL::Asset.find_by_url(asset_url) do |asset, error|
-        block.call(asset, error)
+      if block_given?
+        MotionAL::Asset.find_by_url(asset_url) do |asset, error|
+          block.call(asset, error)
+        end
+      else
+        MotionAL::Asset.find_by_url(asset_url)
       end
     end
 

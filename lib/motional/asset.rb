@@ -32,16 +32,13 @@ class MotionAL
     end
 
     def self.find_by_url(asset_url, &block)
-      App.asset_library.al_asset_library.assetForURL(
-        asset_url, 
-        resultBlock: lambda {|al_asset|
-          asset = self.new(al_asset)
-          block.call(asset, nil)
-        }, 
-        failureBlock: lambda {|error|
-          block.call(nil, error)
-        }
-      )
+      @found_asset = nil
+      if block_given?
+        self.origin_find_by_url(asset_url, block)
+      else
+        Dispatch.wait_async { self.origin_find_by_url(asset_url) }
+        return @found_asset
+      end
     end
 
     # wrapper method
@@ -132,7 +129,7 @@ class MotionAL
 
     private
     def self.create_by_cg_image(cg_image, meta, callback = nil)
-      if self.orientation?(meta)
+      if self.only_orientation?(meta)
         App.asset_library.al_asset_library.writeImageToSavedPhotosAlbum(
           cg_image,
           orientation: meta[:orientation],
@@ -147,8 +144,21 @@ class MotionAL
       end
     end
 
-    def self.orientation?(meta)
+    def self.only_orientation?(meta)
       meta && meta.size == 1 && meta[:orientation]
+    end
+
+    def self.origin_find_by_url(asset_url, callback = nil)
+      App.asset_library.al_asset_library.assetForURL(
+        asset_url, 
+        resultBlock: lambda {|al_asset|
+          @found_asset = self.new(al_asset)
+          callback.call(@found_asset, nil) if callback
+        }, 
+        failureBlock: lambda {|error|
+          callback.call(nil, error) if callback
+        }
+      )
     end
 
     def self.create_by_image_data(image_data, meta, &block)

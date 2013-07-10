@@ -10,9 +10,9 @@ class MotionAL
     def self.create(group_name, &block)
       @created_group = nil
       if block_given?
-        self.call_origin_create(group_name, block)
+        self.origin_create(group_name, block)
       else
-        Dispatch.wait_async { self.call_origin_create(group_name) }
+        Dispatch.wait_async { self.origin_create(group_name) }
         return @created_group
       end
     end
@@ -20,9 +20,9 @@ class MotionAL
     def self.find_by_url(group_url, &block)
       @found_group = nil
       if block_given?
-        self.call_origin_find_by_url(group_url, block)
+        self.origin_find_by_url(group_url, block)
       else
-        Dispatch.wait_async { self.call_origin_find_by_url(group_url) }
+        Dispatch.wait_async { self.origin_find_by_url(group_url) }
         return @found_group
       end
     end
@@ -34,9 +34,9 @@ class MotionAL
     def self.all(&block)
       @all_groups = []
       if block_given?
-        call_origin_all(block)
+        origin_all(block)
       else
-        Dispatch.wait_async { self.call_origin_all }
+        Dispatch.wait_async { self.origin_all }
         return @all_groups
       end
     end
@@ -67,7 +67,7 @@ class MotionAL
     end
 
     private
-    def self.call_origin_create(group_name, callback = nil)
+    def self.origin_create(group_name, callback = nil)
       App.asset_library.al_asset_library.addAssetsGroupAlbumWithName(
         group_name, 
         resultBlock: lambda { |al_asset_group|
@@ -80,7 +80,7 @@ class MotionAL
       )
     end
 
-    def self.call_origin_find_by_url(group_url, callback = nil)
+    def self.origin_find_by_url(group_url, callback = nil)
       App.asset_library.al_asset_library.groupForURL(
         group_url, 
         resultBlock: lambda { |al_asset_group|
@@ -93,7 +93,7 @@ class MotionAL
       )
     end
 
-    def self.call_origin_all(callback = nil)
+    def self.origin_all(callback = nil)
       App.asset_library.al_asset_library.enumerateGroupsWithTypes(
         ALAssetsGroupAll,
         usingBlock: lambda { |al_asset_group, stop|
