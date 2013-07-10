@@ -7,7 +7,7 @@ class App
 end
 
 module Dispatch
-  def self.wait_async(duration = 0.1, &block)
+  def self.wait_async(duration = 0.15, &block)
     @async_done = false
     queue_group = Dispatch::Group.new
     queue = Dispatch::Queue.concurrent(:default) 
@@ -17,6 +17,7 @@ module Dispatch
 
     CFRunLoopRunInMode(KCFRunLoopDefaultMode, duration, false) while !@async_done
     # 'queue_group.wait' is not work well. why?
+    # timing bug exist. try 'duration = 0.01'
   end
 end
 

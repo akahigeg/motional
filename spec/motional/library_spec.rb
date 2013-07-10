@@ -50,25 +50,10 @@ describe MotionAL do
       it "should create new asset and add that to group" do
         before_count = @test_group.assets.size.to_i
         original_asset = @library.saved_photos.assets.first
-        
+
         new_asset = @test_group.assets.create(original_asset.full_resolution_image, original_asset.metadata)
         @test_group.assets.size.to_i.should == before_count + 1
       end
-    end
-  end
-
-  describe MotionAL::Asset do
-    describe ".create" do
-      it "should create new asset" do
-        @library.saved_photos.assets.reload
-        before_count = @library.saved_photos.assets.size
-        original_asset = @library.saved_photos.assets.first
-
-        new_asset = MotionAL::Asset.create(original_asset.full_resolution_image, original_asset.metadata)
-        @library.saved_photos.assets.reload
-        @library.saved_photos.assets.size.should == before_count + 1
-      end
-
     end
   end
 
