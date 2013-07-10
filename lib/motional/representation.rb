@@ -8,11 +8,21 @@ class MotionAL
       @al_asset_representation = al_asset_representation
     end
 
+    def data
+      ui_image = UIImage.imageWithCGImage(self.cg_image)
+      if self.filename =~ /.jpe?g$/i
+        NSData.dataWithData(UIImageJPEGRepresentation(ui_image, 0.0))
+      elsif self.filename =~ /.png$/i
+        NSData.dataWithData(UIImagePNGRepresentation(ui_image))
+      else
+        nil
+      end
+    end
+
     # wrapper method
     def cg_image_with_options(options = {})
       self.al_asset_representation.CGImageWithOptions(options)
     end
-    alias_method :cg_image, :cg_image_with_options
 
     def get_bytes(buffer, from, length, error = nil)
       self.al_asset_representation.getBytes(
@@ -36,6 +46,7 @@ class MotionAL
        end
     end
     alias_method :name, :filename
+    alias_method :cg_image, :full_resolution_image
   end
 
   File = Representation

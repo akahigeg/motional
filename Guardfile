@@ -6,6 +6,7 @@ guard 'motion' do
 
   # RubyMotion App example
   watch(%r{^app/(.+)\.rb$})     { |m| "spec/#{m[1]}_spec.rb" }
+  watch(%r{^lib/(.+)\.rb$})     { |m| "spec/#{m[1]}_spec.rb" }
 
   # RubyMotion gem example
   watch(%r{^lib/[^/]+/(.+)\.rb$})     { |m| "spec/#{m[1]}_spec.rb" }

@@ -45,6 +45,14 @@ class MotionAL
       @assets ||= Assets.new(self)
     end
 
+    def photos
+      assets.select{|a| a.asset_type == :photo }
+    end
+
+    def videos
+      assets.select{|a| a.asset_type == :video }
+    end
+
     # wrapper method
     def editable?
       @al_asset_group.editable?

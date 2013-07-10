@@ -51,6 +51,131 @@ class MotionAL
       end
     end
 
+    # wrapper method
+    def video_compatible?(video_path_url)
+      App.asset_library.al_asset_library.videoAtPathIsCompatibleWithSavedPhotosAlbum(video_path_url)
+    end
+
+    [:thumbnail, :aspectRatioThumbnail].each do |method_name|
+       underscored_method_name = method_name.gsub(/([A-Z])/){|m| "_#{m}" }.downcase
+       define_method(underscored_method_name) do 
+         self.al_asset_representation.send(method_name)
+       end
+    end
+
+    def editable?
+      @al_asset.editable
+    end
+
+    def original_asset
+      original_al_asset = @al_asset.originalAsset
+      Asset.new(original_al_asset) if original_al_asset
+    end
+
+    def default_representation
+      @default_representation ||= Representation.new(@al_asset.defaultRepresentation)
+    end
+    alias_method :rep, :default_representation
+    alias_method :file, :default_representation
+
+    # wrapper for valurForProperty
+    {
+      location: ALAssetPropertyLocation,
+      duration: ALAssetPropertyDuration, # for video
+      orientation: ALAssetPropertyOrientation,
+      date: ALAssetPropertyDate,
+      representation_utis: ALAssetPropertyRepresentations,
+      urls: ALAssetPropertyURLs,
+      url: ALAssetPropertyAssetURL
+    }.each do |method_name, property_name|
+      define_method(method_name) do 
+        @al_asset.valueForProperty(property_name)
+      end
+    end
+    alias_method :reps, :representations
+    alias_method :files, :representations
+
+    def asset_type
+      Asset.asset_types.key(@al_asset.valueForProperty(ALAssetPropertyType))
+    end
+
+    # call through to the default representation's methods
+    [:full_resolution_image, :full_screen_image, :scale, :data, :cg_image,
+     :dimensions, :filename, :size, :metadata].each do |method_name|
+       define_method(method_name) do 
+         default_representation.send(method_name)
+       end
+     end
+
+    # save_new (save to new asset with original asset property)
+    # –writeModifiedImageDataToSavedPhotosAlbum:metadata:completionBlock:
+    # –writeModifiedVideoAtPathToSavedPhotosAlbum:completionBlock:
+    #
+    #
+    def save_new(source, metadata = nil, &block)
+      @created_asset = nil
+      if block_given?
+        origin_save_new(source, metadata, block)
+      else
+        Dispatch.wait_async { origin_save_new(source, metadata) }
+        return @created_asset
+      end
+    end
+
+    # update (save to same asset. need editable flag)
+    # –setImageData:metadata:completionBlock:
+    # –setVideoAtPath:completionBlock:
+    #
+    # asset.update(image_data, metadata) do |updated_asset, error|
+    #   asset = updated_asset
+    # end
+    #
+    # or 
+    #
+    # asset.update(image_data, metadata)
+    #
+    def update(source, metadata = nil, &block)
+      if block_given?
+        origin_update(source, metadata, block)
+      else
+        Dispatch.wait_async { origin_update(source, metadata) }
+      end
+    end
+
+    private
+    def self.create_by_cg_image(cg_image, meta, callback = nil)
+      if self.only_orientation?(meta)
+        App.asset_library.al_asset_library.writeImageToSavedPhotosAlbum(
+          cg_image,
+          orientation: meta[:orientation],
+          completionBlock: self.completion_block_for_create(callback)
+        )
+      else
+        App.asset_library.al_asset_library.writeImageToSavedPhotosAlbum(
+          cg_image,
+          metadata: meta,
+          completionBlock: self.completion_block_for_create(callback)
+        )
+      end
+    end
+
+    def self.only_orientation?(meta)
+      meta && meta.size == 1 && meta[:orientation]
+    end
+
+    def self.origin_find_by_url(asset_url, callback = nil)
+      App.asset_library.al_asset_library.assetForURL(
+        asset_url, 
+        resultBlock: lambda {|al_asset|
+          @found_asset = self.new(al_asset)
+          callback.call(@found_asset, nil) if callback
+        }, 
+        failureBlock: lambda {|error|
+          callback.call(nil, error) if callback
+        }
+      )
+    end
+
     # @params options :order, :filter, :group, :indexset
     def self.origin_all(options, callback = nil)
       # TODO: support :filter
@@ -95,125 +220,6 @@ class MotionAL
 
     end
 
-    # wrapper method
-    def video_compatible?(video_path_url)
-      App.asset_library.al_asset_library.videoAtPathIsCompatibleWithSavedPhotosAlbum(video_path_url)
-    end
-
-    [:thumbnail, :aspectRatioThumbnail].each do |method_name|
-       underscored_method_name = method_name.gsub(/([A-Z])/){|m| "_#{m}" }.downcase
-       define_method(underscored_method_name) do 
-         self.al_asset_representation.send(method_name)
-       end
-    end
-
-    def editable?
-      @al_asset.editable
-    end
-
-    def original_asset
-      original_al_asset = @al_asset.originalAsset
-      Asset.new(original_al_asset) if original_al_asset
-    end
-
-    def default_representation
-      @default_representation ||= Representation.new(@al_asset.defaultRepresentation)
-    end
-    alias_method :rep, :default_representation
-
-    # wrapper for valurForProperty
-    {
-      asset_type: Asset.asset_types.key(ALAssetPropertyType),
-      location: ALAssetPropertyLocation,
-      duration: ALAssetPropertyDuration, # for video
-      orientation: ALAssetPropertyOrientation,
-      date: ALAssetPropertyDate,
-      representation_utis: ALAssetPropertyRepresentations,
-      urls: ALAssetPropertyURLs,
-      url: ALAssetPropertyAssetURL
-    }.each do |method_name, property_name|
-      define_method(method_name) do 
-        @al_asset.valueForProperty(property_name)
-      end
-    end
-    alias_method :reps, :representations
-
-    # call through to the default representation's methods
-    [:full_resolution_image, :full_screen_image, :scale, 
-     :dimensions, :filename, :size, :metadata].each do |method_name|
-       define_method(method_name) do 
-         default_representation.send(method_name)
-       end
-     end
-
-    # fork, save_new (save to new asset with original asset property)
-    # – writeModifiedImageDataToSavedPhotosAlbum:metadata:completionBlock:
-    # – writeModifiedVideoAtPathToSavedPhotosAlbum:completionBlock:
-    def fork(source, metadata = nil, &block) 
-      case self.asset_type
-      when ALAssetTypePhoto
-        fork_by_image_data(source, metadata) {|asset, error| block.call(asset, error) }
-      when
-        fork_by_video_path(source) {|asset, error| block.call(asset, error) }
-      else
-        raise "ALAssetTypeUnknown"
-      end
-    end
-    alias_method :save_new, :fork
-
-    # overwrite, update (save to same asset. need editable flag)
-    # – setImageData:metadata:completionBlock:
-    # – setVideoAtPath:completionBlock:
-    #
-    # asset.overwrite(image_data, metadata) do |updated_asset, error|
-    #   asset = updated_asset
-    # end
-    #
-    def overwrite(source, metadata = nil, &block)
-      case self.asset_type
-      when ALAssetTypePhoto
-        overwrite_by_image_data(source, metadata) {|asset, error| block.call(asset, error) }
-      when
-        overwrite_by_video_path(source) {|asset, error| block.call(asset, error) }
-      else
-        raise "ALAssetTypeUnknown"
-      end
-    end
-    alias_method :update, :overwrite
-
-    private
-    def self.create_by_cg_image(cg_image, meta, callback = nil)
-      if self.only_orientation?(meta)
-        App.asset_library.al_asset_library.writeImageToSavedPhotosAlbum(
-          cg_image,
-          orientation: meta[:orientation],
-          completionBlock: self.completion_block_for_create(callback)
-        )
-      else
-        App.asset_library.al_asset_library.writeImageToSavedPhotosAlbum(
-          cg_image,
-          metadata: meta,
-          completionBlock: self.completion_block_for_create(callback)
-        )
-      end
-    end
-
-    def self.only_orientation?(meta)
-      meta && meta.size == 1 && meta[:orientation]
-    end
-
-    def self.origin_find_by_url(asset_url, callback = nil)
-      App.asset_library.al_asset_library.assetForURL(
-        asset_url, 
-        resultBlock: lambda {|al_asset|
-          @found_asset = self.new(al_asset)
-          callback.call(@found_asset, nil) if callback
-        }, 
-        failureBlock: lambda {|error|
-          callback.call(nil, error) if callback
-        }
-      )
-    end
 
     def self.create_by_image_data(image_data, meta, &block)
       App.asset_library.al_asset_library.writeImageDataToSavedPhotosAlbum(
@@ -230,42 +236,74 @@ class MotionAL
       )
     end
 
+    # TODO: DRY
     def self.completion_block_for_create(callback = nil)
       Proc.new do |asset_url, error|
-        self.find_by_url(asset_url) do |asset, error|
+        MotionAL::Asset.find_by_url(asset_url) do |asset, error|
           @created_asset = asset
-          callback.call(asset, error) if callback
+          callback.call(@created_asset, error) if callback
         end
       end
     end
 
-    def fork_by_image_data(image_data, metadata, &block)
+    def completion_block_for_save_and_update(callback = nil)
+      Proc.new do |asset_url, error|
+        MotionAL::Asset.find_by_url(asset_url) do |asset, error|
+          @created_asset = asset
+          callback.call(@created_asset, error) if callback
+        end
+      end
+    end
+
+    def origin_save_new(source, metadata = nil, callback = nil) 
+      case self.asset_type
+      when :photo
+        save_new_by_image_data(source, metadata) {|asset, error| callback.call(asset, error) if callback }
+      when :video
+        save_new_by_video_path(source) {|asset, error| callback.call(asset, error) if callback }
+      else
+        raise "ALAssetTypeUnknown"
+      end
+    end
+
+    def save_new_by_image_data(image_data, metadata, &block)
       @al_asset.writeModifiedImageDataToSavedPhotosAlbum(
-        source, 
+        image_data, 
         metadata: metadata,
-        completionBlock: self.class.completion_block_for_create(block)
+        completionBlock: completion_block_for_save_and_update(block)
       )
     end
 
-    def fork_by_video_path(video_path, &block)
+    def save_new_by_video_path(video_path, &block)
       @al_asset.writeModifiedVideoAtPathToSavedPhotosAlbum(
         video_path,
-        completionBlock: self.class.completion_block_for_create(block)
+        completionBlock: completion_block_for_save_and_update(block)
       )
     end
 
-    def overwrite_by_image_data(image_data, metadata, &block)
+    def origin_update(source, metadata = nil, callback = nil)
+      case self.asset_type
+      when :photo
+        update_by_image_data(source, metadata) {|asset, error| callback.call(asset, error) if callback }
+      when :video
+        update_by_video_path(source) {|asset, error| callback.call(asset, error) if callback}
+      else
+        raise "ALAssetTypeUnknown"
+      end
+    end
+
+    def update_by_image_data(image_data, metadata, &block)
       @al_asset.setImageData(
-        source, 
+        image_data, 
         metadata: metadata,
-        completionBlock: self.class.completion_block_for_create(block)
+        completionBlock: completion_block_for_save_and_update(block)
       )
     end
 
-    def overwrite_by_video_path(video_path, &block)
+    def update_by_video_path(video_path, &block)
       @al_asset.setVideoAtPath(
         video_path,
-        completionBlock: self.class.completion_block_for_create(block)
+        completionBlock: completion_block_for_save_and_update(block)
       )
     end
   end
