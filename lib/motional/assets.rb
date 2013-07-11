@@ -64,14 +64,14 @@ class MotionAL
     # add
     def push(asset)
       super
-      @group.al_asset_group.addAsset(asset.al_asset)
+      add_asset_to_group(asset)
       self
     end
     alias_method "<<", :push
 
     def unshift(asset)
       super
-      @group.al_asset_group.addAsset(asset.al_asset)
+      add_asset_to_group(asset)
       self
     end
 
@@ -95,6 +95,10 @@ class MotionAL
         :photo => ALAssetsFilter.allPhotos,
         :video => ALAssetsFilter.allVideos,
       }
+    end
+
+    def add_asset_to_group(asset)
+      @group.al_asset_group.addAsset(asset.al_asset)
     end
   end
 
