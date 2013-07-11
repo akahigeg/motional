@@ -1,5 +1,3 @@
-# require "bundler/gem_tasks"
-
 #
 # This file is for test application.
 #
