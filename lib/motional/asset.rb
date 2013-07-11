@@ -324,7 +324,4 @@ class MotionAL
       )
     end
   end
-
-  Photo = Asset
-  Video = Asset
 end

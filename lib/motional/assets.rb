@@ -101,12 +101,4 @@ class MotionAL
       @group.al_asset_group.addAsset(asset.al_asset)
     end
   end
-
-  class Photos < Assets
-    DEFAULT_FILTER = :photo
-  end
-
-  class Videos < Assets
-    DEFAULT_FILTER = :video
-  end
 end

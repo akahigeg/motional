@@ -40,8 +40,5 @@ class MotionAL
         MotionAL::Group.all
       end
     end
-
   end
-
-  Albums = Groups
 end
