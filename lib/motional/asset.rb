@@ -2,24 +2,21 @@
 
 class MotionAL
   class Asset
-    attr_accessor :al_asset
+    # An instance of ALAsset Class
+    attr_reader :al_asset
 
+    # @param al_asset [ALAsset]
     def initialize(al_asset)
       @al_asset = al_asset
     end
 
+    # @return [Representations]
+    # @note Representations object is an array of Representation object
     def representations
       @representations ||= Representations.new(self)
     end
 
-    def self.asset_types
-      {
-        :photo => ALAssetTypePhoto,
-        :video => ALAssetTypeVideo,
-        :unknown => ALAssetTypeUnknown
-      }
-    end
-
+    # Create
     # @param source => CGImage or NSData or NSURL(video)
     def self.create(source, meta = nil, &block)
       @created_asset = nil
@@ -31,6 +28,16 @@ class MotionAL
       end
     end
 
+    # Find an asset by asset url.
+    # @overload self.find_by_url(asset_url, &block)
+    #   @param [NSURL] asset_url
+    #   @yield [asset, error]
+    #   @yieldparam [Asset] asset Found asset or nil(asset did not found). 
+    #   @yieldparam [error] error When the asset was found, `error` is nil.
+    #   @return [nil] 
+    # @overload self.find_by_url(asset_url)
+    #   @return [Asset] 
+    #   @return [nil] return nil when asset did not found.
     def self.find_by_url(asset_url, &block)
       @found_asset = nil
       if block_given?
@@ -63,6 +70,8 @@ class MotionAL
        end
     end
 
+    # Return true if App haves write access for this asset.
+    # @return [Boolean]
     def editable?
       @al_asset.editable
     end
@@ -143,6 +152,14 @@ class MotionAL
     end
 
     private
+    def self.asset_types
+      {
+        :photo => ALAssetTypePhoto,
+        :video => ALAssetTypeVideo,
+        :unknown => ALAssetTypeUnknown
+      }
+    end
+
     def self.create_by_cg_image(cg_image, meta, callback = nil)
       if self.only_orientation?(meta)
         MotionAL.library.al_asset_library.writeImageToSavedPhotosAlbum(
@@ -176,7 +193,7 @@ class MotionAL
       )
     end
 
-    # @params options :order, :filter, :group, :indexset
+    # @param options :order, :filter, :group, :indexset
     def self.origin_all(options, callback = nil)
       # TODO: support :filter
       @all_assets = []

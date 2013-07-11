@@ -8,6 +8,9 @@ class MotionAL
       @al_asset_representation = al_asset_representation
     end
 
+    # return NSConcreteData(kind of NSData) object for this representation file.
+    # support only jpeg and png.
+    # @return [NSConcreteData]
     def data
       ui_image = UIImage.imageWithCGImage(self.cg_image)
       if self.filename =~ /.jpe?g$/i
@@ -32,6 +35,8 @@ class MotionAL
        else
          underscored_method_name = method_name.gsub(/([A-Z])/){|m| "_#{m}" }.downcase
        end
+
+       # @attribute [r]
        define_method(underscored_method_name) do 
          self.al_asset_representation.send(method_name)
        end
