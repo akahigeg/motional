@@ -48,6 +48,7 @@ class MotionAL
       end
     end
 
+    # TODO: thread safe
     def self.all(options = {}, &block)
       @all_assets = []
       if block_given?
@@ -193,6 +194,14 @@ class MotionAL
       )
     end
 
+    def self.order_option(options)
+      if options[:order] && options[:order] == 'desc'
+        NSEnumerationReverse
+      else
+        NSEnumerationConcurrent
+      end
+    end
+
     # @param options :order, :filter, :group, :indexset
     def self.origin_all(options = {}, callback = nil)
       # TODO: support :filter
@@ -202,41 +211,30 @@ class MotionAL
       if options[:order]
         enum_option = options[:order] == 'asc' ? NSEnumerationConcurrent : NSEnumerationReverse
         group.al_asset_group.enumerateAssetsWithOptions(
-          enum_option, 
-          usingBlock: lambda {|al_asset, index, stop| 
-            if !al_asset.nil?
-              asset = Asset.new(al_asset)
-              @all_assets << asset
-              callback.call(asset, nil) if callback
-            end
-          }
+          self.order_option(options), 
+          usingBlock: using_block_for_all(callback)
         )
       elsif options[:indexset]
         group.al_asset_group.enumerateAssetsAtIndexes(
           options[:indexset],
-          options: enum_option, 
-          usingBlock: lambda {|al_asset, index, stop| 
-            if !al_asset.nil?
-              asset = Asset.new(al_asset)
-              @all_assets << asset
-              callback.call(asset, nil) if callback
-            end
-          }
+          options: self.order_option(options), 
+          usingBlock: using_block_for_all(callback)
         )
       else
-        group.al_asset_group.enumerateAssetsUsingBlock(
-          lambda{|al_asset, index, stop| 
-            if !al_asset.nil?
-              asset = Asset.new(al_asset) 
-              @all_assets << asset
-              callback.call(asset, nil) if callback # not use 'index' and 'stop'
-            end
-          }
-        )
+        group.al_asset_group.enumerateAssetsUsingBlock(using_block_for_all(callback))
       end
 
     end
 
+    def self.using_block_for_all(callback = nil)
+      Proc.new do |al_asset, index, stop|
+        if !al_asset.nil?
+          asset = Asset.new(al_asset)
+          @all_assets << asset
+          callback.call(asset, nil) if callback
+        end
+      end
+    end
 
     def self.create_by_image_data(image_data, meta, &block)
       MotionAL.library.al_asset_library.writeImageDataToSavedPhotosAlbum(

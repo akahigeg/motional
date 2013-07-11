@@ -4,6 +4,10 @@ describe MotionAL::Asset do
   before do
     @library = MotionAL.library
     @existent_asset = @library.saved_photos.assets.first
+
+    @test_group_name = 'MotionAL'
+    @library.groups.create(@test_group_name)
+    @test_group = @library.groups.find_by_name(@test_group_name)
   end
 
   shared "asset creation" do
@@ -90,11 +94,17 @@ describe MotionAL::Asset do
       assets.size.should > 1
       assets.last.url.should.equal @existent_asset.url
     end
-    # TODO: order option
+
+    it "should avail group option" do
+      assets_b = MotionAL::Asset.all({:group => @test_group})
+      # assets_a = MotionAL::Asset.all #=> sometime crash when call twice immediatly
+
+      assets_b.size.should.not.equal @library.saved_photos.assets.size
+    end
     # TODO: filter option
-    # TODO: group option
     # TODO: indexset option
   end
+  
 
   # TODO: representation
   # TODO: video_compatible => into create video?
