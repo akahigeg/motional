@@ -45,14 +45,6 @@ class MotionAL
       @assets ||= Assets.new(self)
     end
 
-    def photos
-      assets.select{|a| a.asset_type == :photo }
-    end
-
-    def videos
-      assets.select{|a| a.asset_type == :video }
-    end
-
     # wrapper method
     def editable?
       @al_asset_group.editable?
@@ -65,7 +57,6 @@ class MotionAL
     # wrapper of valueForProperty
     {
       name: ALAssetsGroupPropertyName,
-      asset_group_type: ALAssetsGroupPropertyType,
       persistent_id: ALAssetsGroupPropertyPersistentID,
       url: ALAssetsGroupPropertyURL
     }.each do |method_name, property_name|
@@ -74,7 +65,24 @@ class MotionAL
       end
     end
 
+    def asset_group_type
+      self.class.asset_group_types.key(@al_asset_group.valueForProperty(ALAssetsGroupPropertyType))
+    end
+
     private
+    def self.asset_group_types
+      {
+        :library => ALAssetsGroupLibrary,
+        :album => ALAssetsGroupAlbum,
+        :event => ALAssetsGroupEvent,
+        :faces => ALAssetsGroupFaces,
+        :photos => ALAssetsGroupSavedPhotos,
+        :photo_stream => ALAssetsGroupPhotoStream,
+        :all => ALAssetsGroupAll
+        
+      }
+    end
+    
     def self.origin_create(group_name, callback = nil)
       MotionAL.library.al_asset_library.addAssetsGroupAlbumWithName(
         group_name, 

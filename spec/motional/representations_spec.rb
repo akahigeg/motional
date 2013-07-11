@@ -9,7 +9,7 @@ describe MotionAL::Representations do
     @asset.representations.should.kind_of Array
   end
 
-  describe ".find_by_uti" do
+  describe "#find_by_uti" do
     it "should return Representation object" do
       rep = @asset.representations.find_by_uti(@asset.rep.UTI)
       rep.should.instance_of MotionAL::Representation
@@ -21,7 +21,7 @@ describe MotionAL::Representations do
     end
   end
 
-  describe ".all" do
+  describe "#all" do
     before do
       @reps = @asset.representations.all
     end
