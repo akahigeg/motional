@@ -118,6 +118,4 @@ class MotionAL
       )
     end
   end
-
-  Album = Group
 end
