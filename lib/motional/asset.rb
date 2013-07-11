@@ -48,7 +48,7 @@ class MotionAL
       end
     end
 
-    def self.all(options = nil, &block)
+    def self.all(options = {}, &block)
       @all_assets = []
       if block_given?
         self.origin_all(options, block)
@@ -184,7 +184,7 @@ class MotionAL
       MotionAL.library.al_asset_library.assetForURL(
         asset_url, 
         resultBlock: lambda {|al_asset|
-          @found_asset = self.new(al_asset)
+          @found_asset = self.new(al_asset) if al_asset
           callback.call(@found_asset, nil) if callback
         }, 
         failureBlock: lambda {|error|
@@ -194,7 +194,7 @@ class MotionAL
     end
 
     # @param options :order, :filter, :group, :indexset
-    def self.origin_all(options, callback = nil)
+    def self.origin_all(options = {}, callback = nil)
       # TODO: support :filter
       @all_assets = []
       group = options[:group] ? options[:group] : MotionAL.library.saved_photos

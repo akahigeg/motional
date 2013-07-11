@@ -10,16 +10,16 @@ describe MotionAL::Group do
   end
 
   # '.create' and '.find_by_name' already tested by before section.
-  #
+  
   describe ".find_by_url" do
     it "should return Group object" do
-      g = MotionAL::Group.find_by_url(@test_group.url)
-      g.should.instance_of MotionAL::Group
+      group = MotionAL::Group.find_by_url(@test_group.url)
+      group.should.instance_of MotionAL::Group
     end
 
     it "should return nil when unknown url given" do
-      g = MotionAL::Group.find_by_url(@test_group.assets.first.url)
-      g.should.be.nil
+      group = MotionAL::Group.find_by_url(@test_group.assets.first.url)
+      group.should.be.nil
     end
   end
 
