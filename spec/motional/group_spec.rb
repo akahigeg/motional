@@ -2,7 +2,7 @@
 
 describe MotionAL::Group do
   before do
-    @library = App.asset_library
+    @library = MotionAL.library
 
     @test_group_name = 'MotionAL'
     @library.groups.create(@test_group_name)

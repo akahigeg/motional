@@ -2,7 +2,7 @@
 
 describe MotionAL::Asset do
   before do
-    @library = App.asset_library
+    @library = MotionAL.library
     @existent_asset = @library.saved_photos.assets.first
     p @existent_asset.rep.UTI
     p @existent_asset.rep.url

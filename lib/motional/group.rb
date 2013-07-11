@@ -28,7 +28,7 @@ class MotionAL
     end
 
     def self.find_by_name(group_name)
-      App.asset_library.groups.select{|g| g.name == group_name }.first
+      MotionAL.library.groups.select{|g| g.name == group_name }.first
     end
 
     def self.all(options = nil, &block)
@@ -76,7 +76,7 @@ class MotionAL
 
     private
     def self.origin_create(group_name, callback = nil)
-      App.asset_library.al_asset_library.addAssetsGroupAlbumWithName(
+      MotionAL.library.al_asset_library.addAssetsGroupAlbumWithName(
         group_name, 
         resultBlock: lambda { |al_asset_group|
           @created_group = Group.new(al_asset_group) if !al_asset_group.nil?
@@ -89,7 +89,7 @@ class MotionAL
     end
 
     def self.origin_find_by_url(group_url, callback = nil)
-      App.asset_library.al_asset_library.groupForURL(
+      MotionAL.library.al_asset_library.groupForURL(
         group_url, 
         resultBlock: lambda { |al_asset_group|
           @found_group = Group.new(al_asset_group) if !al_asset_group.nil?
@@ -103,7 +103,7 @@ class MotionAL
 
     def self.origin_all(callback = nil)
       # TODO: support more Type of Asset (now only support ALAssetsGroupAll)
-      App.asset_library.al_asset_library.enumerateGroupsWithTypes(
+      MotionAL.library.al_asset_library.enumerateGroupsWithTypes(
         ALAssetsGroupAll,
         usingBlock: lambda { |al_asset_group, stop|
           if !al_asset_group.nil?

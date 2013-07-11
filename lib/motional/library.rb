@@ -1,11 +1,5 @@
 # -*- encoding : utf-8 -*-
 
-class App
-  def self.asset_library
-    @@asset_library ||= MotionAL.new # TODO: singleton
-  end
-end
-
 module Dispatch
   def self.wait_async(duration = 0.15, &block)
     @async_done = false
@@ -21,33 +15,33 @@ module Dispatch
   end
 end
 
-class MotionAL
-  # TODO: singleton
+module MotionAL
+  @@library = nil
+
   def self.library
-    @@library ||= self.new
+    @@library ||= MotionAL::Library.new
   end
 
-  def initialize
-  end
+  class Library
+    def al_asset_library
+      @al_asset_library ||= ALAssetsLibrary.new
+    end
 
-  def al_asset_library
-    @al_asset_library ||= ALAssetsLibrary.new
-  end
+    def groups
+      @groups ||= Groups.new(self)
+    end
+    alias_method :albums, :groups
 
-  def groups
-    @groups ||= Groups.new(self)
-  end
-  alias_method :albums, :groups
+    def saved_photos
+      groups.find_by_name('Saved Photos')
+    end
 
-  def saved_photos
-    groups.find_by_name('Saved Photos')
-  end
+    def authorized?
+      ALAssetsLibrary.authorizationStatus == ALAuthorizationStatusAuthorized
+    end
 
-  def authorized?
-    ALAssetsLibrary.authorizationStatus == ALAuthorizationStatusAuthorized
-  end
-
-  def disable_shared_photo_streams_support
-    ALAssetsLibrary.disableSharedPhotoStreamsSupport
+    def disable_shared_photo_streams_support
+      ALAssetsLibrary.disableSharedPhotoStreamsSupport
+    end
   end
 end

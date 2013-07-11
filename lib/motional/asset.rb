@@ -53,7 +53,7 @@ class MotionAL
 
     # wrapper method
     def video_compatible?(video_path_url)
-      App.asset_library.al_asset_library.videoAtPathIsCompatibleWithSavedPhotosAlbum(video_path_url)
+      MotionAL.library.al_asset_library.videoAtPathIsCompatibleWithSavedPhotosAlbum(video_path_url)
     end
 
     [:thumbnail, :aspectRatioThumbnail].each do |method_name|
@@ -145,13 +145,13 @@ class MotionAL
     private
     def self.create_by_cg_image(cg_image, meta, callback = nil)
       if self.only_orientation?(meta)
-        App.asset_library.al_asset_library.writeImageToSavedPhotosAlbum(
+        MotionAL.library.al_asset_library.writeImageToSavedPhotosAlbum(
           cg_image,
           orientation: meta[:orientation],
           completionBlock: self.completion_block_for_create(callback)
         )
       else
-        App.asset_library.al_asset_library.writeImageToSavedPhotosAlbum(
+        MotionAL.library.al_asset_library.writeImageToSavedPhotosAlbum(
           cg_image,
           metadata: meta,
           completionBlock: self.completion_block_for_create(callback)
@@ -164,7 +164,7 @@ class MotionAL
     end
 
     def self.origin_find_by_url(asset_url, callback = nil)
-      App.asset_library.al_asset_library.assetForURL(
+      MotionAL.library.al_asset_library.assetForURL(
         asset_url, 
         resultBlock: lambda {|al_asset|
           @found_asset = self.new(al_asset)
@@ -222,7 +222,7 @@ class MotionAL
 
 
     def self.create_by_image_data(image_data, meta, &block)
-      App.asset_library.al_asset_library.writeImageDataToSavedPhotosAlbum(
+      MotionAL.library.al_asset_library.writeImageDataToSavedPhotosAlbum(
         image_data,
         metadata: meta,
         completionBlock: self.completion_block_for_create(block)
@@ -230,7 +230,7 @@ class MotionAL
     end
 
     def self.create_by_video_path(video_path_url, &block)
-      App.asset_library.al_asset_library.writeVideoAtPathToSavedPhotosAlbum(
+      MotionAL.library.al_asset_library.writeVideoAtPathToSavedPhotosAlbum(
         video_path_url,
         completionBlock: self.completion_block_for_create(block)
       )
