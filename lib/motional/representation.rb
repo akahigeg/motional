@@ -24,15 +24,6 @@ class MotionAL
       self.al_asset_representation.CGImageWithOptions(options)
     end
 
-    def get_bytes(buffer, from, length, error = nil)
-      self.al_asset_representation.getBytes(
-        buffer,
-        fromOffset: offset,
-        length: length,
-        error: error
-      )
-    end
-
     [:fullResolutionImage, :fullScreenImage,
      :orientation, :scale, :dimensions, :filename, :size, 
      :metadata, :url, :UTI].each do |method_name|
