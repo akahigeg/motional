@@ -5,8 +5,8 @@ describe MotionAL::Library do
     @library = MotionAL.library
 
     @test_group_name = 'MotionAL'
-    @library.groups.create(@test_group_name)
-    @test_group = @library.groups.find_by_name(@test_group_name)
+    @library.groups.reload
+    @test_group = @library.groups.find_by_name(@test_group_name) 
   end
 
   describe ".saved_photos" do

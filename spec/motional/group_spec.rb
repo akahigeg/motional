@@ -8,6 +8,7 @@ describe MotionAL::Group do
     @library.groups.create(@test_group_name)
     @test_group = @library.groups.find_by_name(@test_group_name)
   end
+
   it "should work 'name' method" do
     @test_group.name.should == @test_group_name
   end
