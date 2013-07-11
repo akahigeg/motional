@@ -20,10 +20,4 @@ describe MotionAL::Library do
       @library.groups.should.kind_of Array
     end
   end
-
-  describe MotionAL::Representations do
-    it "should be kind of Array" do
-      @test_group.assets.first.representations.should.kind_of Array
-    end
-  end
 end
