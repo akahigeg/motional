@@ -216,7 +216,6 @@ class MotionAL
 
     # @param options :order, :filter, :group, :indexset
     def self.origin_all(options = {}, callback = nil)
-      # TODO: support :filter
       options[:group] ||= MotionAL.library.saved_photos
 
       AssetsFilter.set(options[:group], options[:filter]) if options[:filter]
@@ -334,6 +333,4 @@ class MotionAL
     end
 
   end
-
-  Photo = Asset
 end

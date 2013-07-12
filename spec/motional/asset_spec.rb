@@ -151,8 +151,6 @@ describe MotionAL::Asset do
 
       assets.size.should.not.equal photos.size
     end
-
-    # TODO: filter option
     # TODO: limit and offset option
   end
 
@@ -167,8 +165,6 @@ describe MotionAL::Asset do
       @existent_asset.representation.should == @existent_asset.default_representation
     end
   end
-  
-  
 
   # TODO: representation
   # TODO: video_compatible => into create video?
