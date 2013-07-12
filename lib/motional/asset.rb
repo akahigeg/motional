@@ -4,7 +4,9 @@ class MotionAL
   class Asset
     # An instance of ALAsset Class
     attr_reader :al_asset
-    @@all_assets = {}
+    @@all_assets_store = {}
+    @@created_asset_store = {}
+    @@found_asset_store = {}
 
     # @param al_asset [ALAsset]
     def initialize(al_asset)
@@ -20,27 +22,29 @@ class MotionAL
     # Create
     # @param source => CGImage or NSData or NSURL(video)
     def self.create(source, meta = nil, &block)
-      # TODO: thread safe
-      @created_asset = nil
+      pid = rand.to_s
+      @@created_asset_store[pid] = nil
       if block_given?
         if source.kind_of?(NSData)
-          self.create_by_image_data(source, meta, block)
+          self.create_by_image_data(source, meta, pid, block)
         elsif source.kind_of?(NSURL)
-          self.create_by_video_path(source, block)
+          self.create_by_video_path(source, pid, block)
         else
-          self.create_by_cg_image(source, meta, block)
+          self.create_by_cg_image(source, meta, pid, block)
         end
       else
         Dispatch.wait_async do
           if source.kind_of?(NSData)
-            self.create_by_image_data(source, meta)
+            self.create_by_image_data(source, meta, pid)
           elsif source.kind_of?(NSURL)
-            self.create_by_video_path(source)
+            self.create_by_video_path(source, pid)
           else
-            self.create_by_cg_image(source, meta)
+            self.create_by_cg_image(source, meta, pid)
           end
         end
-        return @created_asset
+        created_asset = @@created_asset_store[pid]
+        @@created_asset_store.delete(pid)
+        return created_asset
       end
     end
 
@@ -55,31 +59,33 @@ class MotionAL
     #   @return [Asset] 
     #   @return [nil] return nil when asset did not found.
     def self.find_by_url(asset_url, &block)
-      # TODO: thread safe
-      @found_asset = nil
+      pid = rand.to_s
+      @@found_asset_store[pid] = nil
       if block_given?
-        self.origin_find_by_url(asset_url, block)
+        self.origin_find_by_url(asset_url, pid, block)
       else
-        Dispatch.wait_async { self.origin_find_by_url(asset_url) }
-        return @found_asset
+        Dispatch.wait_async { self.origin_find_by_url(asset_url, pid) }
+        found_asset = @@found_asset_store[pid] 
+        @@found_asset_store.delete(pid)
+        return found_asset
       end
     end
 
     def self.all(options = {}, &block)
       options[:pid] = rand.to_s
-      @@all_assets[options[:pid]] = []
+      @@all_assets_store[options[:pid]] = []
       if block_given?
         self.origin_all(options, block)
       else
         Dispatch.wait_async { self.origin_all(options) }
-        assets = @@all_assets[options[:pid]]
-        @@all_assets[options[:pid]] = nil
+        assets = @@all_assets_store[options[:pid]]
+        @@all_assets_store.delete(options[:pid])
         return assets
       end
     end
 
     # wrapper method
-    def video_compatible?(video_path_url)
+    def self.video_compatible?(video_path_url)
       MotionAL.library.al_asset_library.videoAtPathIsCompatibleWithSavedPhotosAlbum(video_path_url)
     end
 
@@ -148,6 +154,7 @@ class MotionAL
         origin_save_new(source, metadata, block)
       else
         Dispatch.wait_async { origin_save_new(source, metadata) }
+
         return @created_asset
       end
     end
@@ -201,12 +208,12 @@ class MotionAL
       meta && meta.size == 1 && meta[:orientation]
     end
 
-    def self.origin_find_by_url(asset_url, callback = nil)
+    def self.origin_find_by_url(asset_url, pid, callback = nil)
       MotionAL.library.al_asset_library.assetForURL(
         asset_url, 
         resultBlock: lambda {|al_asset|
-          @found_asset = self.new(al_asset) if al_asset
-          callback.call(@found_asset, nil) if callback
+          @@found_asset_store[pid] = self.new(al_asset) if al_asset
+          callback.call(@@found_asset_store[pid], nil) if callback
         }, 
         failureBlock: lambda {|error|
           callback.call(nil, error) if callback
@@ -236,37 +243,35 @@ class MotionAL
         if !al_asset.nil?
           asset = Asset.new(al_asset)
           if options[:order] && options[:order] == "desc"
-            @@all_assets[options[:pid]].unshift(asset)
+            @@all_assets_store[options[:pid]].unshift(asset)
           else
-            @@all_assets[options[:pid]] << asset
+            @@all_assets_store[options[:pid]] << asset
           end
           callback.call(asset, nil) if callback
         end
       end
     end
 
-    def self.create_by_image_data(image_data, meta, &block)
+    def self.create_by_image_data(image_data, meta, pid, &block)
       MotionAL.library.al_asset_library.writeImageDataToSavedPhotosAlbum(
         image_data,
         metadata: meta,
-        completionBlock: self.completion_block_for_create(block)
+        completionBlock: self.completion_block_for_create(pid, block)
       )
     end
 
-    def self.create_by_video_path(video_path_url, &block)
+    def self.create_by_video_path(video_path_url, pid, &block)
       MotionAL.library.al_asset_library.writeVideoAtPathToSavedPhotosAlbum(
         video_path_url,
-        completionBlock: self.completion_block_for_create(block)
+        completionBlock: self.completion_block_for_create(pid, block)
       )
     end
 
-    # TODO: DRY
-    def self.completion_block_for_create(callback = nil)
+    def self.completion_block_for_create(pid, callback = nil)
       Proc.new do |asset_url, error|
-        p asset_url
         MotionAL::Asset.find_by_url(asset_url) do |asset, error|
-          @created_asset = asset
-          callback.call(@created_asset, error) if callback
+          @@created_asset_store[pid] = asset
+          callback.call(@@created_asset_store[pid], error) if callback
         end
       end
     end
@@ -280,7 +285,7 @@ class MotionAL
       end
     end
 
-    def origin_save_new(source, metadata = nil, callback = nil) 
+    def origin_save_new(source, metadata, callback = nil) 
       case self.asset_type
       when :photo
         save_new_by_image_data(source, metadata) {|asset, error| callback.call(asset, error) if callback }

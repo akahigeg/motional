@@ -4,7 +4,9 @@ describe MotionAL::Asset do
   before do
     @library = MotionAL.library
     @existent_asset = @library.saved_photos.assets.first
-    @video_asset = @library.saved_photos.assets.select{|a| a.asset_type == :video}.first
+    @existent_video_asset = @library.saved_photos.assets.select{|a| a.asset_type == :video }.first
+
+    @video_url = NSBundle.mainBundle.URLForResource('sample', withExtension:"mp4")
 
     @test_group_name = 'MotionAL'
     @library.groups.create(@test_group_name)
@@ -21,7 +23,6 @@ describe MotionAL::Asset do
   end
 
   describe ".create" do
-    # TODO: create video
     # TODO: create image with orientation
     describe "when pass a CGImage" do
       before do
@@ -46,7 +47,7 @@ describe MotionAL::Asset do
     describe "when pass a video path" do
       before do
         @calling_create_method = Proc.new do
-          MotionAL::Asset.create(@video_asset.url)
+          MotionAL::Asset.create(@video_url)
         end
       end
 
@@ -55,32 +56,60 @@ describe MotionAL::Asset do
   end
 
   describe "#save_new" do
-    # TODO: save_new video
-    before do
-      @calling_create_method = Proc.new do
-        @new_asset = @existent_asset.save_new(@existent_asset.data, @existent_asset.metadata)
+    describe "when pass a NSData" do
+      before do
+        @calling_create_method = Proc.new do
+          @new_asset = @existent_asset.save_new(@existent_asset.data, @existent_asset.metadata)
+        end
+      end
+
+      behaves_like "asset creation"
+
+      it "new asset have the 'original_asset'" do
+        @new_asset.original_asset.filename.should == @existent_asset.filename
       end
     end
 
-    behaves_like "asset creation"
+    describe "when pass a video path" do
+      before do
+        @calling_create_method = Proc.new do
+          @new_asset = @existent_video_asset.save_new(@video_url)
+        end
+      end
 
-    it "new asset have the 'original_asset'" do
-      @new_asset.original_asset.filename.should == @existent_asset.filename
+      behaves_like "asset creation"
     end
   end
 
   describe "#update" do
     # TODO: update video
-    before do
-      @calling_update_method = Proc.new do
-        @existent_asset.update(@existent_asset.data, @existent_asset.metadata)
+    describe "when pass a NSData" do
+      before do
+        @calling_update_method = Proc.new do
+          @existent_asset.update(@existent_asset.data, @existent_asset.metadata)
+        end
+      end
+
+      it "should not create new asset" do
+        @calling_update_method.should.not.change do
+          @library.saved_photos.assets.reload
+          @library.saved_photos.assets.size
+        end
       end
     end
 
-    it "should not create new asset" do
-      @calling_update_method.should.not.change do
-        @library.saved_photos.assets.reload
-        @library.saved_photos.assets.size
+    describe "when pass a video path" do
+      before do
+        @calling_update_method = Proc.new do
+          @existent_video_asset.update(@video_url)
+        end
+      end
+
+      it "should not create new asset" do
+        @calling_update_method.should.not.change do
+          @library.saved_photos.assets.reload
+          @library.saved_photos.assets.size
+        end
       end
     end
   end

@@ -17,7 +17,4 @@ describe MotionAL::Assets do
       @assets.count(:photo).should.not.equal @assets.count(:video)
     end
   end
-  # filter
-  #   default
-  #   set
 end
