@@ -18,14 +18,29 @@ Or install it yourself as:
 
 ## Usage
 
-### Overview
+### Headfirst
     
     library = MotionAL.library
     library.albums.first.photos.first.files.first
+    library.albums.each do |album|
+      albums.assets.each do |asset|
+        asset.files do |file|
+          p file.filename
+        end
+      end
+    end
     
     album = library.albums.first
     asset = album.assets.first
     file = photo.default_file # photo.files.first
+
+    library.saved_photos
+
+    new_album = library.albums.create('new_album_name')
+    album = library.albums.find_by_url(album_url)
+
+    new_asset = album.assets.create(image, meta)
+    asset = album.assets.find_by_url(asset_url)
     
 as same.
 
@@ -35,7 +50,7 @@ as same.
 
 ### Library
 
-    library = MotionAL.library # not recommented `Motional::Library.new`
+    library = MotionAL.library # `Motional::Library.new` is not recommented.
     library.saved_photos # library.albums.find_by_name('Saved Photos')
 
     MotionAL::Library.authorized?
@@ -71,12 +86,6 @@ as same.
 
     albums = Album.all
 
-asynchronous
-
-    library.albums.find_by_url(album_url) do |album|
-      ...
-    end
-    
 #### Assets (also: Photos, Viedos)
     
     urls = album.assets.map {|a| a.url }
@@ -116,7 +125,7 @@ But if delete it or update it that does not affect AssetLibrary (It's restrictio
 
 ## Sample Code
 
-## Classes 
+## Classes overview
 
     MotionAL
     MotionAL::Group = Album

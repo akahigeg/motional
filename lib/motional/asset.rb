@@ -23,9 +23,19 @@ class MotionAL
       # TODO: thread safe
       @created_asset = nil
       if block_given?
-        self.create_by_cg_image(source, meta, block)
+        if source.kind_of?(NSData)
+          self.create_by_image_data(source, meta, block)
+        else
+          self.create_by_cg_image(source, meta, block)
+        end
       else
-        Dispatch.wait_async { self.create_by_cg_image(source, meta) }
+        Dispatch.wait_async do
+          if source.kind_of?(NSData)
+            self.create_by_image_data(source, meta)
+          else
+            self.create_by_cg_image(source, meta)
+          end
+        end
         return @created_asset
       end
     end

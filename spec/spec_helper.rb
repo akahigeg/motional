@@ -1,5 +1,7 @@
 # -*- encoding : utf-8 -*-
 
+# Bacon::Functional.default_duration = 3
+
 class SpecHelper
   def self.prepare_initial_assets
     library = MotionAL.library

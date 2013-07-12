@@ -23,13 +23,29 @@ describe MotionAL::Asset do
     # TODO: create video
     # TODO: create image from image_data
     # TODO: create image with orientation
-    before do
-      @calling_create_method = Proc.new do
-        MotionAL::Asset.create(@existent_asset.full_resolution_image, @existent_asset.metadata)
+    describe "when pass a CGImage" do
+      before do
+        @calling_create_method = Proc.new do
+          MotionAL::Asset.create(@existent_asset.full_resolution_image, @existent_asset.metadata)
+        end
       end
+
+      behaves_like "asset creation"
     end
 
-    behaves_like "asset creation"
+    describe "when pass a NSData" do
+      before do
+        @calling_create_method = Proc.new do
+          MotionAL::Asset.create(@existent_asset.data, @existent_asset.metadata)
+        end
+      end
+
+      it "data" do
+        @existent_asset.data.should.kind_of NSData
+      end
+
+      behaves_like "asset creation"
+    end
   end
 
   describe "#save_new" do

@@ -18,5 +18,9 @@ class MotionAL
       # TODO: treat options
       load_entries
     end
+
+    private :delete, :delete_at, :delete_if, :reject!, :fill, :flatten!, 
+      :insert, :keep_if, :pop, :shift, :replace, :reverse!, :rotate!, 
+      :select!, :shuffle!, :slice!, :sort!, :uniq!
   end
 end
