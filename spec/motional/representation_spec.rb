@@ -43,4 +43,6 @@ describe MotionAL::Representation do
       @rep.url.should.kind_of NSURL
     end
   end
+
+  # TODO: meta to more handy
 end
