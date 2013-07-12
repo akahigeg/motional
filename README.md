@@ -18,48 +18,55 @@ Or install it yourself as:
 
 ## Usage
 
-### Classes 
-
-    MotionAL
-    MotionAL::Group = Album
-      assets, photos, videos
-    MotionAL::Asset = Photo, Video
-      representations, files
-    MotionAL::Representation = File
-
 ### Overview
-
     
     library = MotionAL.library
+    library.albums.first.photos.first.files.first
     
     album = library.albums.first
     asset = album.assets.first
     file = photo.default_file # photo.files.first
-
-    library.groups.first.photos.first.files.first
     
+as same.
+
     group = MotionAL.library.groups.first
     asset = group.assets.first
     representation = asset.default_representation # asset.representations.first
+
+### Library
+
+    library = MotionAL.library # not recommented `Motional::Library.new`
+    library.saved_photos # library.albums.find_by_name('Saved Photos')
+
+    MotionAL::Library.authorized?
+
+#### Albums
+
+    library.albums.each {...}
+    library.albums.create('album_name') # create and add library
 
 ### Album (Group)
 
 #### Create
 
-    library.albums.create('album_name')
-    MotionAL::Album.create('album_name')
+    MotionAL::Album.create('album_name') # create and add library
     
 #### Find
 
     album = library.albums.find_by_url(album_url)
     album = library.albums.find_by_name('album_name')
+
+    album = Album.find_by_url(album_url)
+    album = Album.find_by_name('album_name')
+
+`album_url` is a NSURL object.
     
 #### Assets
 
-    # create asset and add album
-    original_assets = library.saved_photos.assets.first
-    album.assets.create(original_asset.full_resolution_image, original_asset.metadata)
+    album.assets.create(image, metadata) # create asset and add album
     
+
+
 ### Asset (Photo, Video)
 
     asset = MotionAL::Asset.create(original_asset.full_resolution_image, original_asset.metadata)
@@ -85,6 +92,15 @@ Or install it yourself as:
 #### BubbleWrap camera sample
 
 ## Sample Code
+
+## Classes 
+
+    MotionAL
+    MotionAL::Group = Album
+      assets, photos, videos
+    MotionAL::Asset = Photo, Video
+      representations, files
+    MotionAL::Representation = File
 
 ## Contributing
 
