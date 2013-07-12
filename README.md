@@ -1,6 +1,6 @@
-# Motion::Asset::Tree
+# MotionAL
 
-TODO: Write a gem description
+AssetLibrary framework wrapper for RubyMotion.
 
 ## Installation
 
