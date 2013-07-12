@@ -35,4 +35,6 @@ class MotionAL
       end
     end
   end
+
+  Files = Representations
 end

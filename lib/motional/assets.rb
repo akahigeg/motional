@@ -101,4 +101,8 @@ class MotionAL
       @group.al_asset_group.addAsset(asset.al_asset)
     end
   end
+
+  Photos = Assets # TODO: filter
+  Videos = Assets # TODO: filter
+  
 end

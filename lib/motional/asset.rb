@@ -20,6 +20,7 @@ class MotionAL
     # Create
     # @param source => CGImage or NSData or NSURL(video)
     def self.create(source, meta = nil, &block)
+      # TODO: thread safe
       @created_asset = nil
       if block_given?
         self.create_by_cg_image(source, meta, block)
@@ -40,6 +41,7 @@ class MotionAL
     #   @return [Asset] 
     #   @return [nil] return nil when asset did not found.
     def self.find_by_url(asset_url, &block)
+      # TODO: thread safe
       @found_asset = nil
       if block_given?
         self.origin_find_by_url(asset_url, block)
@@ -49,7 +51,6 @@ class MotionAL
       end
     end
 
-    # TODO: thread safe
     def self.all(options = {}, &block)
       options[:pid] = rand.to_s
       @@all_assets[options[:pid]] = []
@@ -315,4 +316,6 @@ class MotionAL
       )
     end
   end
+
+  Photo = Asset
 end

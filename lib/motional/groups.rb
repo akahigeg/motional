@@ -41,4 +41,6 @@ class MotionAL
       end
     end
   end
+
+  Albums = Groups
 end

@@ -8,6 +8,7 @@ class MotionAL
     end
 
     def self.create(group_name, &block)
+      # TODO: thread safe
       @created_group = nil
       if block_given?
         self.origin_create(group_name, block)
@@ -18,6 +19,7 @@ class MotionAL
     end
 
     def self.find_by_url(group_url, &block)
+      # TODO: thread safe
       @found_group = nil
       if block_given?
         self.origin_find_by_url(group_url, block)
@@ -32,6 +34,7 @@ class MotionAL
     end
 
     def self.all(options = nil, &block)
+      # TODO: thread safe
       @all_groups = []
       if block_given?
         origin_all(block)
@@ -126,4 +129,6 @@ class MotionAL
       )
     end
   end
+
+  Album = Group
 end

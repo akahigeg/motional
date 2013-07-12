@@ -18,9 +18,7 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
-
-sample code
+### Classes 
 
     MotionAL
     MotionAL::Group = Album
@@ -28,36 +26,45 @@ sample code
     MotionAL::Asset = Photo, Video
       representations, files
     MotionAL::Representation = File
-    
-    エイリアスの方がわかりやすいのでそっちを主とする
+
+### Overview
+
     
     library = MotionAL.library
-    library.saved_photos
     
-    album = MotionAL.library.albums.first
-    photo = album.photos.first
+    album = library.albums.first
+    asset = album.assets.first
     file = photo.default_file # photo.files.first
-    
-    MotionAL.library.groups.first.photos.first.files.first
+
+    library.groups.first.photos.first.files.first
     
     group = MotionAL.library.groups.first
     asset = group.assets.first
     representation = asset.default_representation # asset.representations.first
-    
+
+### Album (Group)
+
+#### Create
+
     library.albums.create('album_name')
     MotionAL::Album.create('album_name')
     
+#### Find
+
     album = library.albums.find_by_url(album_url)
     album = library.albums.find_by_name('album_name')
     
+#### Assets
+
     # create asset and add album
     original_assets = library.saved_photos.assets.first
     album.assets.create(original_asset.full_resolution_image, original_asset.metadata)
     
+### Asset (Photo, Video)
+
     asset = MotionAL::Asset.create(original_asset.full_resolution_image, original_asset.metadata)
     album.assets << asset
     
-    # BubbleWrap camera sample
     
     library.saved_photos.assets.each do |asset|
       p asset.default_file.name
@@ -73,6 +80,11 @@ sample code
     
     # asynchronous
 
+### File (Representation)
+
+#### BubbleWrap camera sample
+
+## Sample Code
 
 ## Contributing
 

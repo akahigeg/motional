@@ -44,4 +44,6 @@ class MotionAL
     alias_method :name, :filename
     alias_method :cg_image, :full_resolution_image
   end
+
+  File = Representation
 end
