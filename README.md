@@ -43,11 +43,17 @@ as same.
 #### Albums
 
     library.albums.each {...}
-    library.albums.create('album_name') # create and add library
 
-### Album (Group)
+`albums` is a kind of Array.
+But if delete it or update it that does not affect AssetLibrary (It's restriction of iOS SDK)
+
+### Album (alias of Group)
 
 #### Create
+
+    library.albums.create('album_name') # create and add library
+
+as same.
 
     MotionAL::Album.create('album_name') # create and add library
     
@@ -56,22 +62,39 @@ as same.
     album = library.albums.find_by_url(album_url)
     album = library.albums.find_by_name('album_name')
 
+`album_url` is a NSURL object.
+
+as same.
+
     album = Album.find_by_url(album_url)
     album = Album.find_by_name('album_name')
 
-`album_url` is a NSURL object.
+    albums = Album.all
+
+asynchronous
+
+    library.albums.find_by_url(album_url) do |album|
+      ...
+    end
     
-#### Assets
+#### Assets (also: Photos, Viedos)
+    
+    urls = album.assets.map {|a| a.url }
+    album.assets.each {...}
+
+`assets` is a kind of Array.
+But if delete it or update it that does not affect AssetLibrary (It's restriction of iOS SDK)
+
+### Asset (also: Photo, Video)
+
+#### Create
 
     album.assets.create(image, metadata) # create asset and add album
     
-
-
-### Asset (Photo, Video)
-
     asset = MotionAL::Asset.create(original_asset.full_resolution_image, original_asset.metadata)
     album.assets << asset
     
+#### Find
     
     library.saved_photos.assets.each do |asset|
       p asset.default_file.name
@@ -87,7 +110,7 @@ as same.
     
     # asynchronous
 
-### File (Representation)
+### File (alias of Representation)
 
 #### BubbleWrap camera sample
 
