@@ -78,7 +78,7 @@ class MotionAL
     # Return true if App haves write access for this asset.
     # @return [Boolean]
     def editable?
-      @al_asset.editable
+      @al_asset.editable?
     end
 
     def original_asset
@@ -91,6 +91,7 @@ class MotionAL
     end
     alias_method :rep, :default_representation
     alias_method :file, :default_representation
+    alias_method :representation, :default_representation
 
     # wrapper for valurForProperty
     {

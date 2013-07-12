@@ -124,13 +124,24 @@ describe MotionAL::Asset do
     end
 
     # TODO: filter option
-    # TODO: indexset option
   end
+
+  describe "#editable?" do
+    it "asset is created by this App should be editable" do
+      @existent_asset.should.be.editable
+    end
+  end
+
+  describe "#representation" do
+    it "should be default representation" do
+      @existent_asset.representation.should == @existent_asset.default_representation
+    end
+  end
+  
   
 
   # TODO: representation
   # TODO: video_compatible => into create video?
-  # TODO: editable
   # TODO: properties => convert ruby like value
   # TODO: asset_type
   # TODO: call through to the default representation's methods
