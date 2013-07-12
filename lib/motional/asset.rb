@@ -25,6 +25,8 @@ class MotionAL
       if block_given?
         if source.kind_of?(NSData)
           self.create_by_image_data(source, meta, block)
+        elsif source.kind_of?(NSURL)
+          self.create_by_video_path(source, block)
         else
           self.create_by_cg_image(source, meta, block)
         end
@@ -32,6 +34,8 @@ class MotionAL
         Dispatch.wait_async do
           if source.kind_of?(NSData)
             self.create_by_image_data(source, meta)
+          elsif source.kind_of?(NSURL)
+            self.create_by_video_path(source)
           else
             self.create_by_cg_image(source, meta)
           end
@@ -69,7 +73,7 @@ class MotionAL
       else
         Dispatch.wait_async { self.origin_all(options) }
         assets = @@all_assets[options[:pid]]
-        # @@all_assets[options[:pid]] = nil
+        @@all_assets[options[:pid]] = nil
         return assets
       end
     end

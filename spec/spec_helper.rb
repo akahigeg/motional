@@ -1,13 +1,19 @@
 # -*- encoding : utf-8 -*-
 
-# Bacon::Functional.default_duration = 3
+# first run after reset ios simurator settings is fail. need before_script travis ci?
+#
+# rake spec files=spec_helper
+#
 
-class SpecHelper
-  def self.prepare_initial_assets
+describe "prepare" do
+  before do
     library = MotionAL.library
 
     first_image = UIImage.imageNamed('sample.jpg')
-    asset = MotionAL::Asset.create(first_image.CGImage, {})
+    MotionAL::Asset.create(first_image.CGImage, {})
+
+    video_url = NSBundle.mainBundle.URLForResource('sample', withExtension:"mp4")
+    MotionAL::Asset.create(video_url)
 
     test_group_name = 'MotionAL'
 
@@ -17,8 +23,8 @@ class SpecHelper
     test_group.assets << library.saved_photos.assets.first
     test_group.assets.reload
   end
+
+  it "dummy spec for waiting creating test files" do
+    1.should == 1
+  end
 end
-
-SpecHelper.prepare_initial_assets
-
-# first run after reset ios simurator settings is fail. need before_script travis ci?

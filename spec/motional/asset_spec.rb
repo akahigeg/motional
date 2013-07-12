@@ -4,6 +4,7 @@ describe MotionAL::Asset do
   before do
     @library = MotionAL.library
     @existent_asset = @library.saved_photos.assets.first
+    @video_asset = @library.saved_photos.assets.select{|a| a.asset_type == :video}.first
 
     @test_group_name = 'MotionAL'
     @library.groups.create(@test_group_name)
@@ -21,7 +22,6 @@ describe MotionAL::Asset do
 
   describe ".create" do
     # TODO: create video
-    # TODO: create image from image_data
     # TODO: create image with orientation
     describe "when pass a CGImage" do
       before do
@@ -42,6 +42,16 @@ describe MotionAL::Asset do
 
       it "data" do
         @existent_asset.data.should.kind_of NSData
+      end
+
+      behaves_like "asset creation"
+    end
+
+    describe "when pass a video path" do
+      before do
+        @calling_create_method = Proc.new do
+          MotionAL::Asset.create(@video_asset.url)
+        end
       end
 
       behaves_like "asset creation"
@@ -121,9 +131,9 @@ describe MotionAL::Asset do
 
     it "should avail indexset option" do
       indexset = NSMutableIndexSet.new
-      (1..3).each {|n| indexset.addIndex(n) }
+      (1..2).each {|n| indexset.addIndex(n) }
       assets = MotionAL::Asset.all({:indexset => indexset})
-      assets.size.should.equal 3
+      assets.size.should.equal 2
 
       @library.saved_photos.assets.reload
       @library.saved_photos.assets[1].url.should.equal assets.first.url
@@ -131,12 +141,12 @@ describe MotionAL::Asset do
 
     it "should avail indexset option with order option" do
       indexset = NSMutableIndexSet.new
-      (1..10).each {|n| indexset.addIndex(n) }
+      (1..3).each {|n| indexset.addIndex(n) }
       assets = MotionAL::Asset.all({:indexset => indexset, :order => 'desc'})
-      assets.size.should.equal 10
+      assets.size.should.equal 3
 
       @library.saved_photos.assets.reload
-      @library.saved_photos.assets[1..10].reverse.first.url.should.equal assets.first.url
+      @library.saved_photos.assets[1..3].reverse.first.url.should.equal assets.first.url
     end
 
     # TODO: filter option
