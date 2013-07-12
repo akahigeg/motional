@@ -97,10 +97,32 @@ describe MotionAL::Asset do
 
     it "should avail group option" do
       assets_b = MotionAL::Asset.all({:group => @test_group})
-      # assets_a = MotionAL::Asset.all #=> sometime crash when call twice immediatly
+      assets_a = MotionAL::Asset.all #=> sometime crash when call twice immediatly
 
-      assets_b.size.should.not.equal @library.saved_photos.assets.size
+      assets_a.size.should.equal @library.saved_photos.assets.size
+      assets_a.size.should.not.equal assets_b.size
     end
+
+    it "should avail indexset option" do
+      indexset = NSMutableIndexSet.new
+      (1..3).each {|n| indexset.addIndex(n) }
+      assets = MotionAL::Asset.all({:indexset => indexset})
+      assets.size.should.equal 3
+
+      @library.saved_photos.assets.reload
+      @library.saved_photos.assets[1].url.should.equal assets.first.url
+    end
+
+    it "should avail indexset option with order option" do
+      indexset = NSMutableIndexSet.new
+      (1..10).each {|n| indexset.addIndex(n) }
+      assets = MotionAL::Asset.all({:indexset => indexset, :order => 'desc'})
+      assets.size.should.equal 10
+
+      @library.saved_photos.assets.reload
+      @library.saved_photos.assets[1..10].reverse.first.url.should.equal assets.first.url
+    end
+
     # TODO: filter option
     # TODO: indexset option
   end

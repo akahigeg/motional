@@ -4,6 +4,7 @@ class MotionAL
   class Asset
     # An instance of ALAsset Class
     attr_reader :al_asset
+    @@all_assets = {}
 
     # @param al_asset [ALAsset]
     def initialize(al_asset)
@@ -50,12 +51,15 @@ class MotionAL
 
     # TODO: thread safe
     def self.all(options = {}, &block)
-      @all_assets = []
+      options[:pid] = rand.to_s
+      @@all_assets[options[:pid]] = []
       if block_given?
         self.origin_all(options, block)
       else
         Dispatch.wait_async { self.origin_all(options) }
-        return @all_assets
+        assets = @@all_assets[options[:pid]]
+        # @@all_assets[options[:pid]] = nil
+        return assets
       end
     end
 
@@ -194,43 +198,31 @@ class MotionAL
       )
     end
 
-    def self.order_option(options)
-      if options[:order] && options[:order] == 'desc'
-        NSEnumerationReverse
-      else
-        NSEnumerationConcurrent
-      end
-    end
-
     # @param options :order, :filter, :group, :indexset
     def self.origin_all(options = {}, callback = nil)
       # TODO: support :filter
-      @all_assets = []
       group = options[:group] ? options[:group] : MotionAL.library.saved_photos
 
-      if options[:order]
-        enum_option = options[:order] == 'asc' ? NSEnumerationConcurrent : NSEnumerationReverse
-        group.al_asset_group.enumerateAssetsWithOptions(
-          self.order_option(options), 
-          usingBlock: using_block_for_all(callback)
-        )
-      elsif options[:indexset]
+      if options[:indexset]
         group.al_asset_group.enumerateAssetsAtIndexes(
           options[:indexset],
-          options: self.order_option(options), 
-          usingBlock: using_block_for_all(callback)
+          options: NSEnumerationConcurrent, 
+          usingBlock: using_block_for_all(options, callback)
         )
       else
-        group.al_asset_group.enumerateAssetsUsingBlock(using_block_for_all(callback))
+        group.al_asset_group.enumerateAssetsUsingBlock(using_block_for_all(options, callback))
       end
-
     end
 
-    def self.using_block_for_all(callback = nil)
+    def self.using_block_for_all(options, callback = nil)
       Proc.new do |al_asset, index, stop|
         if !al_asset.nil?
           asset = Asset.new(al_asset)
-          @all_assets << asset
+          if options[:order] && options[:order] == "desc"
+            @@all_assets[options[:pid]].unshift(asset)
+          else
+            @@all_assets[options[:pid]] << asset
+          end
           callback.call(asset, nil) if callback
         end
       end
