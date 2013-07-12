@@ -145,6 +145,13 @@ describe MotionAL::Asset do
       @library.saved_photos.assets[1..3].reverse.first.url.should.equal assets.first.url
     end
 
+    it "should avail filter option" do
+      assets = MotionAL::Asset.all({:filter => :all})
+      photos = MotionAL::Asset.all({:filter => :photo})
+
+      assets.size.should.not.equal photos.size
+    end
+
     # TODO: filter option
     # TODO: limit and offset option
   end

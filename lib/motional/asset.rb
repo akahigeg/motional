@@ -217,17 +217,19 @@ class MotionAL
     # @param options :order, :filter, :group, :indexset
     def self.origin_all(options = {}, callback = nil)
       # TODO: support :filter
-      group = options[:group] ? options[:group] : MotionAL.library.saved_photos
+      options[:group] ||= MotionAL.library.saved_photos
 
+      AssetsFilter.set(options[:group], options[:filter]) if options[:filter]
       if options[:indexset]
-        group.al_asset_group.enumerateAssetsAtIndexes(
+        options[:group].al_asset_group.enumerateAssetsAtIndexes(
           options[:indexset],
           options: NSEnumerationConcurrent, 
           usingBlock: using_block_for_all(options, callback)
         )
       else
-        group.al_asset_group.enumerateAssetsUsingBlock(using_block_for_all(options, callback))
+        options[:group].al_asset_group.enumerateAssetsUsingBlock(using_block_for_all(options, callback))
       end
+      AssetsFilter.unset(options[:group]) if options[:filter]
     end
 
     def self.using_block_for_all(options, callback = nil)
