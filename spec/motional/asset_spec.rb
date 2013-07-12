@@ -123,11 +123,6 @@ describe MotionAL::Asset do
       @library.saved_photos.assets[1..10].reverse.first.url.should.equal assets.first.url
     end
 
-    it "should avail limit option with order option" do
-      assets = MotionAL::Asset.all({:limit => 5})
-      assets.size.should.equal 5
-    end
-
     # TODO: filter option
     # TODO: limit and offset option
   end

@@ -204,16 +204,6 @@ class MotionAL
       # TODO: support :filter
       group = options[:group] ? options[:group] : MotionAL.library.saved_photos
 
-      if options[:limit] && options[:indexset].nil?
-        indexset = NSMutableIndexSet.new
-
-        first_index = 0
-        last_index = options[:limit] - 1
-
-        (first_index..last_index).each {|n| indexset.addIndex(n) }
-        options[:indexset] = indexset
-      end
-
       if options[:indexset]
         group.al_asset_group.enumerateAssetsAtIndexes(
           options[:indexset],
