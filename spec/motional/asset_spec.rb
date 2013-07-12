@@ -40,10 +40,6 @@ describe MotionAL::Asset do
         end
       end
 
-      it "data" do
-        @existent_asset.data.should.kind_of NSData
-      end
-
       behaves_like "asset creation"
     end
 

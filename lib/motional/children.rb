@@ -20,7 +20,7 @@ class MotionAL
     end
 
     private :delete, :delete_at, :delete_if, :reject!, :fill, :flatten!, 
-      :insert, :keep_if, :pop, :shift, :replace, :reverse!, :rotate!, 
-      :select!, :shuffle!, :slice!, :sort!, :uniq!
+      :insert, :keep_if, :pop, :shift, :drop, :replace, :reverse!, :rotate!, 
+      :select!, :collect!, :shuffle!, :slice!, :sort!, :uniq!, :compact!
   end
 end

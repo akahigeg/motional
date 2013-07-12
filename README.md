@@ -63,6 +63,9 @@ as same.
 But if delete it or update it that does not affect AssetLibrary (It's restriction of iOS SDK)
 
 ### Album (alias of Group)
+    
+    Asset.all(:filter => :photo)
+    Album.assets.filter(:photo).all
 
 #### Create
 

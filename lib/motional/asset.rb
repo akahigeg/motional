@@ -262,6 +262,7 @@ class MotionAL
     # TODO: DRY
     def self.completion_block_for_create(callback = nil)
       Proc.new do |asset_url, error|
+        p asset_url
         MotionAL::Asset.find_by_url(asset_url) do |asset, error|
           @created_asset = asset
           callback.call(@created_asset, error) if callback
@@ -329,6 +330,7 @@ class MotionAL
         completionBlock: completion_block_for_save_and_update(block)
       )
     end
+
   end
 
   Photo = Asset
