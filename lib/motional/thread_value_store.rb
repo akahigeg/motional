@@ -26,6 +26,13 @@ module MotionAL
         @@value_store[name][pid] = value
       end
     end
+    class << self
+      alias_method :push, :set
+    end
+
+    def self.unshift(name, pid, value)
+      @@value_store[name][pid].unshift(value)
+    end
 
     def self.get(name, pid)
       @@value_store[name][pid]

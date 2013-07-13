@@ -4,9 +4,7 @@ class MotionAL
   class Asset
     # An instance of ALAsset Class
     attr_reader :al_asset
-    @@all_assets_store = {}
-    @@created_asset_store = {}
-    @@found_asset_store = {}
+    @@store = ThreadValueStore
 
     # @param al_asset [ALAsset]
     def initialize(al_asset)
@@ -24,8 +22,7 @@ class MotionAL
     # @param source [NSData] image data
     # @param source [NSURL] video path
     def self.create(source, meta = nil, &block)
-      pid = rand.to_s
-      @@created_asset_store[pid] = nil
+      pid = @@store.reserve(:create)
       if block_given?
         if source.kind_of?(NSData)
           self.create_by_image_data(source, meta, pid, block)
@@ -44,8 +41,8 @@ class MotionAL
             self.create_by_cg_image(source, meta, pid)
           end
         end
-        created_asset = @@created_asset_store[pid]
-        @@created_asset_store.delete(pid)
+        created_asset = @@store.get(:create, pid)
+        @@store.release(:create, pid)
         return created_asset
       end
     end
@@ -61,27 +58,25 @@ class MotionAL
     #   @return [Asset] 
     #   @return [nil] return nil when asset did not found.
     def self.find_by_url(asset_url, &block)
-      pid = rand.to_s
-      @@found_asset_store[pid] = nil
+      pid = @@store.reserve(:find_by_url)
       if block_given?
         self.origin_find_by_url(asset_url, pid, block)
       else
         Dispatch.wait_async { self.origin_find_by_url(asset_url, pid) }
-        found_asset = @@found_asset_store[pid] 
-        @@found_asset_store.delete(pid)
+        found_asset = @@store.get(:find_by_url, pid)
+        @@store.release(:find_by_url, pid)
         return found_asset
       end
     end
 
     def self.all(options = {}, &block)
-      options[:pid] = rand.to_s
-      @@all_assets_store[options[:pid]] = []
+      options[:pid] = @@store.reserve(:all, :array)
       if block_given?
         self.origin_all(options, block)
       else
         Dispatch.wait_async { self.origin_all(options) }
-        assets = @@all_assets_store[options[:pid]]
-        @@all_assets_store.delete(options[:pid])
+        assets = @@store.get(:all, options[:pid])
+        @@store.release(:all, options[:pid])
         return assets
       end
     end
@@ -214,8 +209,11 @@ class MotionAL
       MotionAL.library.al_asset_library.assetForURL(
         asset_url, 
         resultBlock: lambda {|al_asset|
-          @@found_asset_store[pid] = self.new(al_asset) if al_asset
-          callback.call(@@found_asset_store[pid], nil) if callback
+          if al_asset
+            found_asset = self.new(al_asset)
+            @@store.set(:find_by_url, pid, found_asset) 
+            callback.call(found_asset, nil) if callback
+          end
         }, 
         failureBlock: lambda {|error|
           callback.call(nil, error) if callback
@@ -245,9 +243,9 @@ class MotionAL
         if !al_asset.nil?
           asset = Asset.new(al_asset)
           if options[:order] && options[:order] == "desc"
-            @@all_assets_store[options[:pid]].unshift(asset)
+            @@store.unshift(:all, options[:pid], asset)
           else
-            @@all_assets_store[options[:pid]] << asset
+            @@store.push(:all, options[:pid], asset)
           end
           callback.call(asset, nil) if callback
         end
@@ -272,7 +270,7 @@ class MotionAL
     def self.completion_block_for_create(pid, callback = nil)
       Proc.new do |asset_url, error|
         MotionAL::Asset.find_by_url(asset_url) do |asset, error|
-          @@created_asset_store[pid] = asset
+          @@store.set(:create, pid, asset)
           callback.call(@@created_asset_store[pid], error) if callback
         end
       end
