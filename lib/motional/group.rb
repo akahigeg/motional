@@ -22,11 +22,17 @@ class MotionAL
     end
 
     def self.save_to_data_store(name, pid, value)
+      "dog"
       if type_of_data_store(name) == :array
         @@thread_safe_data_store[name][pid] << value
       else
+        "days"
         @@thread_safe_data_store[name][pid] = value
       end
+    end
+
+    def self.get_from_data_store(name, pid)
+      @@thread_safe_data_store[name][pid]
     end
 
     def self.release_data_store(name, pid)
@@ -38,24 +44,27 @@ class MotionAL
     end
 
     def self.create(group_name, &block)
-      # TODO: thread safe
       pid = reserve_data_store(:created)
       if block_given?
         self.origin_create(group_name, pid, block)
       else
         Dispatch.wait_async { self.origin_create(group_name, pid) }
-        return @created_group
+        created_group = get_from_data_store(:created, pid)
+        release_data_store(:created, pid)
+
+        return created_group
       end
     end
 
     def self.find_by_url(group_url, &block)
-      # TODO: thread safe
-      @found_group = nil
+      pid = reserve_data_store(:find_by_url)
       if block_given?
-        self.origin_find_by_url(group_url, block)
+        self.origin_find_by_url(group_url, pid, block)
       else
-        Dispatch.wait_async { self.origin_find_by_url(group_url) }
-        return @found_group
+        Dispatch.wait_async { self.origin_find_by_url(group_url, pid) }
+        found_group = get_from_data_store(:find_by_url, pid)
+        release_data_store(:find_by_url, pid)
+        return found_group
       end
     end
 
@@ -133,12 +142,16 @@ class MotionAL
       )
     end
 
-    def self.origin_find_by_url(group_url, callback = nil)
+    def self.origin_find_by_url(group_url, pid, callback = nil)
       MotionAL.library.al_asset_library.groupForURL(
         group_url, 
         resultBlock: lambda { |al_asset_group|
-          @found_group = Group.new(al_asset_group) if !al_asset_group.nil?
-          callback.call(@found_group, nil) if callback
+          if !al_asset_group.nil?
+            found_group = Group.new(al_asset_group) 
+            self.save_to_data_store(:find_by_url, pid, found_group)
+          end
+
+          callback.call(found_group, nil) if callback
         },
         failureBlock: lambda { |error|
           callback.call(nil, error) if callback
