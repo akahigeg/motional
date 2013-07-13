@@ -21,6 +21,7 @@ class MotionAL
     # @param source [CGImage] 
     # @param source [NSData] image data
     # @param source [NSURL] video path
+    # @note use `MotionAL::Asset.video_compatible?(video_path_url)` before creating video.
     def self.create(source, meta = nil, &block)
       pid = @@store.reserve(:create)
       if block_given?
@@ -137,7 +138,7 @@ class MotionAL
       MotionAL.asset_orientations.key(@al_asset.valueForProperty(ALAssetPropertyOrientation))
     end
 
-    # call through to the default representation's methods
+    # through to the default representation's methods
     [:full_resolution_image, :full_screen_image, :scale, :data, :cg_image,
      :dimensions, :filename, :size, :metadata].each do |method_name|
        define_method(method_name) do 
@@ -148,8 +149,6 @@ class MotionAL
     # save_new (save to new asset with original asset property)
     # –writeModifiedImageDataToSavedPhotosAlbum:metadata:completionBlock:
     # –writeModifiedVideoAtPathToSavedPhotosAlbum:completionBlock:
-    #
-    #
     def save_new(source, metadata = nil, &block)
       @created_asset = nil
       if block_given?
@@ -186,7 +185,7 @@ class MotionAL
       if self.only_orientation?(meta)
         MotionAL.library.al_asset_library.writeImageToSavedPhotosAlbum(
           cg_image,
-          orientation: meta[:orientation],
+          orientation: MotionAL.asset_orientations[meta[:orientation]],
           completionBlock: self.completion_block_for_create(callback)
         )
       else

@@ -78,23 +78,10 @@ class MotionAL
     end
 
     def asset_group_type
-      self.class.asset_group_types.key(@al_asset_group.valueForProperty(ALAssetsGroupPropertyType))
+      MotionAL.asset_group_types.key(@al_asset_group.valueForProperty(ALAssetsGroupPropertyType))
     end
 
     private
-    def self.asset_group_types
-      {
-        :library => ALAssetsGroupLibrary,
-        :album => ALAssetsGroupAlbum,
-        :event => ALAssetsGroupEvent,
-        :faces => ALAssetsGroupFaces,
-        :photos => ALAssetsGroupSavedPhotos,
-        :photo_stream => ALAssetsGroupPhotoStream,
-        :all => ALAssetsGroupAll
-        
-      }
-    end
-    
     def self.origin_create(group_name, pid, callback = nil)
       MotionAL.library.al_asset_library.addAssetsGroupAlbumWithName(
         group_name, 
@@ -132,7 +119,7 @@ class MotionAL
     def self.origin_all(pid, callback = nil)
       # TODO: support more Type of Asset (now only support ALAssetsGroupAll)
       MotionAL.library.al_asset_library.enumerateGroupsWithTypes(
-        ALAssetsGroupAll,
+        MotionAL.asset_group_types[:all],
         usingBlock: lambda { |al_asset_group, stop|
           if !al_asset_group.nil?
             group = Group.new(al_asset_group) 

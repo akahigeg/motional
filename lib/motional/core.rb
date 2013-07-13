@@ -20,6 +20,18 @@ module MotionAL
     def library
       Library.instance
     end
+
+    def asset_group_types
+      {
+        :library      => ALAssetsGroupLibrary,
+        :album        => ALAssetsGroupAlbum,
+        :event        => ALAssetsGroupEvent,
+        :faces        => ALAssetsGroupFaces,
+        :photos       => ALAssetsGroupSavedPhotos,
+        :photo_stream => ALAssetsGroupPhotoStream,
+        :all          => ALAssetsGroupAll
+      }
+    end
  
     def asset_types
       {

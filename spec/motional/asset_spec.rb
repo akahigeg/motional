@@ -23,11 +23,20 @@ describe MotionAL::Asset do
   end
 
   describe ".create" do
-    # TODO: create image with orientation
-    describe "when pass a CGImage" do
+    describe "when pass a CGImage with metadata" do
       before do
         @calling_create_method = Proc.new do
           MotionAL::Asset.create(@existent_asset.full_resolution_image, @existent_asset.metadata)
+        end
+      end
+
+      behaves_like "asset creation"
+    end
+
+    describe "when pass a CGImage with orientation" do
+      before do
+        @calling_create_method = Proc.new do
+          MotionAL::Asset.create(@existent_asset.full_resolution_image, {:orientation => :up})
         end
       end
 
@@ -194,9 +203,17 @@ describe MotionAL::Asset do
     end
   end
 
-  # TODO: representation
-  # TODO: video_compatible => into create video?
-  # TODO: properties => convert ruby like value
-  # TODO: asset_type
+  describe "#asset_type" do
+    it "should be human readable" do
+      @existent_asset.asset_type.should.equal :photo
+    end
+  end
+
+  describe "#orientation" do
+    it "should be human readable" do
+      @existent_asset.orientation.should.equal :up
+    end
+  end
+
   # TODO: call through to the default representation's methods
 end
