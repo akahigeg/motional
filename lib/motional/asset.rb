@@ -20,7 +20,9 @@ class MotionAL
     end
 
     # Create
-    # @param source => CGImage or NSData or NSURL(video)
+    # @param source [CGImage] 
+    # @param source [NSData] image data
+    # @param source [NSURL] video path
     def self.create(source, meta = nil, &block)
       pid = rand.to_s
       @@created_asset_store[pid] = nil

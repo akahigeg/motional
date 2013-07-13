@@ -16,13 +16,16 @@ module Dispatch
 end
 
 module MotionAL
-  @@library = nil
-
   def self.library
-    @@library ||= MotionAL::Library.new
+    Library.instance
   end
 
   class Library
+    def self.instance
+      Dispatch.once { @@instance ||= new }
+      @@instance
+    end
+
     def al_asset_library
       @al_asset_library ||= ALAssetsLibrary.new
     end

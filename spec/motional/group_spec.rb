@@ -7,6 +7,7 @@ describe MotionAL::Group do
     @test_group_name = 'MotionAL'
     @library.groups.create(@test_group_name)
     @test_group = @library.groups.find_by_name(@test_group_name)
+
   end
 
   # '.create' and '.find_by_name' already tested by before section.
