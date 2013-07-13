@@ -82,7 +82,6 @@ describe MotionAL::Asset do
   end
 
   describe "#update" do
-    # TODO: update video
     describe "when pass a NSData" do
       before do
         @calling_update_method = Proc.new do

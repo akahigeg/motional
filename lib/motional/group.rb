@@ -3,18 +3,47 @@
 class MotionAL
   class Group
     attr_accessor :al_asset_group
+    @@thread_safe_data_store = {}
 
     def initialize(al_asset_group)
       @al_asset_group = al_asset_group
     end
 
+    def self.reserve_data_store(name)
+      pid = rand.to_s
+      @@thread_safe_data_store[name] ||= {}
+      if type_of_data_store(name) == :array
+        @@thread_safe_data_store[name][pid] = []
+      else
+        @@thread_safe_data_store[name][pid] = nil
+      end
+
+      pid
+    end
+
+    def self.save_to_data_store(name, pid, value)
+      if type_of_data_store(name) == :array
+        @@thread_safe_data_store[name][pid] << value
+      else
+        @@thread_safe_data_store[name][pid] = value
+      end
+    end
+
+    def self.release_data_store(name, pid)
+      @@thread_safe_data_store[name].delete(pid)
+    end
+
+    def self.type_of_data_store(name)
+      { :all => :array }[name]
+    end
+
     def self.create(group_name, &block)
       # TODO: thread safe
-      @created_group = nil
+      pid = reserve_data_store(:created)
       if block_given?
-        self.origin_create(group_name, block)
+        self.origin_create(group_name, pid, block)
       else
-        Dispatch.wait_async { self.origin_create(group_name) }
+        Dispatch.wait_async { self.origin_create(group_name, pid) }
         return @created_group
       end
     end
@@ -87,12 +116,16 @@ class MotionAL
       }
     end
     
-    def self.origin_create(group_name, callback = nil)
+    def self.origin_create(group_name, pid, callback = nil)
       MotionAL.library.al_asset_library.addAssetsGroupAlbumWithName(
         group_name, 
         resultBlock: lambda { |al_asset_group|
-          @created_group = Group.new(al_asset_group) if !al_asset_group.nil?
-          callback.call(@created_group, nil) if callback
+          if !al_asset_group.nil?
+            created_group = Group.new(al_asset_group) 
+            save_to_data_store(:created, pid, created_group)
+          end
+
+          callback.call(created_group, nil) if callback
         },
         failureBlock: lambda { |error|
           callback.call(nil, error) if callback
