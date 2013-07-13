@@ -113,13 +113,12 @@ class MotionAL
 
     # wrapper for valurForProperty
     {
-      location: ALAssetPropertyLocation,
-      duration: ALAssetPropertyDuration, # for video
-      orientation: ALAssetPropertyOrientation,
-      date: ALAssetPropertyDate,
-      representation_utis: ALAssetPropertyRepresentations,
-      urls: ALAssetPropertyURLs,
-      url: ALAssetPropertyAssetURL
+      location: ALAssetPropertyLocation,                    # CLLocation
+      duration: ALAssetPropertyDuration,                    # NSNumber for video
+      date: ALAssetPropertyDate,                            # NSDate
+      representation_utis: ALAssetPropertyRepresentations,  # NSArray
+      urls: ALAssetPropertyURLs,                            # NSDirectory
+      url: ALAssetPropertyAssetURL                          # NSURL
     }.each do |method_name, property_name|
       define_method(method_name) do 
         @al_asset.valueForProperty(property_name)
@@ -128,8 +127,14 @@ class MotionAL
     alias_method :reps, :representations
     alias_method :files, :representations
 
+    # @return [Symbol]
     def asset_type
-      Asset.asset_types.key(@al_asset.valueForProperty(ALAssetPropertyType))
+      MotionAL.asset_types.key(@al_asset.valueForProperty(ALAssetPropertyType))
+    end
+
+    # @return [Symbol]
+    def orientation
+      MotionAL.asset_orientations.key(@al_asset.valueForProperty(ALAssetPropertyOrientation))
     end
 
     # call through to the default representation's methods
@@ -177,14 +182,6 @@ class MotionAL
     end
 
     private
-    def self.asset_types
-      {
-        :photo => ALAssetTypePhoto,
-        :video => ALAssetTypeVideo,
-        :unknown => ALAssetTypeUnknown
-      }
-    end
-
     def self.create_by_cg_image(cg_image, meta, callback = nil)
       if self.only_orientation?(meta)
         MotionAL.library.al_asset_library.writeImageToSavedPhotosAlbum(
