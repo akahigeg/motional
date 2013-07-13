@@ -22,11 +22,9 @@ class MotionAL
     end
 
     def self.save_to_data_store(name, pid, value)
-      "dog"
       if type_of_data_store(name) == :array
         @@thread_safe_data_store[name][pid] << value
       else
-        "days"
         @@thread_safe_data_store[name][pid] = value
       end
     end
@@ -64,6 +62,7 @@ class MotionAL
         Dispatch.wait_async { self.origin_find_by_url(group_url, pid) }
         found_group = get_from_data_store(:find_by_url, pid)
         release_data_store(:find_by_url, pid)
+
         return found_group
       end
     end
@@ -73,13 +72,15 @@ class MotionAL
     end
 
     def self.all(options = nil, &block)
-      # TODO: thread safe
-      @all_groups = []
+      pid = reserve_data_store(:all)
       if block_given?
-        origin_all(block)
+        origin_all(pid, block)
       else
-        Dispatch.wait_async { self.origin_all }
-        return @all_groups
+        Dispatch.wait_async { self.origin_all(pid) }
+        found_groups = get_from_data_store(:all, pid)
+        release_data_store(:all, pid)
+
+        return found_groups
       end
     end
 
@@ -159,14 +160,14 @@ class MotionAL
       )
     end
 
-    def self.origin_all(callback = nil)
+    def self.origin_all(pid, callback = nil)
       # TODO: support more Type of Asset (now only support ALAssetsGroupAll)
       MotionAL.library.al_asset_library.enumerateGroupsWithTypes(
         ALAssetsGroupAll,
         usingBlock: lambda { |al_asset_group, stop|
           if !al_asset_group.nil?
             group = Group.new(al_asset_group) 
-            @all_groups << group
+            save_to_data_store(:all, pid, group)
             callback.call(group, nil) if callback
           end
         },
