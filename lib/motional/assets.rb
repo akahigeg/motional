@@ -14,7 +14,7 @@ class MotionAL
     # Create asset and add it to group.
     #
     # @param source [CGImage, NSData, NSURL] CGImage and NSData for the photo, NSURL for the video.
-    # @param meta [Hash] for the photo.
+    # @param metadata [Hash] Metadata for the photo.
     # @return [MotionAL::Asset] A created asset.
     # @return [nil] When block given or fail to create.
     # @example
@@ -25,14 +25,14 @@ class MotionAL
     #
     #   asset = group.assets.create(data, meta)
     #   p asset.url.absoluteString
-    def create(source, meta = nil, &block)
+    def create(source, metadata = nil, &block)
       if block_given?
-        Asset.create(source, meta) do |asset, error|
+        Asset.create(source, metadata) do |asset, error|
           block.call(asset, error)
           self << asset
         end
       else
-        asset = Asset.create(source, meta)
+        asset = Asset.create(source, metadata)
         self << asset
         asset
       end
@@ -40,7 +40,7 @@ class MotionAL
 
     # Find an asset by asset_url.
     #
-    # @param asset_url [NSURL] hoge
+    # @param asset_url [NSURL]
     # @return [MotionAL::Asset] A found asset.
     # @return [nil] When block given or fail to find.
     # @example

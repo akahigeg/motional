@@ -4,6 +4,7 @@ module MotionAL
   class Asset
     # An instance of ALAsset Class
     attr_reader :al_asset
+
     @@store = ThreadValueStore
 
     # @param al_asset [ALAsset]
@@ -11,33 +12,52 @@ module MotionAL
       @al_asset = al_asset
     end
 
-    # @return [Representations]
-    # @note Representations object is an array of Representation object
+    # @return [MotionAL::Representations] The collection of representations in the asset.
+    # @note Many assets have only one representation.
     def representations
       @representations ||= Representations.new(self)
     end
 
-    # Create
-    # @param source [CGImage] # @param source [NSData] image data # @param source [NSURL] video path
+    # Create asset.
+    #
+    # @param source [CGImage, NSData, NSURL] CGImage and NSData for the photo, NSURL for the video.
+    # @param metadata [Hash] Metadata for the photo.
+    # @return [MotionAL::Asset] A created asset.
+    # @return [nil] When block given or fail to create.
     # @note use `MotionAL::Asset.video_compatible?(video_path_url)` before creating video.
-    def self.create(source, meta = nil, &block)
+    #
+    # @example
+    #   MotionAL::Asset.create(data, meta) do |asset, error|
+    #     # asynchronous if a block given
+    #     p asset.url.absoluteString
+    #   end
+    #
+    #   asset = MotionAL::Asset.create(data, meta)
+    #   p asset.url.absoluteString
+    #
+    #   if MotionAL::Asset.video_compatible?(video_path_url)
+    #     video = MotionAL::Asset.create(data, meta)
+    #   else
+    #     p "This video contained incompatible data."
+    #   end
+    def self.create(source, metadata = nil, &block)
       pid = @@store.reserve(:create)
       if block_given?
         if source.kind_of?(NSData)
-          self.create_by_image_data(source, meta, pid, block)
+          self.create_by_image_data(source, metadata, pid, block)
         elsif source.kind_of?(NSURL)
           self.create_by_video_path(source, pid, block)
         else
-          self.create_by_cg_image(source, meta, pid, block)
+          self.create_by_cg_image(source, metadata, pid, block)
         end
       else
         Dispatch.wait_async do
           if source.kind_of?(NSData)
-            self.create_by_image_data(source, meta, pid)
+            self.create_by_image_data(source, metadata, pid)
           elsif source.kind_of?(NSURL)
             self.create_by_video_path(source, pid)
           else
-            self.create_by_cg_image(source, meta, pid)
+            self.create_by_cg_image(source, metadata, pid)
           end
         end
         created_asset = @@store.get(:create, pid)
@@ -46,16 +66,20 @@ module MotionAL
       end
     end
 
-    # Find an asset by asset url.
-    # @overload self.find_by_url(asset_url, &block)
-    #   @param [NSURL] asset_url
-    #   @yield [asset, error]
-    #   @yieldparam [Asset] asset Found asset or nil(asset did not found). 
-    #   @yieldparam [error] error When the asset was found, `error` is nil.
-    #   @return [nil] 
-    # @overload self.find_by_url(asset_url)
-    #   @return [Asset] 
-    #   @return [nil] return nil when asset did not found.
+    # Find an asset by asset_url.
+    #
+    # @param asset_url [NSURL]
+    # @return [MotionAL::Asset] A found asset.
+    # @return [nil] When block given or fail to find.
+    #
+    # @example
+    #   MotionAL::Asset.find_by_url(url) do |asset, error|
+    #     # asynchronous if a block given
+    #     p asset.url.absoluteString
+    #   end
+    #
+    #   asset = MotionAL::Asset.find_by_url(url)
+    #   p asset.url.absoluteString
     def self.find_by_url(asset_url, &block)
       pid = @@store.reserve(:find_by_url)
       if block_given?
@@ -77,14 +101,19 @@ module MotionAL
     # @option options [NSIndexSet] :indexset
     # @return [MotionAL::Asset] A found asset.
     # @return [nil] When block given or fail to find.
+    #
     # @example
-    #   Assets.all do |asset, error|
+    #   MotionAL::Asset.all do |asset, error|
     #     # asynchronous if a block given
     #     p asset.url.absoluteString
     #   end
     #
-    #   assets = Assets.all(group: group, order: :desc, filter: :photo)
+    #   group = MotionAL::find_by_name('MyAppAlbum')
+    #   assets = MotionAL::Asset.all(group: group, order: :desc, filter: :photo)
     #   urls  = assets.map {|a| a.url }
+    #
+    #   indexset = NSMutableIndexSet.indexSetWithIndexesInRange(1..3)
+    #   assets = MotionAL::Asset.all(group: group, indexset: indexset)
     def self.all(options = {}, &block)
       options[:pid] = @@store.reserve(:all, :array)
       if block_given?
@@ -97,7 +126,7 @@ module MotionAL
       end
     end
 
-    # wrapper method
+    # @return [Boolean] false means ALAssetLibrary cannot treat the video file.
     def self.video_compatible?(video_path_url)
       MotionAL.library.al_asset_library.videoAtPathIsCompatibleWithSavedPhotosAlbum(video_path_url)
     end
@@ -109,17 +138,23 @@ module MotionAL
        end
     end
 
-    # Return true if App haves write access for this asset.
+    # Return true if the app haves write access for the asset.
+    # In other words true means the app can call `#update` for the asset.
+    #
     # @return [Boolean]
     def editable?
       @al_asset.editable?
     end
 
+    # @return [MotionAL::Asset] The original version of the asset.
+    # @return [nil] The asset has no original asset.
+    # @note The original asset was set when the asset was created by `#save_new`
     def original_asset
       original_al_asset = @al_asset.originalAsset
       Asset.new(original_al_asset) if original_al_asset
     end
 
+    # @return [MotionAL::Representation] The default representation of the asset. A representation is an actual file.
     def default_representation
       @default_representation ||= Representation.new(@al_asset.defaultRepresentation)
     end
@@ -143,12 +178,19 @@ module MotionAL
     alias_method :reps, :representations
     alias_method :files, :representations
 
-    # @return [Symbol]
+    # @method
+    # HOGE
+
+    # The type of the asset.
+    #
+    # @return [Symbol] :photo or :video
     def asset_type
       MotionAL.asset_types.key(@al_asset.valueForProperty(ALAssetPropertyType))
     end
 
-    # @return [Symbol]
+    # The orientation of the asset.
+    #
+    # @return [Symbol] :up, :down :left, :right, :up_mirrored, :down_mirrored, :left_mirrored or :right_mirrored
     def orientation
       MotionAL.asset_orientations.key(@al_asset.valueForProperty(ALAssetPropertyOrientation))
     end
@@ -161,9 +203,22 @@ module MotionAL
        end
      end
 
-    # save_new (save to new asset with original asset property)
-    # –writeModifiedImageDataToSavedPhotosAlbum:metadata:completionBlock:
-    # –writeModifiedVideoAtPathToSavedPhotosAlbum:completionBlock:
+    # Create a new asset forked by the asset.
+    #
+    # @param source [NSData, NSURL] NSData for the photo, NSURL for the video.
+    # @param metadata [Hash] Metadata for the photo.
+    # @return [MotionAL::Asset] A created asset that has the asset as the orignal asset.
+    # @return [nil]
+    # @note use `MotionAL::Asset.video_compatible?(video_path_url)` before creating video.
+    #
+    # @example
+    #   asset.create(imagedata, meta) do |asset, error| do
+    #     # asynchronous if a block given
+    #     p asset.url.absoluteString
+    #   end
+    #
+    #   new_asset = asset.create(imagedata, meta)
+    #   new_asset.original_asset #=> asset
     def save_new(source, metadata = nil, &block)
       @created_asset = nil
       if block_given?
@@ -175,18 +230,21 @@ module MotionAL
       end
     end
 
-    # update (save to same asset. need editable flag)
-    # –setImageData:metadata:completionBlock:
-    # –setVideoAtPath:completionBlock:
+    # Update the asset.
+    # In other words update the asset's representation.
     #
-    # asset.update(image_data, metadata) do |updated_asset, error|
-    #   asset = updated_asset
-    # end
+    # @param source [NSData, NSURL] NSData for the photo, NSURL for the video.
+    # @param metadata [Hash] Metadata for the photo.
+    # @return [nil]
+    # @note use `MotionAL::Asset.video_compatible?(video_path_url)` before updating video.
     #
-    # or 
+    # @example
+    #   asset.update(imagedata, meta) do |asset, error| do
+    #     # asynchronous if a block given
+    #     p asset.url.absoluteString
+    #   end
     #
-    # asset.update(image_data, metadata)
-    #
+    #   asset.update(imagedata, meta)
     def update(source, metadata = nil, &block)
       if block_given?
         origin_update(source, metadata, block)
@@ -232,7 +290,6 @@ module MotionAL
       )
     end
 
-    # @param options :order, :filter, :group, :indexset
     def self.origin_all(options = {}, callback = nil)
       options[:group] ||= MotionAL.library.saved_photos
 

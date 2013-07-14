@@ -161,8 +161,7 @@ describe MotionAL::Asset do
     end
 
     it "should avail indexset option" do
-      indexset = NSMutableIndexSet.new
-      (1..2).each {|n| indexset.addIndex(n) }
+      indexset = NSMutableIndexSet.indexSetWithIndexesInRange(1..2)
       assets = MotionAL::Asset.all(indexset: indexset)
       assets.size.should.equal 2
 
@@ -171,8 +170,7 @@ describe MotionAL::Asset do
     end
 
     it "should avail indexset option with order option" do
-      indexset = NSMutableIndexSet.new
-      (1..3).each {|n| indexset.addIndex(n) }
+      indexset = NSMutableIndexSet.indexSetWithIndexesInRange(1..3)
       assets = MotionAL::Asset.all(indexset: indexset, order: :desc)
       assets.size.should.equal 3
 
