@@ -1,11 +1,12 @@
 # -*- encoding : utf-8 -*-
 
 class MotionAL
+  # 
   class Assets < Children
     def initialize(group)
       @group = group
 
-      load_entries({:filter => @current_filter})
+      load_entries
     end
 
     def create(source, meta, &block)
@@ -51,7 +52,8 @@ class MotionAL
       filtered_count
     end
 
-    # add
+    # Add an asset to the group.
+    # @param asset [MotionAL::Asset]
     def push(asset)
       super
       add_asset_to_group(asset)
@@ -61,7 +63,7 @@ class MotionAL
 
     def unshift(asset)
       super
-      add_asset_to_group(asset)
+      add_asset_to_group(asset) # TODO: keep sequence of group assets in ALAssetLibrary?
       self
     end
 
