@@ -1,7 +1,7 @@
 # -*- encoding : utf-8 -*-
 
 class MotionAL
-  # For filtering assets in a group by asset type.
+  # For filtering assets in the group by asset type.
   class AssetsFilter
     # :all means no filter.
     DEFAULT_FILTER = :all

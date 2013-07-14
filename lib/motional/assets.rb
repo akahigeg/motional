@@ -11,7 +11,7 @@ class MotionAL
       load_entries
     end
 
-    # Create asset and add it to group.
+    # Create an asset and add it to group.
     #
     # @param source [CGImage, NSData, NSURL] CGImage and NSData for the photo, NSURL for the video.
     # @param metadata [Hash] Metadata for the photo.
@@ -38,7 +38,7 @@ class MotionAL
       end
     end
 
-    # Find an asset by asset_url.
+    # Find the asset by asset_url.
     #
     # @param asset_url [NSURL]
     # @return [MotionAL::Asset] A found asset.
@@ -103,7 +103,7 @@ class MotionAL
       filtered_count
     end
 
-    # Add an asset to the group.
+    # Add the asset to the group.
     # @param asset [MotionAL::Asset]
     def push(asset)
       super
@@ -112,7 +112,7 @@ class MotionAL
     end
     alias_method "<<", :push
 
-    # Add an asset to the group.
+    # Add the asset to the group.
     def unshift(asset)
       super
       add_asset_to_group(asset) # TODO: keep sequence of group assets in ALAssetLibrary?

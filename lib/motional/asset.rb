@@ -13,12 +13,11 @@ module MotionAL
     end
 
     # @return [MotionAL::Representations] The collection of representations in the asset.
-    # @note Many assets have only one representation.
     def representations
       @representations ||= Representations.new(self)
     end
 
-    # Create asset.
+    # Create an asset.
     #
     # @param source [CGImage, NSData, NSURL] CGImage and NSData for the photo, NSURL for the video.
     # @param metadata [Hash] Metadata for the photo.
@@ -66,7 +65,7 @@ module MotionAL
       end
     end
 
-    # Find an asset by asset_url.
+    # Find the asset by asset_url.
     #
     # @param asset_url [NSURL]
     # @return [MotionAL::Asset] A found asset.
@@ -92,7 +91,7 @@ module MotionAL
       end
     end
 
-    # Find all assets in the group.
+    # Find all assets.
     #
     # @param options [Hash]
     # @option options [MotionAL::Group] :group Default is MotionAL.library.saved_photo.
@@ -131,11 +130,17 @@ module MotionAL
       MotionAL.library.al_asset_library.videoAtPathIsCompatibleWithSavedPhotosAlbum(video_path_url)
     end
 
-    [:thumbnail, :aspectRatioThumbnail].each do |method_name|
-       underscored_method_name = method_name.gsub(/([A-Z])/){|m| "_#{m}" }.downcase
-       define_method(underscored_method_name) do 
-         self.al_asset_representation.send(method_name)
-       end
+
+    # Returns a thumbnail of the asset.
+    # @return [CGImageRef]
+    def thumbnail
+      self.al_asset.send(:thumbnail)
+    end
+
+    # Returns an aspect ratio thumbnail of the asset.
+    # @return [CGImageRef]
+    def aspect_ratio_thumbnail
+      self.al_asset.send(:aspectRatioThumbnail)
     end
 
     # Return true if the app haves write access for the asset.
@@ -146,7 +151,8 @@ module MotionAL
       @al_asset.editable?
     end
 
-    # @return [MotionAL::Asset] The original version of the asset.
+    # The original version of the asset.
+    # @return [MotionAL::Asset]
     # @return [nil] The asset has no original asset.
     # @note The original asset was set when the asset was created by `#save_new`
     def original_asset
@@ -162,24 +168,29 @@ module MotionAL
     alias_method :file, :default_representation
     alias_method :representation, :default_representation
 
-    # wrapper for valurForProperty
-    {
-      location: ALAssetPropertyLocation,                    # CLLocation
-      duration: ALAssetPropertyDuration,                    # NSNumber for video
-      date: ALAssetPropertyDate,                            # NSDate
-      representation_utis: ALAssetPropertyRepresentations,  # NSArray
-      urls: ALAssetPropertyURLs,                            # NSDirectory
-      url: ALAssetPropertyAssetURL                          # NSURL
-    }.each do |method_name, property_name|
-      define_method(method_name) do 
-        @al_asset.valueForProperty(property_name)
+    class << self
+      private
+      # wrapper for valueForProperty
+      # @!macro [attach] make_wrapper
+      #   The value for property $2
+      #   @method $1
+      #   @return [$3] The value for the property $2.
+      #   @return [nil] The property is empty.
+      def make_wrapper_for_property(method_name, property_name, type_of_return)
+        define_method(method_name) do 
+          @al_asset.valueForProperty(property_name)
+        end
       end
     end
+    make_wrapper_for_property(:location, ALAssetPropertyLocation, "CLLocation")
+    make_wrapper_for_property(:duration, ALAssetPropertyDuration, "Float")
+    make_wrapper_for_property(:date, ALAssetPropertyDate, "Time")
+    make_wrapper_for_property(:url, ALAssetPropertyAssetURL, "NSURL")
+    make_wrapper_for_property(:representation_utis, ALAssetPropertyRepresentations, "NSURL")
+    make_wrapper_for_property(:representation_urls, ALAssetPropertyURLs, "NSURL")
+
     alias_method :reps, :representations
     alias_method :files, :representations
-
-    # @method
-    # HOGE
 
     # The type of the asset.
     #
@@ -195,13 +206,29 @@ module MotionAL
       MotionAL.asset_orientations.key(@al_asset.valueForProperty(ALAssetPropertyOrientation))
     end
 
-    # through to the default representation's methods
-    [:full_resolution_image, :full_screen_image, :scale, :data, :cg_image,
-     :dimensions, :filename, :size, :metadata].each do |method_name|
-       define_method(method_name) do 
-         default_representation.send(method_name)
-       end
-     end
+    class << self
+      private
+      # wrapper for valueForProperty
+      # @!macro [attach] make_wrapper
+      #   The same as the default representation's $1
+      #   @method $1
+      #   @return [$2] The same as the default representation's $1
+      #   @return [nil] The property is empty.
+      def make_wrapper_for_representation_methods(method_name, type_of_return)
+        define_method(method_name) do 
+          default_representation.send(method_name)
+        end
+      end
+    end
+    make_wrapper_for_representation_methods(:full_resolution_image, "CGImageRef")
+    make_wrapper_for_representation_methods(:full_screen_image, "CGImageRef")
+    make_wrapper_for_representation_methods(:scale, "Float")
+    make_wrapper_for_representation_methods(:data, "NSData")
+    make_wrapper_for_representation_methods(:cg_image, "CGImageRef")
+    make_wrapper_for_representation_methods(:dimensions, "CGSize")
+    make_wrapper_for_representation_methods(:filename, "String")
+    make_wrapper_for_representation_methods(:size, "Fixnum")
+    make_wrapper_for_representation_methods(:metadata, "Hash")
 
     # Create a new asset forked by the asset.
     #
