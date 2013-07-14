@@ -8,20 +8,25 @@ describe MotionAL::Assets do
   end
 
   describe "self mutation methods" do
-    it "should not exist" do
+    it "should not access" do
       @assets.should.not.respond_to :delete
       @assets.should.not.respond_to :delete_if
       @assets.should.not.respond_to :uniq!
     end
   end
 
-  describe ".count" do
+  describe "#count_by_filter" do
     it "should work assets filter" do
-      @assets.count(:photo).should.not.equal @assets.count(:video)
+      @assets.count_by_filter(:photo).should.not.equal @assets.count_by_filter(:video)
+      @assets.count_by_filter(:photo).should.not.equal @assets.count_by_filter(:all)
+    end
+
+    it "should return Fixnum" do
+      @assets.count_by_filter(:all).should.instance_of Fixnum
     end
   end
 
-  describe ".all" do
+  describe "#all" do
     it "should return assets in the group" do
       test_assets = @test_group.assets.all
       @assets.size.should.not.equal test_assets.size

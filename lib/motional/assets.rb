@@ -78,7 +78,7 @@ class MotionAL
     #   assets = group.assets.all(order: :desc, filter: :photo)
     #   urls  = assets.map {|a| a.url }
     def all(options = {}, &block)
-      raise "MotionAL::Assets.all does not support :group option. Use MotionAL::Asset.all" if options[:group]
+      raise "MotionAL::Assets.all does not support :group option. Use MotionAL::Asset.all to get other group assets." if options[:group]
 
       options[:group] = @group
 
@@ -91,8 +91,12 @@ class MotionAL
       end
     end
 
-    def count(filter_name = AssetsFilter.DEFAULT_FILTER)
-      AssetsFilter.set(@group, filter_name)
+    # @param filter [Symbol] :all, :photo or :video
+    # @return [Fixnum] Filtered count of assets in the group. 
+    # @example
+    #   group.assets.count_by_filter(:photo)
+    def count_by_filter(filter)
+      AssetsFilter.set(@group, filter)
       filtered_count = @group.al_asset_group.numberOfAssets
       AssetsFilter.reset(@group)
 
@@ -108,6 +112,7 @@ class MotionAL
     end
     alias_method "<<", :push
 
+    # Add an asset to the group.
     def unshift(asset)
       super
       add_asset_to_group(asset) # TODO: keep sequence of group assets in ALAssetLibrary?

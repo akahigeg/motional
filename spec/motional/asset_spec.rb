@@ -8,9 +8,7 @@ describe MotionAL::Asset do
 
     @video_url = NSBundle.mainBundle.URLForResource('sample', withExtension:"mp4")
 
-    @test_group_name = 'MotionAL'
-    @library.groups.create(@test_group_name)
-    @test_group = @library.groups.find_by_name(@test_group_name)
+    @test_group = @library.groups.find_by_name('MotionAL')
   end
 
   shared "asset creation" do

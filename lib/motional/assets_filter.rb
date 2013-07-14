@@ -8,10 +8,10 @@ class MotionAL
 
     # Set filter.
     # @param group [MotionAL::Group]
-    # @param filter_name [Symbol] :all, :photo or :video
+    # @param filter [Symbol] :all, :photo or :video
     # @note Set filter once, it is available permanently until calling `reset`.
-    def self.set(group, filter_name)
-      group.al_asset_group.setAssetsFilter(asset_filters[filter_name.to_sym])
+    def self.set(group, filter)
+      group.al_asset_group.setAssetsFilter(asset_filters[filter.to_sym])
     end
 
     # Reset filter.
