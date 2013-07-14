@@ -2,8 +2,6 @@
 
 class MotionAL
   class Assets < Children
-    DEFAULT_ASSETS_FILTER = :all
-
     def initialize(group)
       @group = group
 
@@ -45,7 +43,7 @@ class MotionAL
       end
     end
 
-    def count(filter_name = DEFAULT_ASSETS_FILTER)
+    def count(filter_name = AssetsFilter.DEFAULT_FILTER)
       AssetsFilter.set(@group, filter_name)
       filtered_count = @group.al_asset_group.numberOfAssets
       AssetsFilter.reset(@group)
