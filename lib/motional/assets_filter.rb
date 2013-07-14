@@ -24,9 +24,9 @@ class MotionAL
     # @return [Hash] Human readable keys and AssetLibrary Framework constant value.
     def self.asset_filters
       {
-        :all => ALAssetsFilter.allAssets,
-        :photo => ALAssetsFilter.allPhotos,
-        :video => ALAssetsFilter.allVideos,
+        all:   ALAssetsFilter.allAssets,
+        photo: ALAssetsFilter.allPhotos,
+        video: ALAssetsFilter.allVideos,
       }
     end
   end

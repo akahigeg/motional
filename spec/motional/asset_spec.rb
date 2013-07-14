@@ -36,7 +36,7 @@ describe MotionAL::Asset do
     describe "when pass a CGImage with orientation" do
       before do
         @calling_create_method = Proc.new do
-          MotionAL::Asset.create(@existent_asset.full_resolution_image, {:orientation => :up})
+          MotionAL::Asset.create(@existent_asset.full_resolution_image, orientation: :up)
         end
       end
 
@@ -143,19 +143,19 @@ describe MotionAL::Asset do
     end
 
     it "should avail order asc" do
-      assets = MotionAL::Asset.all({:order => 'asc'})
+      assets = MotionAL::Asset.all(order: :asc)
       assets.size.should > 1
       assets.first.url.should.equal @existent_asset.url
     end
 
     it "should avail order desc" do
-      assets = MotionAL::Asset.all({:order => 'desc'})
+      assets = MotionAL::Asset.all(order: :desc)
       assets.size.should > 1
       assets.last.url.should.equal @existent_asset.url
     end
 
     it "should avail group option" do
-      assets_b = MotionAL::Asset.all({:group => @test_group})
+      assets_b = MotionAL::Asset.all(group: @test_group)
       assets_a = MotionAL::Asset.all #=> sometime crash when call twice immediatly
 
       assets_a.size.should.equal @library.saved_photos.assets.size
@@ -165,7 +165,7 @@ describe MotionAL::Asset do
     it "should avail indexset option" do
       indexset = NSMutableIndexSet.new
       (1..2).each {|n| indexset.addIndex(n) }
-      assets = MotionAL::Asset.all({:indexset => indexset})
+      assets = MotionAL::Asset.all(indexset: indexset)
       assets.size.should.equal 2
 
       @library.saved_photos.assets.reload
@@ -175,7 +175,7 @@ describe MotionAL::Asset do
     it "should avail indexset option with order option" do
       indexset = NSMutableIndexSet.new
       (1..3).each {|n| indexset.addIndex(n) }
-      assets = MotionAL::Asset.all({:indexset => indexset, :order => 'desc'})
+      assets = MotionAL::Asset.all(indexset: indexset, order: :desc)
       assets.size.should.equal 3
 
       @library.saved_photos.assets.reload
@@ -183,8 +183,8 @@ describe MotionAL::Asset do
     end
 
     it "should avail filter option" do
-      assets = MotionAL::Asset.all({:filter => :all})
-      photos = MotionAL::Asset.all({:filter => :photo})
+      assets = MotionAL::Asset.all(filter: :all)
+      photos = MotionAL::Asset.all(filter: :photo)
 
       assets.size.should.not.equal photos.size
     end

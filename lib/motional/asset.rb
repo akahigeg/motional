@@ -68,6 +68,23 @@ module MotionAL
       end
     end
 
+    # Find all assets in the group.
+    #
+    # @param options [Hash]
+    # @option options [MotionAL::Group] :group Default is MotionAL.library.saved_photo.
+    # @option options [Symbol] :filter :all, :photo or :video
+    # @option options [Symbol] :order :asc or :desc
+    # @option options [NSIndexSet] :indexset
+    # @return [MotionAL::Asset] A found asset.
+    # @return [nil] When block given or fail to find.
+    # @example
+    #   Assets.all do |asset, error|
+    #     # asynchronous if a block given
+    #     p asset.url.absoluteString
+    #   end
+    #
+    #   assets = Assets.all(group: group, order: :desc, filter: :photo)
+    #   urls  = assets.map {|a| a.url }
     def self.all(options = {}, &block)
       options[:pid] = @@store.reserve(:all, :array)
       if block_given?
@@ -236,7 +253,7 @@ module MotionAL
       Proc.new do |al_asset, index, stop|
         if !al_asset.nil?
           asset = Asset.new(al_asset)
-          if options[:order] && options[:order] == "desc"
+          if options[:order] && options[:order].to_sym == :desc
             @@store.unshift(:all, options[:pid], asset)
           else
             @@store.push(:all, options[:pid], asset)
