@@ -1,6 +1,6 @@
 # -*- encoding : utf-8 -*-
 
-class MotionAL
+module MotionAL
   class Asset
     # An instance of ALAsset Class
     attr_reader :al_asset
@@ -18,9 +18,7 @@ class MotionAL
     end
 
     # Create
-    # @param source [CGImage] 
-    # @param source [NSData] image data
-    # @param source [NSURL] video path
+    # @param source [CGImage] # @param source [NSData] image data # @param source [NSURL] video path
     # @note use `MotionAL::Asset.video_compatible?(video_path_url)` before creating video.
     def self.create(source, meta = nil, &block)
       pid = @@store.reserve(:create)
@@ -231,7 +229,7 @@ class MotionAL
       else
         options[:group].al_asset_group.enumerateAssetsUsingBlock(using_block_for_all(options, callback))
       end
-      AssetsFilter.unset(options[:group]) if options[:filter]
+      AssetsFilter.reset(options[:group]) if options[:filter]
     end
 
     def self.using_block_for_all(options, callback = nil)

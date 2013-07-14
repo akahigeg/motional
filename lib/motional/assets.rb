@@ -48,7 +48,7 @@ class MotionAL
     def count(filter_name = DEFAULT_ASSETS_FILTER)
       AssetsFilter.set(@group, filter_name)
       filtered_count = @group.al_asset_group.numberOfAssets
-      AssetsFilter.unset(@group)
+      AssetsFilter.reset(@group)
 
       filtered_count
     end

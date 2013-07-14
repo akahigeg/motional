@@ -11,7 +11,7 @@ module Dispatch
 
     CFRunLoopRunInMode(KCFRunLoopDefaultMode, duration, false) while !@async_done
     # 'queue_group.wait' is not work well. why?
-    # timing bug exist. try 'duration = 0.01'
+    # some bug exist. when try 'duration = 0.01' app crash down sometime.
   end
 end
 
@@ -21,6 +21,8 @@ module MotionAL
       Library.instance
     end
 
+    # readable key and objective-c constant value
+    # @return [Hash]
     def asset_group_types
       {
         :library      => ALAssetsGroupLibrary,
@@ -33,6 +35,7 @@ module MotionAL
       }
     end
  
+    # @return [Hash]
     def asset_types
       {
         :photo   => ALAssetTypePhoto,
@@ -41,6 +44,7 @@ module MotionAL
       }
     end
  
+    # @return [Hash]
     def asset_orientations
       {
         :up             => ALAssetOrientationUp,
@@ -54,6 +58,7 @@ module MotionAL
       }
     end
 
+    # @return [Hash]
     def authorization_statuses
       {
         :not_determined => ALAuthorizationStatusNotDetermined,
@@ -63,6 +68,7 @@ module MotionAL
       }
     end
 
+    # @return [Hash]
     def notification_keys
       {
         :updated_assets_key        => ALAssetLibraryUpdatedAssetsKey,
@@ -72,10 +78,13 @@ module MotionAL
       }
     end
 
+    # @return [Boolean]
+    # @note false means that your app cannot access the asset library.
     def authorized?
       ALAssetsLibrary.authorizationStatus == authorization_statuses[:authorized]
     end
 
+    # A simple wrapper of ALAssetsLibrary.disableSharedPhotoStreamsSupport
     def disable_shared_photo_streams_support
       ALAssetsLibrary.disableSharedPhotoStreamsSupport
     end

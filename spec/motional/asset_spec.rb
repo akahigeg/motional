@@ -215,5 +215,6 @@ describe MotionAL::Asset do
     end
   end
 
-  # TODO: call through to the default representation's methods
+  # TODO: check what is in `location`
+  # TODO: treat raw image
 end
