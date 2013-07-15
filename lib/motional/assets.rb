@@ -6,6 +6,8 @@ module MotionAL
   # Assets belongs to the group.
   #
   class Assets < Children
+    attr_reader :group
+
     # @param group [MotionAL::Group]
     def initialize(group)
       @group = group
@@ -30,12 +32,20 @@ module MotionAL
     def create(source, metadata = nil, &block)
       if block_given?
         Asset.create(source, metadata) do |asset, error|
-          block.call(asset, error)
-          self << asset
+          if asset
+            block.call(asset, error)
+            self << asset
+          else
+            raise "Asset creation failed. #{error}"
+          end
         end
       else
         asset = Asset.create(source, metadata)
-        self << asset
+        if asset
+          self << asset
+        else
+          raise "Asset creation failed."
+        end
         asset
       end
     end

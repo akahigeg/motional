@@ -194,8 +194,8 @@ module MotionAL
     make_wrapper_for_property(:duration, ALAssetPropertyDuration, "Float")
     make_wrapper_for_property(:date, ALAssetPropertyDate, "Time")
     make_wrapper_for_property(:url, ALAssetPropertyAssetURL, "NSURL")
-    make_wrapper_for_property(:representation_utis, ALAssetPropertyRepresentations, "NSURL")
-    make_wrapper_for_property(:representation_urls, ALAssetPropertyURLs, "NSURL")
+    make_wrapper_for_property(:representation_utis, ALAssetPropertyRepresentations, "Array")
+    make_wrapper_for_property(:representation_urls, ALAssetPropertyURLs, "Array")
 
     alias_method :reps, :representations
     alias_method :files, :representations
@@ -289,18 +289,18 @@ module MotionAL
     end
 
     private
-    def self.create_by_cg_image(cg_image, meta, callback = nil)
+    def self.create_by_cg_image(cg_image, meta, pid, callback = nil)
       if self.only_orientation?(meta)
         MotionAL.library.al_asset_library.writeImageToSavedPhotosAlbum(
           cg_image,
           orientation: MotionAL.asset_orientations[meta[:orientation]],
-          completionBlock: self.completion_block_for_create(callback)
+          completionBlock: self.completion_block_for_create(pid, callback)
         )
       else
         MotionAL.library.al_asset_library.writeImageToSavedPhotosAlbum(
           cg_image,
           metadata: meta,
-          completionBlock: self.completion_block_for_create(callback)
+          completionBlock: self.completion_block_for_create(pid, callback)
         )
       end
     end
@@ -359,7 +359,7 @@ module MotionAL
       MotionAL.library.al_asset_library.writeImageDataToSavedPhotosAlbum(
         image_data,
         metadata: meta,
-        completionBlock: self.completion_block_for_create(pid, callback )
+        completionBlock: self.completion_block_for_create(pid, callback)
       )
     end
 
@@ -374,7 +374,7 @@ module MotionAL
       Proc.new do |asset_url, error|
         MotionAL::Asset.find_by_url(asset_url) do |asset, error|
           @@store.set(:create, pid, asset)
-          callback.call(@@created_asset_store[pid], error) if callback
+          callback.call(asset, error) if callback
         end
       end
     end

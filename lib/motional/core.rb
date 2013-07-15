@@ -4,7 +4,7 @@ module Dispatch
   # For using an asynchronous method as an ordinary synchronous method.
   #
   # @param duration [Float]
-  def self.wait_async(duration = 0.15, &block)
+  def self.wait_async(duration = 0.5, &block)
     @async_done = false
     queue_group = Dispatch::Group.new
     queue = Dispatch::Queue.concurrent(:default) 

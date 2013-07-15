@@ -37,7 +37,17 @@ module MotionAL
     #   reps = asset.representations.all
     def all
       @asset.representation_utis.map do |uti|
-        rep = Representation.new(find_by_uti(uti))
+        find_by_uti(uti)
+      end
+    end
+    def all(options = {}, &block)
+      if block_given?
+        # not asynchronous
+        @asset.representation_utis.each do |uti|
+          block.call(find_by_uti(uti), nil)
+        end
+      else
+        @asset.representation_utis.map { |uti| find_by_uti(uti) }
       end
     end
   end

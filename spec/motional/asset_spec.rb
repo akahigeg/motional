@@ -199,6 +199,16 @@ describe MotionAL::Asset do
     end
   end
 
+  describe "#representations" do
+    it "should instance of Representations" do
+      @existent_asset.representations.should.instance_of MotionAL::Representations
+    end
+
+    it "should have Representation instance" do
+      @existent_asset.representations.first.should.instance_of MotionAL::Representation
+    end
+  end
+
   describe "#asset_type" do
     it "should be human readable" do
       @existent_asset.asset_type.should.equal :photo

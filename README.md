@@ -2,7 +2,7 @@
 
 AssetLibrary framework wrapper for RubyMotion.
 
-    This gem is beta quality.
+*This gem is beta quality.*
 
 ## Installation
 
@@ -24,39 +24,59 @@ Edit Rakefile
 
     require 'motional'
 
-## Usage
+## Headfirst
 
-### Headfirst
+1. Save any photo to your iOS simurator.
+2. Type `rake` in your console.
+3. Then type the below code in REPL.
     
-    library = MotionAL.library # singleton for a lifetime.
+    library = MotionAL.library
 
-    library.groups.first.assets.first.representations.first
-    library.groups.each do |group|
-      groups.assets.each do |asset|
-        asset.representations do |file|
-          p file.filename
-        end
-      end
+    rep = library.groups.first.assets.first.representations.first
+    
+    p library.groups.map { |g| g.name }.join(', ')
+
+    camera_roll = library.camera_roll
+    camera_roll.class
+
+    new_group = library.groups.find_by_name('New Group') 
+    if !new_group
+      new_group = library.groups.create('New Group')
     end
+    new_group.class
+    library.groups.reload
+    p library.groups.map { |g| g.name }.join(', ')
+    same_as_new_group = library.groups.find_by_url(new_group.url)
+    p same_as_new_group.name
+
+    asset = camera_roll.assets.first
+
+    new_group.assets.count
+    new_group.assets << asset
+    new_group.assets.reload
     
-    group = library.groups.first
-    asset = group.assets.first
-    representation = photo.default_representation
+    rep = asset.default_representation
+    rep.filename
+    rep.metadata
 
-    library.camera_roll   # camera roll
-    library.photo_library # synced from itunes
+    camera_roll.assets.count
+    camera_roll.assets.reload
 
-    new_group = library.groups.create('new_group_name')
-    group = library.groups.find_by_url(group_url)
+    new_asset = new_group.assets.create(rep.full_resolution_image, rep.metadata)
+    new_asset = MotionAL::Asset.create(rep.full_resolution_image, rep.metadata)
 
-    new_asset = group.assets.create(image, meta)
+    MotionAL::Asset.create(rep.full_resolution_image, rep.metadata) do |asset, error|
+      p asset.url
+    end
+
     another_new_asset = MotionAL::Asset.create(image, meta)
 
     asset = group.assets.find_by_url(asset_url)
     another_asset = MotionAL::Asset.find_by_url(asset_url)
 
-### Library
+## Library
 
+    # singleton for a lifetime.
     library = MotionAL.library # should not call `Motional::Library.new` directly.
 
     library.camera_roll   # camera roll
@@ -64,7 +84,7 @@ Edit Rakefile
 
     MotionAL::Library.authorized? # check permission. see Settings > Privacy > Photos
 
-#### Groups
+### Groups
 
     library.groups.each { |group| ...}
     names = library.groups.map { |griup| group.name }
@@ -96,7 +116,7 @@ as same.
 
     groups = group.all
 
-#### Assets
+### Assets
 
     some_group.assets.each { |asset| ... }
     urls = some_group.assets.map { |asset| asset.url }
