@@ -2,6 +2,8 @@
 
 AssetLibrary framework wrapper for RubyMotion.
 
+    This gem is beta quality.
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -16,95 +18,101 @@ Or install it yourself as:
 
     $ gem install motional
 
+## Setup
+
+Edit Rakefile
+
+    require 'motional'
+
 ## Usage
 
 ### Headfirst
     
-    library = MotionAL.library
-    library.albums.first.photos.first.files.first
-    library.albums.each do |album|
-      albums.assets.each do |asset|
-        asset.files do |file|
+    library = MotionAL.library # singleton for a lifetime.
+
+    library.groups.first.assets.first.representations.first
+    library.groups.each do |group|
+      groups.assets.each do |asset|
+        asset.representations do |file|
           p file.filename
         end
       end
     end
     
-    album = library.albums.first
-    asset = album.assets.first
-    file = photo.default_file # photo.files.first
-
-    library.saved_photos
-
-    new_album = library.albums.create('new_album_name')
-    album = library.albums.find_by_url(album_url)
-
-    new_asset = album.assets.create(image, meta)
-    asset = album.assets.find_by_url(asset_url)
-    
-as same.
-
-    group = MotionAL.library.groups.first
+    group = library.groups.first
     asset = group.assets.first
-    representation = asset.default_representation # asset.representations.first
+    representation = photo.default_representation
+
+    library.camera_roll   # camera roll
+    library.photo_library # synced from itunes
+
+    new_group = library.groups.create('new_group_name')
+    group = library.groups.find_by_url(group_url)
+
+    new_asset = group.assets.create(image, meta)
+    another_new_asset = MotionAL::Asset.create(image, meta)
+
+    asset = group.assets.find_by_url(asset_url)
+    another_asset = MotionAL::Asset.find_by_url(asset_url)
 
 ### Library
 
-    library = MotionAL.library # `Motional::Library.new` is not recommented.
-    library.saved_photos # library.albums.find_by_name('Saved Photos')
+    library = MotionAL.library # should not call `Motional::Library.new` directly.
 
-    MotionAL::Library.authorized?
+    library.camera_roll   # camera roll
+    library.photo_library # synced from itunes
 
-#### Albums
+    MotionAL::Library.authorized? # check permission. see Settings > Privacy > Photos
 
-    library.albums.each {...}
+#### Groups
 
-`albums` is a kind of Array.
-But if delete it or update it that does not affect AssetLibrary (It's restriction of iOS SDK)
+    library.groups.each { |group| ...}
+    names = library.groups.map { |griup| group.name }
 
-### Album (alias of Group)
+A collection of group. It basically behave an Array.
+
+But you cannot access self mutation methods(delete, select!, etc.). It's restriction of iOS SDK.
+
+### Group (alias of Group)
     
     Asset.all(:filter => :photo)
-    Album.assets.filter(:photo).all
+    Group.assets.filter(:photo).all
 
 #### Create
 
-    library.albums.create('album_name') # create and add library
-
-as same.
-
-    MotionAL::Album.create('album_name') # create and add library
+    MotionAL::Group.create('group_name') # create and add to library
     
 #### Find
 
-    album = library.albums.find_by_url(album_url)
-    album = library.albums.find_by_name('album_name')
+    group = library.groups.find_by_url(group_url)
+    group = library.groups.find_by_name('group_name')
 
-`album_url` is a NSURL object.
+`group_url` is a NSURL object.
 
 as same.
 
-    album = Album.find_by_url(album_url)
-    album = Album.find_by_name('album_name')
+    group = MotionAL::Group.find_by_url(group_url)
+    group = MotionAL::Group.find_by_name('group_name')
 
-    albums = Album.all
+    groups = group.all
 
-#### Assets (also: Photos, Viedos)
+#### Assets
+
+    some_group.assets.each { |asset| ... }
+    urls = some_group.assets.map { |asset| asset.url }
+
+A collection of asset in the group. It basically behave an Array.
+
+But you cannot access self mutation methods(delete, select!, etc.). It's restriction of iOS SDK.
     
-    urls = album.assets.map {|a| a.url }
-    album.assets.each {...}
-
-`assets` is a kind of Array.
-But if delete it or update it that does not affect AssetLibrary (It's restriction of iOS SDK)
-
-### Asset (also: Photo, Video)
+### Asset
 
 #### Create
 
-    album.assets.create(image, metadata) # create asset and add album
+    group.assets.create(image, metadata) # create asset and add group
     
     asset = MotionAL::Asset.create(original_asset.full_resolution_image, original_asset.metadata)
-    album.assets << asset
+    group.assets << asset
     
 #### Find
     
@@ -122,25 +130,30 @@ But if delete it or update it that does not affect AssetLibrary (It's restrictio
     
     # asynchronous
 
-### File (alias of Representation)
+### Representations
 
-#### BubbleWrap camera sample
+### Representation
 
 ## Sample Code
 
-## Classes overview
+### BubbleWrap camera sample
 
-    MotionAL
-    MotionAL::Group = Album
-      assets, photos, videos
-    MotionAL::Asset = Photo, Video
-      representations, files
-    MotionAL::Representation = File
+
+## How to run specs
+
+### Preparing test data
+
+    rake spec files=spec_helper
+
+### Run specs
+
+    rake spec
 
 ## Contributing
 
 1. Fork it
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+4. Check all specs passed on your simurator (`rake spec`)
+5. Push to the branch (`git push origin my-new-feature`)
+6. Create new Pull Request
