@@ -27,6 +27,7 @@ module MotionAL
     # @param group_name [String]
     # @return [MotionAL::Group] A created asset.
     # @return [nil] When block given or fail to create.
+    #
     # @example
     #   MotionAL::Group.create('MyAlbum') do |group, error|
     #     # asynchronous if a block given
@@ -34,7 +35,7 @@ module MotionAL
     #   end
     #
     #   group = MotionAL::Group.create('MyAlbum')
-    #   p asset.name
+    #   p group.name
     def self.create(group_name, &block)
       pid = @@store.reserve(:create)
       if block_given?
@@ -79,7 +80,7 @@ module MotionAL
     #
     # @param group_name [String]
     # @return [MotionAL::Group] A found group.
-    # @return [nil] When block given or fail to find.
+    # @return [nil] When fail to find.
     #
     # @example
     #   group = MotionAL::Group.find_by_name('MyAlbum')
@@ -99,7 +100,7 @@ module MotionAL
     #   end
     #
     #   groups = MotionAL::group.all
-    #   urls  = groups.map {|g| g.name }
+    #   names  = groups.map {|g| g.name }
     def self.all(&block)
       pid = @@store.reserve(:all, :array)
       if block_given?
@@ -141,8 +142,9 @@ module MotionAL
       #   @return [$3] The value for the property $2.
       #   @return [nil] The property is empty.
       def make_wrapper_for_property(method_name, property_name, type_of_return)
+
         define_method(method_name) do 
-          @al_asset.valueForProperty(property_name)
+          @al_asset_group.valueForProperty(property_name)
         end
       end
     end
