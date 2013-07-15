@@ -108,7 +108,7 @@ module MotionAL
       else
         Dispatch.wait_async { self.origin_all(pid) }
         found_groups = @@store.get(:all, pid)
-        @store.release(:all, pid)
+        @@store.release(:all, pid)
 
         return found_groups
       end
