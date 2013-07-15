@@ -9,10 +9,25 @@ describe MotionAL::Library do
     @test_group = @library.groups.find_by_name(@test_group_name) 
   end
 
-  describe ".saved_photos" do
+  describe ".camera_roll" do
     it "should instance of Group" do
-      @library.saved_photos.should.instance_of MotionAL::Group
+      @library.camera_roll.should.instance_of MotionAL::Group
     end
+  end
+
+  describe ".photo_library" do
+    before do
+      @photo_library = @library.photo_library
+    end
+
+    it "should instance of Group" do
+      @photo_library.should.instance_of MotionAL::Group
+    end
+
+    it "should be named 'Photo Library'" do
+      @photo_library.name.should.equal 'Photo Library'
+    end
+
   end
 
   describe ".groups" do

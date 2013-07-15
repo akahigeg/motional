@@ -31,7 +31,7 @@ module MotionAL
         :album        => ALAssetsGroupAlbum,
         :event        => ALAssetsGroupEvent,
         :faces        => ALAssetsGroupFaces,
-        :photos       => ALAssetsGroupSavedPhotos,
+        :saved_photos => ALAssetsGroupSavedPhotos,
         :photo_stream => ALAssetsGroupPhotoStream,
         :all          => ALAssetsGroupAll
       }

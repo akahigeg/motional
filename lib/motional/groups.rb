@@ -10,6 +10,12 @@ module MotionAL
     def initialize(asset_library)
       @asset_library = asset_library
       load_entries
+      self << MotionAL.library.photo_library
+    end
+
+    def reload
+      super
+      self << MotionAL.library.photo_library
     end
 
     # Create a group.
@@ -86,13 +92,13 @@ module MotionAL
     #
     #   groups = MotionAL.library.groups.all
     #   names  = groups.map {|g| g.name }
-    def all(&block)
+    def all(options = {}, &block)
       if block_given?
-        MotionAL::Group.all do |group, error|
+        MotionAL::Group.all(options) do |group, error|
           block.call(group, error)
         end
       else
-        MotionAL::Group.all
+        MotionAL::Group.all(options)
       end
     end
   end

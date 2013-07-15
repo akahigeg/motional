@@ -66,9 +66,9 @@ module MotionAL
     def self.find_by_url(group_url, &block)
       pid = @@store.reserve(:find_by_url)
       if block_given?
-        self.origin_find_by_url(group_url, pid, block)
+        origin_find_by_url(group_url, pid, block)
       else
-        Dispatch.wait_async { self.origin_find_by_url(group_url, pid) }
+        Dispatch.wait_async { origin_find_by_url(group_url, pid) }
         found_group = @@store.get(:find_by_url, pid)
         @@store.release(:find_by_url, pid)
 
@@ -87,6 +87,7 @@ module MotionAL
     #   p group.name
     def self.find_by_name(group_name)
       MotionAL.library.groups.select{|g| g.name == group_name }.first
+
     end
 
     # Find all groups in the AssetLibrary.
@@ -101,14 +102,14 @@ module MotionAL
     #
     #   groups = MotionAL::group.all
     #   names  = groups.map {|g| g.name }
-    def self.all(&block)
-      pid = @@store.reserve(:all, :array)
+    def self.all(options = {}, &block)
+      options[:pid] = @@store.reserve(:all, :array)
       if block_given?
-        origin_all(pid, block)
+        origin_all(options, block)
       else
-        Dispatch.wait_async { self.origin_all(pid) }
-        found_groups = @@store.get(:all, pid)
-        @@store.release(:all, pid)
+        Dispatch.wait_async { origin_all(options) }
+        found_groups = @@store.get(:all, options[:pid])
+        @@store.release(:all, options[:pid])
 
         return found_groups
       end
@@ -194,14 +195,15 @@ module MotionAL
       )
     end
 
-    def self.origin_all(pid, callback = nil)
+    def self.origin_all(options, callback = nil)
       # TODO: support more Type of Asset (now only support ALAssetsGroupAll)
+      options[:group_type] ||= :all
       MotionAL.library.al_asset_library.enumerateGroupsWithTypes(
-        MotionAL.asset_group_types[:all],
+        MotionAL.asset_group_types[options[:group_type]],
         usingBlock: lambda { |al_asset_group, stop|
           if !al_asset_group.nil?
             group = Group.new(al_asset_group) 
-            @@store.set(:all, pid, group)
+            @@store.set(:all, options[:pid], group)
             callback.call(group, nil) if callback
           end
         },

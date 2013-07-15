@@ -22,23 +22,31 @@ module MotionAL
       @al_asset_library ||= ALAssetsLibrary.new
     end
 
-    # @return [MotionAL::Groups] Contains all groups in AssetLibrary.
+    # @return [MotionAL::Groups] Contain all groups in AssetLibrary.
     def groups
       @groups ||= Groups.new(self)
     end
 
-    # Return a default group named 'Camera Roll' or 'Saved Photos'.
+    # Return the special group named 'Camera Roll' or 'Saved Photos'.
     #
-    # 'Camera Roll' and 'Saved Photos' are the special groups. 
     # That exists in initial state of any iOS devices and iOS Simurator. 
-    # And all assets belong to Those automatically.(maybe)
+    # And all assets that are created in the device belong to this group automatically.(maybe)
     #
-    # 'Camera Roll' is in a device, 'Saved Photos' is in a simurator.
+    # 'Camera Roll' is the name on a device, 'Saved Photos' is the name on a simurator.
     #
     # @return [MotionAL::Group] 
     def camera_roll
-      groups.find_by_name('Camera Roll') || groups.find_by_name('Saved Photos')
+      @camera_roll ||= groups.find_by_name('Camera Roll') || groups.find_by_name('Saved Photos')
     end
     alias_method :saved_photos, :camera_roll
+
+    # Return the special group named 'Photo Library'.
+    #
+    # This group includes all assets that are synced from iTunes.
+    #
+    # @return [MotionAL::Group] 
+    def photo_library
+      @photo_library ||= MotionAL::Group.all({group_type: :library}).first
+    end
   end
 end

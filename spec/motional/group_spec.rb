@@ -24,6 +24,13 @@ describe MotionAL::Group do
     end
   end
 
+  describe ".find_by_name" do
+    it "can find 'Photo Library'" do
+      group = MotionAL::Group.find_by_name('Photo Library')
+      group.name.should.equal 'Photo Library'
+    end
+  end
+
   describe "#url" do
     it "should return NSURL object" do
       @test_group.url.should.instance_of NSURL
@@ -42,7 +49,7 @@ describe MotionAL::Group do
     end
 
     it "default group (not created by this App) should not be editable" do
-      @library.saved_photos.should.not.be.editable
+      @library.camera_roll.should.not.be.editable
     end
   end
 
@@ -54,7 +61,7 @@ describe MotionAL::Group do
     describe ".create" do
       it "should create new asset and add that to group" do
         call_assets_create = Proc.new do
-          original_asset = @library.saved_photos.assets.first
+          original_asset = @library.camera_roll.assets.first
           @test_group.assets.create(original_asset.full_resolution_image, original_asset.metadata)
         end
         call_assets_create.should.change {@test_group.assets.size}
