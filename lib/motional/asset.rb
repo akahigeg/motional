@@ -106,7 +106,7 @@ module MotionAL
     # @option options [Symbol] :filter :all, :photo or :video
     # @option options [Symbol] :order :asc or :desc
     # @option options [NSIndexSet] :indexset
-    # @return [MotionAL::Asset] A found asset.
+    # @return [Array] Found assets.
     # @return [nil] When block given or fail to find.
     #
     # @example
@@ -176,11 +176,11 @@ module MotionAL
     alias_method :file, :default_representation
     alias_method :representation, :default_representation
 
+    # wrapper for valueForProperty
     class << self
       private
-      # wrapper for valueForProperty
       # @!macro [attach] make_wrapper
-      #   The value for property $2
+      #   The asset's $1
       #   @method $1
       #   @return [$3] The value for the property $2.
       #   @return [nil] The property is empty.
@@ -218,7 +218,7 @@ module MotionAL
       private
       # wrapper for representation method
       # @!macro [attach] make_wrapper
-      #   The same as the default representation's $1
+      #   The default representation's $1
       #   @method $1
       #   @return [$2] The same as the default representation's $1
       #   @return [nil] The property is empty.

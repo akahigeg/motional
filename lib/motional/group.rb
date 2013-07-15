@@ -16,10 +16,25 @@ module MotionAL
     @@thread_safe_data_store = {}
     @@store = ThreadValueStore
 
+    # @param al_asset_group [ALAssetsGroup]
     def initialize(al_asset_group)
       @al_asset_group = al_asset_group
     end
 
+    # Create a group.
+    # A group should not be created if a specified name already exists.
+    #
+    # @param group_name [String]
+    # @return [MotionAL::Group] A created asset.
+    # @return [nil] When block given or fail to create.
+    # @example
+    #   MotionAL::Group.create('MyAlbum') do |group, error|
+    #     # asynchronous if a block given
+    #     p group.name
+    #   end
+    #
+    #   group = MotionAL::Group.create('MyAlbum')
+    #   p asset.name
     def self.create(group_name, &block)
       pid = @@store.reserve(:create)
       if block_given?
@@ -33,6 +48,20 @@ module MotionAL
       end
     end
 
+    # Find an asset by a specified asset_url.
+    #
+    # @param group_url [NSURL]
+    # @return [MotionAL::group] A found group.
+    # @return [nil] When block given or fail to find.
+    #
+    # @example
+    #   MotionAL::group.find_by_url(url) do |group, error|
+    #     # asynchronous if a block given
+    #     p group.name
+    #   end
+    #
+    #   group = MotionAL::group.find_by_url(url)
+    #   p group.name
     def self.find_by_url(group_url, &block)
       pid = @@store.reserve(:find_by_url)
       if block_given?
@@ -46,11 +75,32 @@ module MotionAL
       end
     end
 
+    # Find an group by a specified group name.
+    #
+    # @param group_name [String]
+    # @return [MotionAL::Group] A found group.
+    # @return [nil] When block given or fail to find.
+    #
+    # @example
+    #   group = MotionAL::Group.find_by_name('MyAlbum')
+    #   p group.name
     def self.find_by_name(group_name)
       MotionAL.library.groups.select{|g| g.name == group_name }.first
     end
 
-    def self.all(options = nil, &block)
+    # Find all groups in the AssetLibrary.
+    #
+    # @return [Array] Found groups.
+    #
+    # @example
+    #   MotionAL::group.all do |group, error|
+    #     # asynchronous if a block given
+    #     p group.name
+    #   end
+    #
+    #   groups = MotionAL::group.all
+    #   urls  = groups.map {|g| g.name }
+    def self.all(&block)
       pid = @@store.reserve(:all, :array)
       if block_given?
         origin_all(pid, block)
@@ -63,30 +113,46 @@ module MotionAL
       end
     end
 
+    # @return [MotionAL::Assets] The collection of assets in the group.
     def assets
       @assets ||= Assets.new(self)
     end
 
-    # wrapper method
+    # Return true if the app haves write access for the group.
+    # In other words true means the app can add assets to the group.
+    #
+    # @return [Boolean]
     def editable?
       @al_asset_group.editable?
     end
 
+    # @return [CGImageRef] The group's poster image.
     def poster_image
       @al_asset_group.posterImage
     end
 
     # wrapper of valueForProperty
-    {
-      name: ALAssetsGroupPropertyName,
-      persistent_id: ALAssetsGroupPropertyPersistentID,
-      url: ALAssetsGroupPropertyURL
-    }.each do |method_name, property_name|
-      define_method(method_name) do 
-        @al_asset_group.valueForProperty(property_name)
+    class << self
+      private
+      # wrapper for valueForProperty
+      # @!macro [attach] make_wrapper
+      #   The gruop's $1
+      #   @method $1
+      #   @return [$3] The value for the property $2.
+      #   @return [nil] The property is empty.
+      def make_wrapper_for_property(method_name, property_name, type_of_return)
+        define_method(method_name) do 
+          @al_asset.valueForProperty(property_name)
+        end
       end
     end
+    make_wrapper_for_property(:name, ALAssetsGroupPropertyName, "Stirng")
+    make_wrapper_for_property(:persistent_id, ALAssetsGroupPropertyPersistentID, "String")
+    make_wrapper_for_property(:url, ALAssetsGroupPropertyURL, "NSURL")
 
+    # The type of the group.
+    #
+    # @return [Symbol] :library, :album, :event, :faces, :photos, :photo_stream or :all         
     def asset_group_type
       MotionAL.asset_group_types.key(@al_asset_group.valueForProperty(ALAssetsGroupPropertyType))
     end

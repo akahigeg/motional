@@ -69,7 +69,7 @@ module MotionAL
     # @option options [Symbol] :filter :all, :photo or :video
     # @option options [Symbol] :order :asc or :desc
     # @option options [NSIndexSet] :indexset
-    # @return [MotionAL::Asset] A found asset.
+    # @return [Array] Found assets.
     # @return [nil] When block given or fail to find.
     # @example
     #   group.assets.all do |asset, error|
