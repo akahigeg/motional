@@ -1,6 +1,9 @@
 # -*- encoding : utf-8 -*-
 
 module Dispatch
+  # For using an asynchronous method as an ordinary synchronous method.
+  #
+  # @param duration [Float]
   def self.wait_async(duration = 0.15, &block)
     @async_done = false
     queue_group = Dispatch::Group.new
@@ -18,11 +21,10 @@ end
 module MotionAL
   class << self
     def library
-      Library.instance
+      @library ||= Library.instance
     end
 
-    # readable key and objective-c constant value
-    # @return [Hash]
+    # @return [Hash] readable key and objective-c constant value
     def asset_group_types
       {
         :library      => ALAssetsGroupLibrary,
@@ -35,7 +37,7 @@ module MotionAL
       }
     end
  
-    # @return [Hash]
+    # @return [Hash] readable key and objective-c constant value
     def asset_types
       {
         :photo   => ALAssetTypePhoto,
@@ -44,7 +46,7 @@ module MotionAL
       }
     end
  
-    # @return [Hash]
+    # @return [Hash] readable key and objective-c constant value
     def asset_orientations
       {
         :up             => ALAssetOrientationUp,
@@ -58,7 +60,7 @@ module MotionAL
       }
     end
 
-    # @return [Hash]
+    # @return [Hash] readable key and objective-c constant value
     def authorization_statuses
       {
         :not_determined => ALAuthorizationStatusNotDetermined,
@@ -68,7 +70,7 @@ module MotionAL
       }
     end
 
-    # @return [Hash]
+    # @return [Hash] readable key and objective-c constant value
     def notification_keys
       {
         :updated_assets_key        => ALAssetLibraryUpdatedAssetsKey,
@@ -78,8 +80,7 @@ module MotionAL
       }
     end
 
-    # @return [Boolean]
-    # @note false means that your app cannot access the asset library.
+    # @return [Boolean] False means that your app cannot access the asset library.
     def authorized?
       ALAssetsLibrary.authorizationStatus == authorization_statuses[:authorized]
     end

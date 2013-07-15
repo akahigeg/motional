@@ -1,7 +1,9 @@
 # -*- encoding : utf-8 -*-
 
 module MotionAL
+  #
   # for thread safe
+  #
   class ThreadValueStore
     @@value_store = {}
     @@store_types = {}

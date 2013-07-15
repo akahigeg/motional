@@ -1,14 +1,27 @@
 # -*- encoding : utf-8 -*-
 
-class MotionAL
+module MotionAL
+  #
+  # A collection of representations. 
+  # Representations belongs to the asset.
+  #
   class Representations < Children
+    # @param asset [MotionAL::Asset]
     def initialize(asset)
       @asset = asset
       load_entries
     end
 
-    def find_by_uti(uti)
-      al_rep = @asset.al_asset.representationForUTI(uti)
+    # Find a representation by a specified representation UTI.
+    #
+    # @option representation_uti [String] A representation's UTI
+    # @return [MotionAL::Representation]
+    # @return [nil] No representation for a specified UTI.
+    #
+    # @example
+    #   rep = asset.representations.find_by_uti(representation_uti)
+    def find_by_uti(representation_uti)
+      al_rep = @asset.al_asset.representationForUTI(representation_uti)
       if al_rep
         Representation.new(al_rep)
       else
@@ -16,25 +29,16 @@ class MotionAL
       end
     end
 
-    def all(options = {}, &block)
-      @found_representations = []
-      if block_given?
-        origin_all(options, block)
-      else
-        Dispatch.wait_async { origin_all(options) }
-        return @found_representations
-      end
-    end
-
-    private
-    def origin_all(options, callback = nil)
-      @asset.representation_utis.each do |uti|
+    # Return all representations of the asset.
+    #
+    # @return [Array] An Array of representation.
+    #
+    # @example
+    #   reps = asset.representations.all
+    def all
+      @asset.representation_utis.map do |uti|
         rep = Representation.new(find_by_uti(uti))
-        @found_representations << rep
-        callback.call(rep) if callback
       end
     end
   end
-
-  Files = Representations
 end

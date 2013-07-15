@@ -1,8 +1,16 @@
 # -*- encoding : utf-8 -*-
 
 module MotionAL
+  #
+  # A wrapper of ALAsset class.
+  #
+  #   An ALAsset object represents a photo or a video managed by the Photo application.
+  #   Assets can have multiple representations, for example a photo which was captured in RAW and JPG. Different representations of the same asset may have different dimensions.
+  #
+  # And added some convinience methods.
+  #
   class Asset
-    # An instance of ALAsset Class
+    # An instance of ALAsset.
     attr_reader :al_asset
 
     @@store = ThreadValueStore
@@ -65,7 +73,7 @@ module MotionAL
       end
     end
 
-    # Find the asset by asset_url.
+    # Find an asset by a specified asset_url.
     #
     # @param asset_url [NSURL]
     # @return [MotionAL::Asset] A found asset.
@@ -91,7 +99,7 @@ module MotionAL
       end
     end
 
-    # Find all assets.
+    # Find assets by options.
     #
     # @param options [Hash]
     # @option options [MotionAL::Group] :group Default is MotionAL.library.saved_photo.
@@ -208,27 +216,27 @@ module MotionAL
 
     class << self
       private
-      # wrapper for valueForProperty
+      # wrapper for representation method
       # @!macro [attach] make_wrapper
       #   The same as the default representation's $1
       #   @method $1
       #   @return [$2] The same as the default representation's $1
       #   @return [nil] The property is empty.
-      def make_wrapper_for_representation_methods(method_name, type_of_return)
+      def make_wrapper_for_representation_method(method_name, type_of_return)
         define_method(method_name) do 
           default_representation.send(method_name)
         end
       end
     end
-    make_wrapper_for_representation_methods(:full_resolution_image, "CGImageRef")
-    make_wrapper_for_representation_methods(:full_screen_image, "CGImageRef")
-    make_wrapper_for_representation_methods(:scale, "Float")
-    make_wrapper_for_representation_methods(:data, "NSData")
-    make_wrapper_for_representation_methods(:cg_image, "CGImageRef")
-    make_wrapper_for_representation_methods(:dimensions, "CGSize")
-    make_wrapper_for_representation_methods(:filename, "String")
-    make_wrapper_for_representation_methods(:size, "Fixnum")
-    make_wrapper_for_representation_methods(:metadata, "Hash")
+    make_wrapper_for_representation_method(:full_resolution_image, "CGImageRef")
+    make_wrapper_for_representation_method(:full_screen_image, "CGImageRef")
+    make_wrapper_for_representation_method(:scale, "Float")
+    make_wrapper_for_representation_method(:data, "NSConcreteData")
+    make_wrapper_for_representation_method(:cg_image, "CGImageRef")
+    make_wrapper_for_representation_method(:dimensions, "CGSize")
+    make_wrapper_for_representation_method(:filename, "String")
+    make_wrapper_for_representation_method(:size, "Fixnum")
+    make_wrapper_for_representation_method(:metadata, "Hash")
 
     # Create a new asset forked by the asset.
     #

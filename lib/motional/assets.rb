@@ -1,8 +1,10 @@
 # -*- encoding : utf-8 -*-
 
-class MotionAL
-  # This is a collection class for assets.
-  # Assets belongs to a group.
+module MotionAL
+  #
+  # A collection of assets.
+  # Assets belongs to the group.
+  #
   class Assets < Children
     # @param group [MotionAL::Group]
     def initialize(group)
@@ -11,7 +13,7 @@ class MotionAL
       load_entries
     end
 
-    # Create an asset and add it to group.
+    # Create an asset and add it to the group.
     #
     # @param source [CGImage, NSData, NSURL] CGImage and NSData for the photo, NSURL for the video.
     # @param metadata [Hash] Metadata for the photo.
@@ -38,7 +40,7 @@ class MotionAL
       end
     end
 
-    # Find the asset by asset_url.
+    # Find an asset by a specified asset_url.
     #
     # @param asset_url [NSURL]
     # @return [MotionAL::Asset] A found asset.
@@ -103,7 +105,7 @@ class MotionAL
       filtered_count
     end
 
-    # Add the asset to the group.
+    # Add an asset to the group.
     # @param asset [MotionAL::Asset]
     def push(asset)
       super
@@ -112,7 +114,7 @@ class MotionAL
     end
     alias_method "<<", :push
 
-    # Add the asset to the group.
+    # Add an asset to the group.
     def unshift(asset)
       super
       add_asset_to_group(asset) # TODO: keep sequence of group assets in ALAssetLibrary?

@@ -1,6 +1,10 @@
 # -*- encoding : utf-8 -*-
 
-class MotionAL
+module MotionAL
+  #
+  # A collection of groups.
+  # Gruops belongs to the AssetLibrary.
+  #
   class Groups < Children
     def initialize(asset_library)
       @asset_library = asset_library
@@ -41,6 +45,4 @@ class MotionAL
       end
     end
   end
-
-  Albums = Groups
 end

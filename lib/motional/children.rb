@@ -1,10 +1,12 @@
 # -*- encoding : utf-8 -*-
 
-class MotionAL
+module MotionAL
+  #
   # Super class for collection classes that belong to the parent object.
   #
   # It behave an array but it is disabled self mutation methods(ex. delete). 
   # This is because that iOS SDK doesn't permit third party apps to update, to remove.
+  #
   class Children < Array
     # Reload sets from ALAssetLibrary
     def reload

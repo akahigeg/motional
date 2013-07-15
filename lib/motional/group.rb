@@ -1,8 +1,18 @@
 # -*- encoding : utf-8 -*-
 
-class MotionAL
+module MotionAL
+  #
+  # A wrapper of ALAssetGroup class.
+  #
+  #   An ALAssetsGroup object represents an ordered set of the assets managed by the Photos application. The order of the elements is the same as the user sees in the Photos application. An asset can belong to multiple assets groups.
+  #   Assets groups themselves are synced via iTunes, created to hold the user’s saved photos or created during camera import. You cannot directly modify the groups using ALAssetsGroup. You can indirectly modify the Saved Photos group by saving images or videos into it using the ALAssetsLibrary class.
+  #
+  # And added some convinience methods.
+  #
   class Group
-    attr_accessor :al_asset_group
+    # An instance of ALAssetGroup.
+    attr_reader :al_asset_group
+
     @@thread_safe_data_store = {}
     @@store = ThreadValueStore
 
@@ -133,6 +143,4 @@ class MotionAL
       )
     end
   end
-
-  Album = Group
 end
