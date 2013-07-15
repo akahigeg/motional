@@ -92,6 +92,8 @@ module MotionAL
 
     # Find all groups in the AssetLibrary.
     #
+    # @param options [Hash]
+    # @option options :group_type [Symbol] An asset group type. default: :all.
     # @return [Array] Found groups.
     #
     # @example
@@ -199,7 +201,7 @@ module MotionAL
       # TODO: support more Type of Asset (now only support ALAssetsGroupAll)
       options[:group_type] ||= :all
       MotionAL.library.al_asset_library.enumerateGroupsWithTypes(
-        MotionAL.asset_group_types[options[:group_type]],
+        MotionAL.asset_group_types[options[:group_type].to_sym],
         usingBlock: lambda { |al_asset_group, stop|
           if !al_asset_group.nil?
             group = Group.new(al_asset_group) 

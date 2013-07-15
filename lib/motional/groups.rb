@@ -82,6 +82,8 @@ module MotionAL
 
     # Find all groups in the AssetLibrary.
     #
+    # @param options [Hash]
+    # @option options :group_type [Symbol] An asset group type. default: :all.
     # @return [Array] Found groups.
     #
     # @example
