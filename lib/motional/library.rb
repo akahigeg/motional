@@ -27,15 +27,18 @@ module MotionAL
       @groups ||= Groups.new(self)
     end
 
-    # Return a group named 'Saved Photos'.
+    # Return a default group named 'Camera Roll' or 'Saved Photos'.
     #
-    # 'Saved Photos' is the special group. 
-    # That exists in initial state of any iOS devices. 
-    # And all assets belong to 'Saved Photo' automatically.(maybe)
+    # 'Camera Roll' and 'Saved Photos' are the special groups. 
+    # That exists in initial state of any iOS devices and iOS Simurator. 
+    # And all assets belong to Those automatically.(maybe)
+    #
+    # 'Camera Roll' is in a device, 'Saved Photos' is in a simurator.
     #
     # @return [MotionAL::Group] 
-    def saved_photos
-      groups.find_by_name('Saved Photos')
+    def camera_roll
+      groups.find_by_name('Camera Roll') || groups.find_by_name('Saved Photos')
     end
+    alias_method :saved_photos, :camera_roll
   end
 end

@@ -102,7 +102,7 @@ module MotionAL
     # Find assets by options.
     #
     # @param options [Hash]
-    # @option options [MotionAL::Group] :group Default is MotionAL.library.saved_photo.
+    # @option options [MotionAL::Group] :group Default is MotionAL.library.camera_roll.
     # @option options [Symbol] :filter :all, :photo or :video
     # @option options [Symbol] :order :asc or :desc
     # @option options [NSIndexSet] :indexset
@@ -326,7 +326,7 @@ module MotionAL
     end
 
     def self.origin_all(options = {}, callback = nil)
-      options[:group] ||= MotionAL.library.saved_photos
+      options[:group] ||= MotionAL.library.camera_roll
 
       AssetsFilter.set(options[:group], options[:filter]) if options[:filter]
       if options[:indexset]
@@ -355,18 +355,18 @@ module MotionAL
       end
     end
 
-    def self.create_by_image_data(image_data, meta, pid, &block)
+    def self.create_by_image_data(image_data, meta, pid, callback = nil)
       MotionAL.library.al_asset_library.writeImageDataToSavedPhotosAlbum(
         image_data,
         metadata: meta,
-        completionBlock: self.completion_block_for_create(pid, block)
+        completionBlock: self.completion_block_for_create(pid, callback )
       )
     end
 
-    def self.create_by_video_path(video_path_url, pid, &block)
+    def self.create_by_video_path(video_path_url, pid, callback = nil)
       MotionAL.library.al_asset_library.writeVideoAtPathToSavedPhotosAlbum(
         video_path_url,
-        completionBlock: self.completion_block_for_create(pid, block)
+        completionBlock: self.completion_block_for_create(pid, callback)
       )
     end
 

@@ -166,7 +166,7 @@ module MotionAL
         resultBlock: lambda { |al_asset_group|
           if !al_asset_group.nil?
             created_group = Group.new(al_asset_group) 
-            @@store.save(:create, pid, created_group)
+            @@store.set(:create, pid, created_group)
           end
 
           callback.call(created_group, nil) if callback
