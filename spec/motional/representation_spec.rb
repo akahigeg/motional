@@ -1,9 +1,18 @@
 # -*- encoding : utf-8 -*-
 
 describe MotionAL::Representation do
-
   before do
-    @rep = MotionAL.library.saved_photos.assets.first.rep
+    MotionAL::Group.camera_roll do |group, error|
+      @saved_photos = group
+    end
+    wait_async(1)
+
+    @saved_photos.assets.all(filter: :photo) do |asset|
+      @asset = asset
+    end
+    wait_async(1)
+
+    @rep = @asset.rep
   end
 
   describe ".data" do
@@ -20,14 +29,14 @@ describe MotionAL::Representation do
 
   describe ".filename" do
     it "should return filename" do
-      @rep.filename.should.match /jpg$|png/i
+      @rep.filename.should.match /jpg$|png$|mp4$/i
     end
   end
 
   # what's UTI?
   describe ".UTI" do
     it "should return public.jpeg?" do
-      @rep.UTI.should.equal 'public.jpeg'
+      @rep.UTI.should.match /public.jpeg|public.mpeg-4/i
     end
   end
 

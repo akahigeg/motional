@@ -2,7 +2,15 @@
 
 describe MotionAL::Representations do
   before do
-    @asset = MotionAL.library.saved_photos.assets.first
+    MotionAL::Group.camera_roll do |group, error|
+      @saved_photos = group
+    end
+    wait_async(1)
+
+    @saved_photos.assets.all do |asset|
+      @asset = asset
+    end
+    wait_async(1)
   end
 
   it "should be kind of Array" do
