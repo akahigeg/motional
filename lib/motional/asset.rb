@@ -288,16 +288,20 @@ module MotionAL
       else
         group_name = /Camera Roll|Saved Photos/
       end
+      options[:order] ||= :asc
 
       # TODO: order option
       MotionAL::Group.find_by_name(group_name) do |group, error|
+        order = MotionAL.enum_orders[options[:order]]
         AssetsFilter.set(group, options[:filter]) if options[:filter]
         if options[:indexset]
           group.al_asset_group.enumerateAssetsAtIndexes(
             options[:indexset],
-            options: NSEnumerationConcurrent, 
+            options: order, 
             usingBlock: using_block_for_all(options, callback)
           )
+        elsif options[:order] == :desc
+          group.al_asset_group.enumerateAssetsWithOptions(order, usingBlock: using_block_for_all(options, callback))
         else
           group.al_asset_group.enumerateAssetsUsingBlock(using_block_for_all(options, callback))
         end

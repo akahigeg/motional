@@ -80,6 +80,15 @@ module MotionAL
       }
     end
 
+    # @return [Hash] readable key and objective-c constant value
+    def enumeration_options
+      {
+        :asc   => NSEnumerationConcurrent,
+        :desc  => NSEnumerationReverse
+      }
+    end
+    alias_method :enum_orders, :enumeration_options
+
     # @return [Boolean] False means that your app cannot access the asset library.
     def authorized?
       ALAssetsLibrary.authorizationStatus == authorization_statuses[:authorized]

@@ -5,8 +5,8 @@ describe MotionAL::Asset do
     @library = MotionAL.library
 
     MotionAL::Asset.all do |asset, error|
-      @existent_asset = asset if asset.asset_type == :photo
-      @existent_video_asset = asset if asset.asset_type == :video
+      @existent_asset = asset if asset.asset_type == :photo && @existent_asset.nil?
+      @existent_video_asset = asset if asset.asset_type == :video && @existent_video_asset.nil?
     end
     wait_async(0.5)
 
@@ -31,13 +31,6 @@ describe MotionAL::Asset do
         @saved_photos.assets.count_by_filter(:all)
       end
     end
-  end
-
-  describe "check before" do
-    it "check" do 
-      @existent_asset.should.instance_of MotionAL::Asset
-    end
-
   end
 
   describe ".create" do
