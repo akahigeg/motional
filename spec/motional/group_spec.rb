@@ -23,7 +23,7 @@ describe MotionAL::Group do
     wait_async
   end
 
-  # '.create' and '.find_by_name' already tested by before section.
+  # '.create' already tested by before section.
   
   describe ".all" do
     before do
@@ -71,6 +71,17 @@ describe MotionAL::Group do
 
       wait_async
       @group.name.should.equal 'Saved Photos'
+    end
+
+    it "regexp" do
+      @group = nil
+      MotionAL::Group.find_by_name(/Saved Photos|Camera Roll/) do |group, error|
+        @group = group
+      end
+
+      wait_async
+      @group.name.should.equal 'Saved Photos'
+
     end
   end
 

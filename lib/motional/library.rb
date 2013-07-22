@@ -16,6 +16,10 @@ module MotionAL
       @@instance
     end
 
+    def initialize 
+      @camera_roll = nil
+    end
+
     # An instance of ALAssetLibrary.
     # @return [ALAssetsLibrary]
     def al_asset_library
@@ -24,7 +28,8 @@ module MotionAL
 
     # @return [MotionAL::Groups] Contain all groups in AssetLibrary.
     def groups
-      @groups ||= Groups.new(self)
+      @groups = MotionAL::Group
+      # @groups ||= Groups.new(self)
     end
 
     # Return the special group named 'Camera Roll' or 'Saved Photos'.
@@ -35,8 +40,14 @@ module MotionAL
     # 'Camera Roll' is the name on a device, 'Saved Photos' is the name on a simurator.
     #
     # @return [MotionAL::Group] 
-    def camera_roll
-      @camera_roll ||= groups.find_by_name('Camera Roll') || groups.find_by_name('Saved Photos')
+    def camera_roll(&block)
+      @camera_roll if @camera_roll
+      MotionAL::Group.find_by_name('Camera Roll') do |group, error|
+        @camera_roll = group if group.name == 'Camera Roll'
+      end
+      MotionAL::Group.find_by_name('Saved Photo') do |group, error|
+        @camera_roll = group if group.name == 'Saved Photo'
+      end
     end
     alias_method :saved_photos, :camera_roll
 

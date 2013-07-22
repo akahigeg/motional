@@ -5,12 +5,16 @@ describe MotionAL::Library do
     @library = MotionAL.library
 
     @test_group_name = 'MotionAL'
-    @library.groups.reload
-    @test_group = @library.groups.find_by_name(@test_group_name) 
+    MotionAL::Group.all do |group, error|
+      @test_group = group if group.name == @test_group_name
+    end
+    wait_async
   end
 
   describe ".camera_roll" do
     it "should instance of Group" do
+      @library.camera_roll
+      wait_async
       @library.camera_roll.should.instance_of MotionAL::Group
     end
   end
@@ -31,8 +35,8 @@ describe MotionAL::Library do
   end
 
   describe ".groups" do
-    it "should be kind of Array" do
-      @library.groups.should.kind_of Array
+    it "should be alias of MotionAL::Group" do
+      @library.groups.should == MotionAL::Group
     end
   end
 end

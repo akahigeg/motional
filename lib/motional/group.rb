@@ -67,8 +67,9 @@ module MotionAL
     #   group = MotionAL::Group.find_by_name('MyAlbum')
     #   p group.name
     def self.find_by_name(group_name, &block)
+      group_name = /#{group_name}/ if group_name.kind_of? String
       all do |group, error|
-        block.call(group, error) if group.name == group_name
+        block.call(group, error) if group.name =~ group_name
       end
     end
 
