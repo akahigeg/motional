@@ -3,21 +3,41 @@
 describe MotionAL::Asset do
   before do
     @library = MotionAL.library
-    @existent_asset = @library.saved_photos.assets.first
-    @existent_video_asset = @library.saved_photos.assets.select{|a| a.asset_type == :video }.first
+
+    MotionAL::Asset.all do |asset, error|
+      @existent_asset = asset if asset.asset_type == :photo
+      @existent_video_asset = asset if asset.asset_type == :video
+    end
+    wait_async
 
     @video_url = NSBundle.mainBundle.URLForResource('sample', withExtension:"mp4")
 
-    @test_group = @library.groups.find_by_name('MotionAL')
+    @test_group_name = 'MotionAL'
+    MotionAL::Group.all do |group, error|
+      @test_group = group if group.name == @test_group_name
+    end
+    wait_async
+
+    MotionAL::Group.camera_roll do |group, error|
+      @saved_photos = group
+    end
+    wait_async
   end
 
   shared "asset creation" do
     it "should create new asset" do
       @calling_create_method.should.change do
-        @library.saved_photos.assets.reload
-        @library.saved_photos.assets.size
+        wait_async(1)
+        @saved_photos.assets.count_by_filter(:all)
       end
     end
+  end
+
+  describe "check before" do
+    it "check" do 
+      @existent_asset.should.instance_of MotionAL::Asset
+    end
+
   end
 
   describe ".create" do
@@ -66,7 +86,9 @@ describe MotionAL::Asset do
     describe "when pass a NSData" do
       before do
         @calling_create_method = Proc.new do
-          @new_asset = @existent_asset.save_new(@existent_asset.data, @existent_asset.metadata)
+          @new_asset = nil
+          @existent_asset.save_new(@existent_asset.data, @existent_asset.metadata) {|a| @new_asset = a }
+          wait_async
         end
       end
 
@@ -98,8 +120,7 @@ describe MotionAL::Asset do
 
       it "should not create new asset" do
         @calling_update_method.should.not.change do
-          @library.saved_photos.assets.reload
-          @library.saved_photos.assets.size
+          @saved_photos.assets.count_by_filter(:all)
         end
       end
     end
@@ -113,8 +134,7 @@ describe MotionAL::Asset do
 
       it "should not create new asset" do
         @calling_update_method.should.not.change do
-          @library.saved_photos.assets.reload
-          @library.saved_photos.assets.size
+          @saved_photos.assets.count_by_filter(:all)
         end
       end
     end
@@ -122,65 +142,89 @@ describe MotionAL::Asset do
 
   describe "#find_by_url" do
     it "should return Asset object" do
-      asset = MotionAL::Asset.find_by_url(@existent_asset.url)
+      asset = nil
+
+      MotionAL::Asset.find_by_url(@existent_asset.url) {|a| asset = a }
+      wait_async
+
       asset.should.instance_of MotionAL::Asset
     end
 
     it "should return nil when unknown url given" do
       url = NSURL.URLWithString("http://hogehoge")
-      asset = MotionAL::Asset.find_by_url(url)
+      asset = nil
+
+      MotionAL::Asset.find_by_url(url) {|a| asset = a }
+      wait_async
+
       asset.should.be.nil
     end
   end
 
   describe "#all" do
-    it "should return array" do
-      assets = MotionAL::Asset.all
-      assets.should.kind_of Array
-      assets.first.should.instance_of MotionAL::Asset
-    end
-
     it "should avail order asc" do
-      assets = MotionAL::Asset.all(order: :asc)
+      assets = []
+
+      MotionAL::Asset.all(order: :asc) {|a| assets << a }
+      wait_async
+
       assets.size.should > 1
       assets.first.url.should.equal @existent_asset.url
     end
 
     it "should avail order desc" do
-      assets = MotionAL::Asset.all(order: :desc)
+      assets = []
+
+      MotionAL::Asset.all(order: :desc) {|a| assets << a }
+      wait_async
+
       assets.size.should > 1
       assets.last.url.should.equal @existent_asset.url
     end
 
     it "should avail group option" do
-      assets_b = MotionAL::Asset.all(group: @test_group)
-      assets_a = MotionAL::Asset.all #=> sometime crash when call twice immediatly
+      assets_a = []
+      assets_b = []
 
-      assets_a.size.should.equal @library.saved_photos.assets.size
+      MotionAL::Asset.all {|a| assets_a << a }
+      MotionAL::Asset.all(group: @test_group) {|a| assets_b << a }
+      wait_async
+
+      assets_a.size.should.equal @saved_photos.assets.count_by_filter(:all)
       assets_a.size.should.not.equal assets_b.size
     end
 
     it "should avail indexset option" do
       indexset = NSMutableIndexSet.indexSetWithIndexesInRange(1..2)
-      assets = MotionAL::Asset.all(indexset: indexset)
+      assets = []
+
+      MotionAL::Asset.all(indexset: indexset) {|a| assets << a }
+      wait_async
+
       assets.size.should.equal 2
 
-      @library.saved_photos.assets.reload
-      @library.saved_photos.assets[1].url.should.equal assets.first.url
+      # @saved_photos.assets[1].url.should.equal assets.first.url
     end
 
     it "should avail indexset option with order option" do
       indexset = NSMutableIndexSet.indexSetWithIndexesInRange(1..3)
-      assets = MotionAL::Asset.all(indexset: indexset, order: :desc)
+      assets = []
+
+      MotionAL::Asset.all(indexset: indexset, order: :desc) {|a| assets << a }
+      wait_async
+
       assets.size.should.equal 3
 
-      @library.saved_photos.assets.reload
-      @library.saved_photos.assets[1..3].reverse.first.url.should.equal assets.first.url
+      # @saved_photos.assets[1..3].reverse.first.url.should.equal assets.first.url
     end
 
     it "should avail filter option" do
-      assets = MotionAL::Asset.all(filter: :all)
-      photos = MotionAL::Asset.all(filter: :photo)
+      assets = []
+      photos = []
+
+      MotionAL::Asset.all(filter: :all) {|a| assets << a }
+      MotionAL::Asset.all(filter: :photo) {|a| photos << a }
+      wait_async
 
       assets.size.should.not.equal photos.size
     end

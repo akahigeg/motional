@@ -10,6 +10,9 @@ module MotionAL
   # And added some convinience methods.
   #
   class Library
+    # An alias of MotionAL::Group
+    attr_reader :groups
+
     # @return [MotionAL::Library] Singleton instance.
     def self.instance
       Dispatch.once { @@instance ||= new }
@@ -17,19 +20,13 @@ module MotionAL
     end
 
     def initialize 
-      @camera_roll = nil
+      @groups = MotionAL::Group
     end
 
     # An instance of ALAssetLibrary.
     # @return [ALAssetsLibrary]
     def al_asset_library
       @al_asset_library ||= ALAssetsLibrary.new
-    end
-
-    # @return [MotionAL::Groups] Contain all groups in AssetLibrary.
-    def groups
-      @groups = MotionAL::Group
-      # @groups ||= Groups.new(self)
     end
 
     # Return the special group named 'Camera Roll' or 'Saved Photos'.
@@ -41,13 +38,10 @@ module MotionAL
     #
     # @return [MotionAL::Group] 
     def camera_roll(&block)
-      @camera_roll if @camera_roll
-      MotionAL::Group.find_by_name('Camera Roll') do |group, error|
-        @camera_roll = group if group.name == 'Camera Roll'
+      MotionAL::Group.find_by_name(/Camera Roll|Saved Photo/) do |group, error|
+        @camera_roll = group 
       end
-      MotionAL::Group.find_by_name('Saved Photo') do |group, error|
-        @camera_roll = group if group.name == 'Saved Photo'
-      end
+      @camera_roll
     end
     alias_method :saved_photos, :camera_roll
 

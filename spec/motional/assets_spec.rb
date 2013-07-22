@@ -2,17 +2,18 @@
 
 describe MotionAL::Assets do
   before do 
-    @saved_photos = MotionAL.library.saved_photos
-    @assets = @saved_photos.assets
-    @test_group = MotionAL.library.groups.find_by_name('MotionAL')
-  end
-
-  describe "self mutation methods" do
-    it "should not access" do
-      @assets.should.not.respond_to :delete
-      @assets.should.not.respond_to :delete_if
-      @assets.should.not.respond_to :uniq!
+    @test_group_name = 'MotionAL'
+    MotionAL::Group.all do |group, error|
+      @test_group = group if group.name == @test_group_name
     end
+    wait_async
+
+    MotionAL::Group.camera_roll do |group, error|
+      @saved_photos = group
+    end
+    wait_async
+
+    @assets = @saved_photos.assets
   end
 
   describe "#count_by_filter" do
@@ -28,8 +29,12 @@ describe MotionAL::Assets do
 
   describe "#all" do
     it "should return assets in the group" do
-      test_assets = @test_group.assets.all
-      @assets.size.should.not.equal test_assets.size
+      test_assets = []
+
+      @test_group.assets.all {|a| test_assets << a }
+      wait_async
+
+      @test_group.assets.count_by_filter(:all).should.equal test_assets.size
     end
 
     it "cannot specify :group option" do

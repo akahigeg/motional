@@ -48,28 +48,12 @@ module MotionAL
     #     p "This video contained incompatible data."
     #   end
     def self.create(source, metadata = nil, &block)
-      pid = @@store.reserve(:create)
-      if block_given?
-        if source.kind_of?(NSData)
-          self.create_by_image_data(source, metadata, pid, block)
-        elsif source.kind_of?(NSURL)
-          self.create_by_video_path(source, pid, block)
-        else
-          self.create_by_cg_image(source, metadata, pid, block)
-        end
+      if source.kind_of?(NSData)
+        self.create_by_image_data(source, metadata, block)
+      elsif source.kind_of?(NSURL)
+        self.create_by_video_path(source, block)
       else
-        Dispatch.wait_async do
-          if source.kind_of?(NSData)
-            self.create_by_image_data(source, metadata, pid)
-          elsif source.kind_of?(NSURL)
-            self.create_by_video_path(source, pid)
-          else
-            self.create_by_cg_image(source, metadata, pid)
-          end
-        end
-        created_asset = @@store.get(:create, pid)
-        @@store.release(:create, pid)
-        return created_asset
+        self.create_by_cg_image(source, metadata, block)
       end
     end
 
@@ -122,15 +106,7 @@ module MotionAL
     #   indexset = NSMutableIndexSet.indexSetWithIndexesInRange(1..3)
     #   assets = MotionAL::Asset.all(group: group, indexset: indexset)
     def self.all(options = {}, &block)
-      options[:pid] = @@store.reserve(:all, :array)
-      if block_given?
-        self.origin_all(options, block)
-      else
-        Dispatch.wait_async { self.origin_all(options) }
-        assets = @@store.get(:all, options[:pid])
-        @@store.release(:all, options[:pid])
-        return assets
-      end
+      self.origin_all(options, block)
     end
 
     # @return [Boolean] false means ALAssetLibrary cannot treat the video file.
@@ -255,14 +231,7 @@ module MotionAL
     #   new_asset = asset.create(imagedata, meta)
     #   new_asset.original_asset #=> asset
     def save_new(source, metadata = nil, &block)
-      @created_asset = nil
-      if block_given?
-        origin_save_new(source, metadata, block)
-      else
-        Dispatch.wait_async { origin_save_new(source, metadata) }
-
-        return @created_asset
-      end
+      origin_save_new(source, metadata, block)
     end
 
     # Update the asset.
@@ -281,26 +250,22 @@ module MotionAL
     #
     #   asset.update(imagedata, meta)
     def update(source, metadata = nil, &block)
-      if block_given?
-        origin_update(source, metadata, block)
-      else
-        Dispatch.wait_async { origin_update(source, metadata) }
-      end
+      origin_update(source, metadata, block)
     end
 
     private
-    def self.create_by_cg_image(cg_image, meta, pid, callback = nil)
+    def self.create_by_cg_image(cg_image, meta, callback = nil)
       if self.only_orientation?(meta)
         MotionAL.library.al_asset_library.writeImageToSavedPhotosAlbum(
           cg_image,
           orientation: MotionAL.asset_orientations[meta[:orientation]],
-          completionBlock: self.completion_block_for_create(pid, callback)
+          completionBlock: self.completion_block_for_create(callback)
         )
       else
         MotionAL.library.al_asset_library.writeImageToSavedPhotosAlbum(
           cg_image,
           metadata: meta,
-          completionBlock: self.completion_block_for_create(pid, callback)
+          completionBlock: self.completion_block_for_create(callback)
         )
       end
     end
@@ -315,7 +280,6 @@ module MotionAL
         resultBlock: lambda {|al_asset|
           if al_asset
             found_asset = self.new(al_asset)
-            @@store.set(:find_by_url, pid, found_asset) 
             callback.call(found_asset, nil) if callback
           end
         }, 
@@ -326,54 +290,55 @@ module MotionAL
     end
 
     def self.origin_all(options = {}, callback = nil)
-      options[:group] ||= MotionAL.library.camera_roll
-
-      AssetsFilter.set(options[:group], options[:filter]) if options[:filter]
-      if options[:indexset]
-        options[:group].al_asset_group.enumerateAssetsAtIndexes(
-          options[:indexset],
-          options: NSEnumerationConcurrent, 
-          usingBlock: using_block_for_all(options, callback)
-        )
+      if options[:group]
+        group_name = options[:group].name
       else
-        options[:group].al_asset_group.enumerateAssetsUsingBlock(using_block_for_all(options, callback))
+        group_name = /Camera Roll|Saved Photos/
       end
-      AssetsFilter.reset(options[:group]) if options[:filter]
+
+      # TODO: order option
+      MotionAL::Group.find_by_name(group_name) do |group, error|
+        AssetsFilter.set(group, options[:filter]) if options[:filter]
+        if options[:indexset]
+          group.al_asset_group.enumerateAssetsAtIndexes(
+            options[:indexset],
+            options: NSEnumerationConcurrent, 
+            usingBlock: using_block_for_all(options, callback)
+          )
+        else
+          group.al_asset_group.enumerateAssetsUsingBlock(using_block_for_all(options, callback))
+        end
+        AssetsFilter.reset(group) if options[:filter]
+      end
     end
 
     def self.using_block_for_all(options, callback = nil)
       Proc.new do |al_asset, index, stop|
         if !al_asset.nil?
           asset = Asset.new(al_asset)
-          if options[:order] && options[:order].to_sym == :desc
-            @@store.unshift(:all, options[:pid], asset)
-          else
-            @@store.push(:all, options[:pid], asset)
-          end
           callback.call(asset, nil) if callback
         end
       end
     end
 
-    def self.create_by_image_data(image_data, meta, pid, callback = nil)
+    def self.create_by_image_data(image_data, meta, callback = nil)
       MotionAL.library.al_asset_library.writeImageDataToSavedPhotosAlbum(
         image_data,
         metadata: meta,
-        completionBlock: self.completion_block_for_create(pid, callback)
+        completionBlock: self.completion_block_for_create(callback)
       )
     end
 
-    def self.create_by_video_path(video_path_url, pid, callback = nil)
+    def self.create_by_video_path(video_path_url, callback = nil)
       MotionAL.library.al_asset_library.writeVideoAtPathToSavedPhotosAlbum(
         video_path_url,
-        completionBlock: self.completion_block_for_create(pid, callback)
+        completionBlock: self.completion_block_for_create(callback)
       )
     end
 
-    def self.completion_block_for_create(pid, callback = nil)
+    def self.completion_block_for_create(callback = nil)
       Proc.new do |asset_url, error|
         MotionAL::Asset.find_by_url(asset_url) do |asset, error|
-          @@store.set(:create, pid, asset)
           callback.call(asset, error) if callback
         end
       end

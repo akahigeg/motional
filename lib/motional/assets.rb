@@ -5,14 +5,12 @@ module MotionAL
   # A collection of assets.
   # Assets belongs to the group.
   #
-  class Assets < Children
+  class Assets
     attr_reader :group
 
     # @param group [MotionAL::Group]
     def initialize(group)
       @group = group
-
-      load_entries
     end
 
     # Create an asset and add it to the group.
@@ -30,23 +28,13 @@ module MotionAL
     #   asset = group.assets.create(data, meta)
     #   p asset.url.absoluteString
     def create(source, metadata = nil, &block)
-      if block_given?
-        Asset.create(source, metadata) do |asset, error|
-          if asset
-            block.call(asset, error)
-            self << asset
-          else
-            raise "Asset creation failed. #{error}"
-          end
-        end
-      else
-        asset = Asset.create(source, metadata)
+      Asset.create(source, metadata) do |asset, error|
         if asset
+          block.call(asset, error)
           self << asset
         else
-          raise "Asset creation failed."
+          raise "Asset creation failed. #{error}"
         end
-        asset
       end
     end
 
@@ -64,12 +52,8 @@ module MotionAL
     #   asset = group.assets.find_by_url(url)
     #   p asset.url.absoluteString
     def find_by_url(asset_url, &block)
-      if block_given?
-        MotionAL::Asset.find_by_url(asset_url) do |asset, error|
-          block.call(asset, error)
-        end
-      else
-        MotionAL::Asset.find_by_url(asset_url)
+      MotionAL::Asset.find_by_url(asset_url) do |asset, error|
+        block.call(asset, error)
       end
     end
 
@@ -94,12 +78,8 @@ module MotionAL
 
       options[:group] = @group
 
-      if block_given?
-        MotionAL::Asset.all(options) do |asset, error|
-          block.call(asset, error)
-        end
-      else
-        MotionAL::Asset.all(options)
+      MotionAL::Asset.all(options) do |asset, error|
+        block.call(asset, error)
       end
     end
 
@@ -118,7 +98,6 @@ module MotionAL
     # Add an asset to the group.
     # @param asset [MotionAL::Asset]
     def push(asset)
-      super
       add_asset_to_group(asset)
       self
     end
@@ -126,7 +105,6 @@ module MotionAL
 
     # Add an asset to the group.
     def unshift(asset)
-      super
       add_asset_to_group(asset) # TODO: keep sequence of group assets in ALAssetLibrary?
       self
     end
