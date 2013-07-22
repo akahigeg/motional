@@ -72,7 +72,7 @@ module MotionAL
     #   asset = MotionAL::Asset.find_by_url(url)
     #   p asset.url.absoluteString
     def self.find_by_url(asset_url, &block)
-        self.origin_find_by_url(asset_url, block)
+      self.origin_find_by_url(asset_url, block)
     end
 
     # Find assets by options.

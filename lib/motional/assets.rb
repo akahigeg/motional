@@ -81,7 +81,6 @@ module MotionAL
       MotionAL::Asset.all(options) do |asset, error|
         block.call(asset, error)
       end
-      nil
     end
 
     # @param filter [Symbol] :all, :photo or :video
