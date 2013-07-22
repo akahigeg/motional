@@ -10,7 +10,7 @@ module MotionAL
   # And added some convinience methods.
   #
   class Library
-    # An alias of MotionAL::Group
+    # An alias of MotionAL::Group class
     attr_reader :groups
 
     # @return [MotionAL::Library] Singleton instance.
@@ -29,26 +29,29 @@ module MotionAL
       @al_asset_library ||= ALAssetsLibrary.new
     end
 
-    # Return the special group named 'Camera Roll' or 'Saved Photos'.
+    # Open the special group named 'Camera Roll' or 'Saved Photos'.
     #
-    # That exists in initial state of any iOS devices and iOS Simurator. 
-    # And all assets that are created in the device belong to this group automatically.(maybe)
+    # This is the built-in group. Any iOS devices and any iOS Simurator have this. 
+    # And all assets that are created in the device belong to this group automatically.
     #
-    # 'Camera Roll' is the name on a device, 'Saved Photos' is the name on a simurator.
+    # A device has the group named 'Camera Roll', a simurator has the group named 'Saved Photos'.
     #
-    # @return [MotionAL::Group] 
+    # @yield [group, error]
+    # @yieldparam group [MotionAL::Group] 'Camera Roll' or 'Saved Photos'
+    # @yieldparam error [error]
     def open_camera_roll(&block)
       MotionAL::Group.find_camera_roll do |group, error|
         block.call(group, error)
       end
     end
-    alias_method :open_saved_photos, :open_camera_roll
 
-    # Return the special group named 'Photo Library'.
+    # Open the special group named 'Photo Library'.
     #
     # This group includes all assets that are synced from iTunes.
     #
-    # @return [MotionAL::Group] 
+    # @yield [group, error]
+    # @yieldparam group [MotionAL::Group] 'Photo Library'
+    # @yieldparam error [error]
     def open_photo_library(&block)
       MotionAL::Group.find_photo_library do |group, error|
         block.call(group, error)

@@ -29,7 +29,7 @@ Edit Rakefile
 1. Save any photo to your iOS simurator.
 2. Type `rake` in your console.
 3. Then type the below code in REPL.
-    
+
     library = MotionAL.library
 
     rep = library.groups.first.assets.first.representations.first
