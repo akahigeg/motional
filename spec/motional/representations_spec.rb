@@ -13,10 +13,6 @@ describe MotionAL::Representations do
     wait_async(1)
   end
 
-  it "should be kind of Array" do
-    @asset.representations.should.kind_of Array
-  end
-
   describe "#find_by_uti" do
     it "should return Representation object" do
       rep = @asset.representations.find_by_uti(@asset.rep.UTI)

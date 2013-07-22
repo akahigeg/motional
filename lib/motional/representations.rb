@@ -5,11 +5,10 @@ module MotionAL
   # A collection of representations. 
   # Representations belongs to the asset.
   #
-  class Representations < Children
+  class Representations
     # @param asset [MotionAL::Asset]
     def initialize(asset)
       @asset = asset
-      load_entries
     end
 
     # Find a representation by a specified representation UTI.
@@ -37,16 +36,6 @@ module MotionAL
     #   reps = asset.representations.all
     def all
       @asset.representation_utis.map {|uti| find_by_uti(uti) }
-    end
-    def all(options = {}, &block)
-      if block_given?
-        # not asynchronous
-        @asset.representation_utis.each do |uti|
-          block.call(find_by_uti(uti), nil)
-        end
-      else
-        @asset.representation_utis.map {|uti| find_by_uti(uti) }
-      end
     end
   end
 end

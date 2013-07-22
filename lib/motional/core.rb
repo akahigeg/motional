@@ -1,23 +1,5 @@
 # -*- encoding : utf-8 -*-
 
-module Dispatch
-  # For using an asynchronous method as an ordinary synchronous method.
-  #
-  # @param duration [Float]
-  def self.wait_async(duration = 0.5, &block)
-    @async_done = false
-    queue_group = Dispatch::Group.new
-    queue = Dispatch::Queue.concurrent(:default) 
-
-    queue.async(queue_group) { block.call }
-    queue_group.notify(queue) { @async_done = true }
-
-    CFRunLoopRunInMode(KCFRunLoopDefaultMode, duration, false) while !@async_done
-    # 'queue_group.wait' is not work well. why?
-    # some bug exist. when try 'duration = 0.01' app crash down sometime.
-  end
-end
-
 module MotionAL
   class << self
     def library
