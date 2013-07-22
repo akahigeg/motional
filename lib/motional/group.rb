@@ -25,8 +25,7 @@ module MotionAL
     # A group should not be created if a specified name already exists.
     #
     # @param group_name [String]
-    # @return [MotionAL::Group] A created asset.
-    # @return [nil] When block given or fail to create.
+    # @return [nil]
     #
     # @example
     #   MotionAL::Group.create('MyAlbum') do |group, error|
@@ -37,16 +36,7 @@ module MotionAL
     #   group = MotionAL::Group.create('MyAlbum')
     #   p group.name
     def self.create(group_name, &block)
-      pid = @@store.reserve(:create)
-      if block_given?
-        self.origin_create(group_name, pid, block)
-      else
-        Dispatch.wait_async { self.origin_create(group_name, pid) }
-        created_group = @@store.get(:create, pid)
-        @@store.release(:create, pid)
-
-        return created_group
-      end
+      self.origin_create(group_name, block)
     end
 
     # Find an asset by a specified asset_url.
@@ -64,16 +54,7 @@ module MotionAL
     #   group = MotionAL::group.find_by_url(url)
     #   p group.name
     def self.find_by_url(group_url, &block)
-      pid = @@store.reserve(:find_by_url)
-      if block_given?
-        origin_find_by_url(group_url, pid, block)
-      else
-        Dispatch.wait_async { origin_find_by_url(group_url, pid) }
-        found_group = @@store.get(:find_by_url, pid)
-        @@store.release(:find_by_url, pid)
-
-        return found_group
-      end
+      origin_find_by_url(group_url, block)
     end
 
     # Find an group by a specified group name.
@@ -85,9 +66,10 @@ module MotionAL
     # @example
     #   group = MotionAL::Group.find_by_name('MyAlbum')
     #   p group.name
-    def self.find_by_name(group_name)
-      MotionAL.library.groups.select{|g| g.name == group_name }.first
-
+    def self.find_by_name(group_name, &block)
+      all do |group, error|
+        block.call(group, error) if group.name == group_name
+      end
     end
 
     # Find all groups in the AssetLibrary.
@@ -163,13 +145,12 @@ module MotionAL
     end
 
     private
-    def self.origin_create(group_name, pid, callback = nil)
+    def self.origin_create(group_name, callback = nil)
       MotionAL.library.al_asset_library.addAssetsGroupAlbumWithName(
         group_name, 
         resultBlock: lambda { |al_asset_group|
           if !al_asset_group.nil?
             created_group = Group.new(al_asset_group) 
-            @@store.set(:create, pid, created_group)
           end
 
           callback.call(created_group, nil) if callback
@@ -180,19 +161,18 @@ module MotionAL
       )
     end
 
-    def self.origin_find_by_url(group_url, pid, callback = nil)
+    def self.origin_find_by_url(group_url, callback = nil)
       MotionAL.library.al_asset_library.groupForURL(
         group_url, 
         resultBlock: lambda { |al_asset_group|
           if !al_asset_group.nil?
             found_group = Group.new(al_asset_group) 
-            @@store.set(:find_by_url, pid, found_group)
           end
 
-          callback.call(found_group, nil) if callback
+          callback.call(found_group, nil)
         },
         failureBlock: lambda { |error|
-          callback.call(nil, error) if callback
+          callback.call(nil, error)
         }
       )
     end

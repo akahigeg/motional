@@ -5,17 +5,17 @@ module MotionAL
   # A collection of groups.
   # Gruops belongs to the AssetLibrary.
   #
-  class Groups < Children
+  class Groups
     # @param asset_library [MotionAL::Library]
     def initialize(asset_library)
       @asset_library = asset_library
-      load_entries
-      self << MotionAL.library.photo_library
+      # load_entries
+      # self << MotionAL.library.photo_library
     end
 
     def reload
       super
-      self << MotionAL.library.photo_library
+      # self << MotionAL.library.photo_library
     end
 
     # Create a group.
@@ -58,12 +58,8 @@ module MotionAL
     #   group = MotionAL.library.groups.find_by_url(url)
     #   p group.name
     def find_by_url(group_url, &block)
-      if block_given?
-        MotionAL::Group.find_by_url(group_url) do |group, error|
-          block.call(group, error)
-        end
-      else
-        MotionAL::Group.find_by_url(group_url)
+      MotionAL::Group.find_by_url(group_url) do |group, error|
+        block.call(group, error)
       end
     end
 
@@ -95,12 +91,8 @@ module MotionAL
     #   groups = MotionAL.library.groups.all
     #   names  = groups.map {|g| g.name }
     def all(options = {}, &block)
-      if block_given?
-        MotionAL::Group.all(options) do |group, error|
-          block.call(group, error)
-        end
-      else
-        MotionAL::Group.all(options)
+      MotionAL::Group.all(options) do |group, error|
+        block.call(group, error)
       end
     end
   end

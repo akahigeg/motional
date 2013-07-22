@@ -17,14 +17,21 @@ describe "prepare" do
 
     test_group_name = 'MotionAL'
 
-    test_group = library.groups.find_by_name(test_group_name)
-    test_group = library.groups.create(test_group_name) if test_group.nil?
+    #test_group = library.groups.find_by_name(test_group_name)
+    test_group = library.groups.create(test_group_name)
 
-    test_group.assets << library.saved_photos.assets.first
-    test_group.assets.reload
+    #test_group.assets << library.saved_photos.assets.first
+    #test_group.assets.reload
   end
 
   it "dummy spec for waiting creating test files" do
     1.should == 1
   end
+end
+
+WAIT_ASYNC_DEFAULT_DURATION = 0.1
+
+def wait_async(duration = WAIT_ASYNC_DEFAULT_DURATION, &block)
+  block.call if block_given?
+  CFRunLoopRunInMode(KCFRunLoopDefaultMode, duration, false)
 end
