@@ -4,11 +4,11 @@ describe MotionAL::Assets do
   before do 
     @test_group_name = 'MotionAL'
     MotionAL::Group.all do |group, error|
-      @test_group = group if group.name == @test_group_name
+      @test_group = group if group.name == TEST_GROUP_NAME
     end
     wait_async
 
-    MotionAL::Group.camera_roll do |group, error|
+    MotionAL::Group.find_camera_roll do |group, error|
       @saved_photos = group
     end
     wait_async

@@ -2,15 +2,15 @@
 
 describe MotionAL::Representation do
   before do
-    MotionAL::Group.camera_roll do |group, error|
+    MotionAL::Group.find_camera_roll do |group, error|
       @saved_photos = group
     end
-    wait_async(1)
+    wait_async(0.5)
 
     @saved_photos.assets.all(filter: :photo) do |asset|
       @asset = asset
     end
-    wait_async(1)
+    wait_async(0.5)
 
     @rep = @asset.rep
   end

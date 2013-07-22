@@ -2,25 +2,18 @@
 
 describe MotionAL::Group do
   before do
-    @library = MotionAL.library
-
-    @test_group_name = 'MotionAL'
-    wait_async { MotionAL::Group.create(@test_group_name) }
-
     MotionAL::Group.all do |group, error|
-      @test_group = group if group.name == @test_group_name
+      @test_group = group if group.name == TEST_GROUP_NAME
     end
-    wait_async
 
-    MotionAL::Group.find_by_name('Saved Photos') do |group, error|
-      @builtin_group = group
+    MotionAL::Group.find_camera_roll do |group, error|
+      @camera_roll = group
     end
-    wait_async
 
-    #MotionAL::Asset.all do |asset, error|
-    #  @test_asset = asset
-    #end
-    wait_async
+    MotionAL::Asset.all do |asset, error|
+      @test_asset = asset
+    end
+    wait_async(0.5)
   end
 
   # '.create' already tested by before section.
@@ -103,24 +96,27 @@ describe MotionAL::Group do
     end
 
     it "default group (not created by this App) should not be editable" do
-      @builtin_group.should.not.be.editable
+      @camera_roll.should.not.be.editable
     end
   end
 
-#  describe "#assets" do
-#    it "should be kind of Array" do
-#      @test_group.assets.should.kind_of Array
-#    end
-#
-#    describe ".create" do
-#      it "should create new asset and add that to group" do
-#        call_assets_create = Proc.new do
-#          original_asset = @library.camera_roll.assets.first
-#          @test_group.assets.create(original_asset.full_resolution_image, original_asset.metadata)
-#        end
-#        call_assets_create.should.change {@test_group.assets.size}
-#      end
-#    end
-#  end
+  #
+  # Calling `wait_async` causes crash with this message.
+  #
+  #     libc++abi.dylib: terminate called without an active exception
+  #
+  # Only this spec, why?
+  #
+  #describe "#assets" do
+  #  describe ".create" do
+  #    it "should create new asset and add that to group" do
+  #      call_assets_create = Proc.new do
+  #        original_asset = @test_asset
+  #        @test_group.assets.create(original_asset.full_resolution_image, original_asset.metadata)
+  #      end
+  #      call_assets_create.should.change { wait_async; @test_group.assets.count_by_filter }
+  #    end
+  #  end
+  #end
 end
 

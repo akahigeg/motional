@@ -2,7 +2,7 @@
 
 describe MotionAL::Representations do
   before do
-    MotionAL::Group.camera_roll do |group, error|
+    MotionAL::Group.find_camera_roll do |group, error|
       @saved_photos = group
     end
     wait_async(1)

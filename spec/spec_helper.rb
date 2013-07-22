@@ -5,23 +5,29 @@
 # rake spec files=spec_helper
 #
 
+TEST_GROUP_NAME = 'MotionAL'
+
 describe "prepare" do
   before do
     library = MotionAL.library
 
     first_image = UIImage.imageNamed('sample.jpg')
-    MotionAL::Asset.create(first_image.CGImage, {})
+    MotionAL::Asset.create(first_image.CGImage, {}) {|a| @test_asset = a }
 
     video_url = NSBundle.mainBundle.URLForResource('sample', withExtension:"mp4")
     MotionAL::Asset.create(video_url)
 
-    test_group_name = 'MotionAL'
+    library.groups.find_by_name(TEST_GROUP_NAME) {|g| @test_group = g }
+    wait_async
 
-    #test_group = library.groups.find_by_name(test_group_name)
-    test_group = library.groups.create(test_group_name)
+    if !@test_group
+      MotionAL::Group.create(TEST_GROUP_NAME) {|g| @test_group = g }
+    end
 
-    #test_group.assets << library.saved_photos.assets.first
-    #test_group.assets.reload
+    MotionAL::Group.find_camera_roll {|g| @camera_roll = g }
+    wait_async(0.5)
+
+    @test_group.assets << @test_asset
   end
 
   it "dummy spec for waiting creating test files" do
@@ -32,6 +38,5 @@ end
 WAIT_ASYNC_DEFAULT_DURATION = 0.1
 
 def wait_async(duration = WAIT_ASYNC_DEFAULT_DURATION, &block)
-  block.call if block_given?
   CFRunLoopRunInMode(KCFRunLoopDefaultMode, duration, false)
 end

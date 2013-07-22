@@ -73,8 +73,12 @@ module MotionAL
       end
     end
 
-    def self.camera_roll(&block)
+    def self.find_camera_roll(&block)
       find_by_name(/Camera Roll|Saved Photos/) {|group, error| block.call(group, error) }
+    end
+
+    def self.find_photo_library(&block)
+      MotionAL::Group.all({group_type: :library}) { |group, error| block.call(group, error) }
     end
 
     # Find all groups in the AssetLibrary.

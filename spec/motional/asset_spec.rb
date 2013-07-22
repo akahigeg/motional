@@ -18,7 +18,7 @@ describe MotionAL::Asset do
     end
     wait_async
 
-    MotionAL::Group.camera_roll do |group, error|
+    MotionAL::Group.find_camera_roll do |group, error|
       @saved_photos = group
     end
     wait_async
@@ -81,7 +81,7 @@ describe MotionAL::Asset do
         @calling_create_method = Proc.new do
           @new_asset = nil
           @existent_asset.save_new(@existent_asset.data, @existent_asset.metadata) {|a| @new_asset = a }
-          wait_async(1)
+          wait_async(0.5)
         end
       end
 
@@ -138,7 +138,7 @@ describe MotionAL::Asset do
       asset = nil
 
       MotionAL::Asset.find_by_url(@existent_asset.url) {|a| asset = a }
-      wait_async(1)
+      wait_async(0.5)
 
       asset.should.instance_of MotionAL::Asset
     end

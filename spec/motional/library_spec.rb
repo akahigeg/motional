@@ -11,17 +11,24 @@ describe MotionAL::Library do
     wait_async
   end
 
-  describe ".camera_roll" do
-    it "should instance of Group" do
-      @library.camera_roll
-      wait_async
-      @library.camera_roll.should.instance_of MotionAL::Group
+  describe ".open_camera_roll" do
+    it "should find the Camera Roll" do
+      camera_roll = nil
+      @library.open_camera_roll do |group, error|
+        camera_roll = group
+      end
+      wait_async(0.5)
+      camera_roll.should.instance_of MotionAL::Group
     end
   end
 
-  describe ".photo_library" do
+  describe ".open_photo_library" do
     before do
-      @photo_library = @library.photo_library
+      @photo_library = nil
+      @library.open_photo_library do |group, error|
+        @photo_library = group
+      end
+      wait_async
     end
 
     it "should instance of Group" do

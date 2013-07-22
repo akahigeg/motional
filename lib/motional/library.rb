@@ -37,21 +37,22 @@ module MotionAL
     # 'Camera Roll' is the name on a device, 'Saved Photos' is the name on a simurator.
     #
     # @return [MotionAL::Group] 
-    def camera_roll(&block)
-      MotionAL::Group.find_by_name(/Camera Roll|Saved Photo/) do |group, error|
-        @camera_roll = group 
+    def open_camera_roll(&block)
+      MotionAL::Group.find_camera_roll do |group, error|
+        block.call(group, error)
       end
-      @camera_roll
     end
-    alias_method :saved_photos, :camera_roll
+    alias_method :open_saved_photos, :open_camera_roll
 
     # Return the special group named 'Photo Library'.
     #
     # This group includes all assets that are synced from iTunes.
     #
     # @return [MotionAL::Group] 
-    def photo_library
-      @photo_library ||= MotionAL::Group.all({group_type: :library}).first
+    def open_photo_library(&block)
+      MotionAL::Group.find_photo_library do |group, error|
+        block.call(group, error)
+      end
     end
   end
 end
