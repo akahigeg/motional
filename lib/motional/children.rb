@@ -1,6 +1,7 @@
 # -*- encoding : utf-8 -*-
 
 module MotionAL
+  # TODO: remove this class
   #
   # Super class for collection classes that belong to the parent object.
   #

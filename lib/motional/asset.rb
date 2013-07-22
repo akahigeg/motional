@@ -72,15 +72,7 @@ module MotionAL
     #   asset = MotionAL::Asset.find_by_url(url)
     #   p asset.url.absoluteString
     def self.find_by_url(asset_url, &block)
-      pid = @@store.reserve(:find_by_url)
-      if block_given?
-        self.origin_find_by_url(asset_url, pid, block)
-      else
-        Dispatch.wait_async { self.origin_find_by_url(asset_url, pid) }
-        found_asset = @@store.get(:find_by_url, pid)
-        @@store.release(:find_by_url, pid)
-        return found_asset
-      end
+        self.origin_find_by_url(asset_url, block)
     end
 
     # Find assets by options.
@@ -274,7 +266,8 @@ module MotionAL
       meta && meta.size == 1 && meta[:orientation]
     end
 
-    def self.origin_find_by_url(asset_url, pid, callback = nil)
+    def self.origin_find_by_url(asset_url, callback = nil)
+
       MotionAL.library.al_asset_library.assetForURL(
         asset_url, 
         resultBlock: lambda {|al_asset|

@@ -36,9 +36,7 @@ module MotionAL
     # @example
     #   reps = asset.representations.all
     def all
-      @asset.representation_utis.map do |uti|
-        find_by_uti(uti)
-      end
+      @asset.representation_utis.map {|uti| find_by_uti(uti) }
     end
     def all(options = {}, &block)
       if block_given?
@@ -47,7 +45,7 @@ module MotionAL
           block.call(find_by_uti(uti), nil)
         end
       else
-        @asset.representation_utis.map { |uti| find_by_uti(uti) }
+        @asset.representation_utis.map {|uti| find_by_uti(uti) }
       end
     end
   end

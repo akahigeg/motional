@@ -92,16 +92,7 @@ module MotionAL
     #   groups = MotionAL::group.all
     #   names  = groups.map {|g| g.name }
     def self.all(options = {}, &block)
-      options[:pid] = @@store.reserve(:all, :array)
-      if block_given?
-        origin_all(options, block)
-      else
-        Dispatch.wait_async { origin_all(options) }
-        found_groups = @@store.get(:all, options[:pid])
-        @@store.release(:all, options[:pid])
-
-        return found_groups
-      end
+      origin_all(options, block)
     end
 
     # @return [MotionAL::Assets] The collection of assets in the group.
@@ -190,7 +181,6 @@ module MotionAL
         usingBlock: lambda { |al_asset_group, stop|
           if !al_asset_group.nil?
             group = Group.new(al_asset_group) 
-            @@store.set(:all, options[:pid], group)
             callback.call(group, nil) if callback
           end
         },

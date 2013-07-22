@@ -8,7 +8,7 @@ describe MotionAL::Asset do
       @existent_asset = asset if asset.asset_type == :photo
       @existent_video_asset = asset if asset.asset_type == :video
     end
-    wait_async
+    wait_async(0.5)
 
     @video_url = NSBundle.mainBundle.URLForResource('sample', withExtension:"mp4")
 
@@ -27,7 +27,7 @@ describe MotionAL::Asset do
   shared "asset creation" do
     it "should create new asset" do
       @calling_create_method.should.change do
-        wait_async(1)
+        wait_async(0.5)
         @saved_photos.assets.count_by_filter(:all)
       end
     end
@@ -88,7 +88,7 @@ describe MotionAL::Asset do
         @calling_create_method = Proc.new do
           @new_asset = nil
           @existent_asset.save_new(@existent_asset.data, @existent_asset.metadata) {|a| @new_asset = a }
-          wait_async
+          wait_async(1)
         end
       end
 
@@ -145,7 +145,7 @@ describe MotionAL::Asset do
       asset = nil
 
       MotionAL::Asset.find_by_url(@existent_asset.url) {|a| asset = a }
-      wait_async
+      wait_async(1)
 
       asset.should.instance_of MotionAL::Asset
     end
