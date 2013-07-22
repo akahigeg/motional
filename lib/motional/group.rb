@@ -14,7 +14,6 @@ module MotionAL
     attr_reader :al_asset_group
 
     @@thread_safe_data_store = {}
-    @@store = ThreadValueStore
 
     # @param al_asset_group [ALAssetsGroup]
     def initialize(al_asset_group)
@@ -178,7 +177,6 @@ module MotionAL
     end
 
     def self.origin_all(options, callback = nil)
-      # TODO: support more Type of Asset (now only support ALAssetsGroupAll)
       options[:group_type] ||= :all
       MotionAL.library.al_asset_library.enumerateGroupsWithTypes(
         MotionAL.asset_group_types[options[:group_type].to_sym],

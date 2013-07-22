@@ -103,12 +103,6 @@ module MotionAL
     end
     alias_method "<<", :push
 
-    # Add an asset to the group.
-    def unshift(asset)
-      add_asset_to_group(asset) # TODO: keep sequence of group assets in ALAssetLibrary?
-      self
-    end
-
     # note: cannot remove ALAsset from ALAssetGroup
     
     private

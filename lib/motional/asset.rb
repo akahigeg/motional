@@ -13,8 +13,6 @@ module MotionAL
     # An instance of ALAsset.
     attr_reader :al_asset
 
-    @@store = ThreadValueStore
-
     # @param al_asset [ALAsset]
     def initialize(al_asset)
       @al_asset = al_asset
@@ -290,7 +288,6 @@ module MotionAL
       end
       options[:order] ||= :asc
 
-      # TODO: order option
       MotionAL::Group.find_by_name(group_name) do |group, error|
         order = MotionAL.enum_orders[options[:order]]
         AssetsFilter.set(group, options[:filter]) if options[:filter]

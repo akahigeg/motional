@@ -30,7 +30,11 @@ Edit Rakefile
 2. Type `rake` in your console.
 3. Then type the below code in REPL.
 
+---
+
     library = MotionAL.library
+
+    library.groups
 
     rep = library.groups.first.assets.first.representations.first
     
