@@ -4,7 +4,7 @@ unless defined?(Motion::Project::Config)
 end
 
 Motion::Project::App.setup do |app|
-  app.frameworks += ['AssetsLibrary']
+  app.frameworks += ['AssetsLibrary', 'ImageIO']
   Dir.glob(File.join(File.dirname(__FILE__), 'motional/*rb')).each do |file|
     app.files.unshift(file)
   end

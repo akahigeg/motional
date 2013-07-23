@@ -11,8 +11,11 @@ describe "prepare" do
   before do
     library = MotionAL.library
 
-    first_image = UIImage.imageNamed('sample.jpg')
-    MotionAL::Asset.create(first_image.CGImage, {}) {|a| @test_asset = a }
+    image_url = NSURL.fileURLWithPath("#{NSBundle.mainBundle.resourcePath}/sample.jpg")
+    cg_image_source = CGImageSourceCreateWithURL(image_url, nil);
+    meta = CGImageSourceCopyPropertiesAtIndex(cg_image_source, 0, nil)
+    cg_image = CGImageSourceCreateImageAtIndex(cg_image_source, 0, nil)
+    MotionAL::Asset.create(cg_image, meta) {|a| @test_asset = a }
 
     video_url = NSBundle.mainBundle.URLForResource('sample', withExtension:"mp4")
     MotionAL::Asset.create(video_url)
