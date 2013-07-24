@@ -16,14 +16,14 @@ describe MotionAL::Assets do
     @assets = @saved_photos.assets
   end
 
-  describe "#count_by_filter" do
+  describe "#count" do
     it "should work assets filter" do
-      @assets.count_by_filter(:photo).should.not.equal @assets.count_by_filter(:video)
-      @assets.count_by_filter(:photo).should.not.equal @assets.count_by_filter(:all)
+      @assets.count(:photo).should.not.equal @assets.count(:video)
+      @assets.count(:photo).should.not.equal @assets.count(:all)
     end
 
     it "should return Fixnum" do
-      @assets.count_by_filter(:all).should.instance_of Fixnum
+      @assets.count(:all).should.instance_of Fixnum
     end
   end
 
@@ -34,7 +34,7 @@ describe MotionAL::Assets do
       @test_group.assets.all {|a| test_assets << a }
       wait_async
 
-      @test_group.assets.count_by_filter(:all).should.equal test_assets.size
+      @test_group.assets.count(:all).should.equal test_assets.size
     end
 
     it "cannot specify :group option" do

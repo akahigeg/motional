@@ -102,7 +102,7 @@ describe MotionAL::Group do
           original_asset = @test_asset
           @test_group.assets.create(original_asset.full_resolution_image, original_asset.metadata) {|a| "do nothing" }
         end
-        call_assets_create.should.change { wait_async; @test_group.assets.count_by_filter }
+        call_assets_create.should.change { wait_async; @test_group.assets.count }
       end
     end
   end

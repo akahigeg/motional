@@ -88,8 +88,8 @@ module MotionAL
     # @param filter [Symbol] :all, :photo or :video
     # @return [Fixnum] Filtered count of assets in the group. 
     # @example
-    #   group.assets.count_by_filter(:photo)
-    def count_by_filter(filter = :all)
+    #   group.assets.count(:photo)
+    def count(filter = :all)
       AssetsFilter.set(@group, filter)
       filtered_count = @group.al_asset_group.numberOfAssets
       AssetsFilter.reset(@group)

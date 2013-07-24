@@ -27,7 +27,7 @@ describe MotionAL::Asset do
     it "should create new asset" do
       @calling_create_method.should.change do
         wait_async(0.5)
-        @saved_photos.assets.count_by_filter(:all)
+        @saved_photos.assets.count(:all)
       end
     end
   end
@@ -112,7 +112,7 @@ describe MotionAL::Asset do
 
       it "should not create new asset" do
         @calling_update_method.should.not.change do
-          @saved_photos.assets.count_by_filter(:all)
+          @saved_photos.assets.count(:all)
         end
       end
     end
@@ -126,7 +126,7 @@ describe MotionAL::Asset do
 
       it "should not create new asset" do
         @calling_update_method.should.not.change do
-          @saved_photos.assets.count_by_filter(:all)
+          @saved_photos.assets.count(:all)
         end
       end
     end
@@ -182,7 +182,7 @@ describe MotionAL::Asset do
       MotionAL::Asset.all(group: @test_group) {|a| assets_b << a }
       wait_async
 
-      assets_a.size.should.equal @saved_photos.assets.count_by_filter(:all)
+      assets_a.size.should.equal @saved_photos.assets.count(:all)
       assets_a.size.should.not.equal assets_b.size
     end
 
