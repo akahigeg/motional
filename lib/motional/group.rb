@@ -116,6 +116,8 @@ module MotionAL
       @al_asset_group.posterImage
     end
 
+    # TODO: add_asset
+
     # wrapper of valueForProperty
     class << self
       private

@@ -52,6 +52,7 @@ module MotionAL
     #   asset = group.assets.find_by_url(url)
     #   p asset.url.absoluteString
     def find_by_url(asset_url, &block)
+      # TODO: only in the group
       MotionAL::Asset.find_by_url(asset_url) do |asset, error|
         block.call(asset, error)
       end
@@ -83,6 +84,7 @@ module MotionAL
       end
     end
 
+    # TODO: rename to `count`
     # @param filter [Symbol] :all, :photo or :video
     # @return [Fixnum] Filtered count of assets in the group. 
     # @example

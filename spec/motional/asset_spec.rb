@@ -257,6 +257,5 @@ describe MotionAL::Asset do
     end
   end
 
-  # TODO: check what is in `location`
-  # TODO: treat raw image
+  # TODO: what's happen when treat raw file
 end

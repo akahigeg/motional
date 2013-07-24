@@ -47,11 +47,6 @@ describe MotionAL::Group do
       wait_async
       @group.url.should.equal @test_group.url
     end
-
-    #it "should return nil when unknown url given" do
-    #  group = MotionAL::Group.find_by_url(@test_group.assets.first.url)
-    #  group.should.be.nil
-    #end
   end
 
   describe ".find_by_name" do
@@ -100,23 +95,16 @@ describe MotionAL::Group do
     end
   end
 
-  #
-  # Calling `wait_async` causes crash with this message.
-  #
-  #     libc++abi.dylib: terminate called without an active exception
-  #
-  # Only this spec, why?
-  #
-  #describe "#assets" do
-  #  describe ".create" do
-  #    it "should create new asset and add that to group" do
-  #      call_assets_create = Proc.new do
-  #        original_asset = @test_asset
-  #        @test_group.assets.create(original_asset.full_resolution_image, original_asset.metadata)
-  #      end
-  #      call_assets_create.should.change { wait_async; @test_group.assets.count_by_filter }
-  #    end
-  #  end
-  #end
+  describe "#assets" do
+    describe ".create" do
+      it "should create new asset and add that to group" do
+        call_assets_create = Proc.new do
+          original_asset = @test_asset
+          @test_group.assets.create(original_asset.full_resolution_image, original_asset.metadata) {|a| "do nothing" }
+        end
+        call_assets_create.should.change { wait_async; @test_group.assets.count_by_filter }
+      end
+    end
+  end
 end
 

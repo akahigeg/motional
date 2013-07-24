@@ -19,6 +19,7 @@ module MotionAL
       }
     end
  
+    # TODO: :photo = :image, :video => :movie
     # @return [Hash] readable key and objective-c constant value
     def asset_types
       {
