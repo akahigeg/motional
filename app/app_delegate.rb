@@ -9,6 +9,6 @@ class AppDelegate
   def test_image
     @path = "#{NSBundle.mainBundle.resourcePath}/sample.jpg"
     @url = NSURL.fileURLWithPath(@path)
-    cg_image = CGImageSourceCreateWithURL(@url, nil);
+    cg_image_source = CGImageSourceCreateWithURL(@url, nil);
   end
 end
