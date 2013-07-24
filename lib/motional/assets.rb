@@ -17,16 +17,19 @@ module MotionAL
     #
     # @param source [CGImage, NSData, NSURL] CGImage and NSData for the photo, NSURL for the video.
     # @param metadata [Hash] Metadata for the photo.
-    # @return [MotionAL::Asset] A created asset.
-    # @return [nil] When block given or fail to create.
+    # @return [nil]
+    #
+    # @yield [asset, error]
+    # @yieldparam asset [MotionAL::Asset] A created asset.
+    # @yieldparam error [error]
+    #
     # @example
     #   group.assets.create(data, meta) do |asset, error|
     #     # asynchronous if a block given
     #     p asset.url.absoluteString
     #   end
     #
-    #   asset = group.assets.create(data, meta)
-    #   p asset.url.absoluteString
+    #   group.assets.create(data, meta)
     def create(source, metadata = nil, &block)
       Asset.create(source, metadata) do |asset, error|
         if asset
@@ -44,8 +47,12 @@ module MotionAL
     # @option options [Symbol] :filter :all(default), :photo or :video
     # @option options [Symbol] :order :asc(default) or :desc
     # @option options [NSIndexSet] :indexset
-    # @return [Array] Found assets.
-    # @return [nil] When block given or fail to find.
+    # @return [nil]
+    #
+    # @yield [asset, error]
+    # @yieldparam asset [MotionAL::Asset] A found asset.
+    # @yieldparam error [error]
+    #
     # @example
     #   group.assets.each do |asset, error|
     #     # asynchronous
@@ -60,6 +67,7 @@ module MotionAL
         block.call(asset, error)
       end
     end
+    alias_method :find_all, :each
 
     # @param filter [Symbol] :all(default), :photo or :video
     # @return [Fixnum] Count of assets in the group. 

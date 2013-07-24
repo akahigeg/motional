@@ -27,8 +27,12 @@ module MotionAL
     #
     # @param source [CGImage, NSData, NSURL] CGImage and NSData for the photo, NSURL for the video.
     # @param metadata [Hash] Metadata for the photo.
-    # @return [MotionAL::Asset] A created asset.
-    # @return [nil] When block given or fail to create.
+    # @return [nil]
+    #
+    # @yield [asset, error]
+    # @yieldparam asset [MotionAL::Asset] A created asset.
+    # @yieldparam error [error]
+    #
     # @note use `MotionAL::Asset.video_compatible?(video_path_url)` before creating video.
     #
     # @example
@@ -37,11 +41,10 @@ module MotionAL
     #     p asset.url.absoluteString
     #   end
     #
-    #   asset = MotionAL::Asset.create(data, meta)
-    #   p asset.url.absoluteString
+    #   MotionAL::Asset.create(data, meta)
     #
     #   if MotionAL::Asset.video_compatible?(video_path_url)
-    #     video = MotionAL::Asset.create(data, meta)
+    #     MotionAL::Asset.create(data, meta)
     #   else
     #     p "This video contained incompatible data."
     #   end
@@ -58,30 +61,33 @@ module MotionAL
     # Find an asset by a specified asset_url.
     #
     # @param asset_url [NSURL]
-    # @return [MotionAL::Asset] A found asset.
-    # @return [nil] When block given or fail to find.
+    # @return [nil]
+    #
+    # @yield [asset, error]
+    # @yieldparam asset [MotionAL::Asset] A found asset.
+    # @yieldparam error [error]
     #
     # @example
     #   MotionAL::Asset.find_by_url(url) do |asset, error|
     #     # asynchronous if a block given
     #     p asset.url.absoluteString
     #   end
-    #
-    #   asset = MotionAL::Asset.find_by_url(url)
-    #   p asset.url.absoluteString
     def self.find_by_url(asset_url, &block)
       self.origin_find_by_url(asset_url, block)
     end
 
-    # Find assets by options.
+    # Find and enumerate assets by options.
     #
     # @param options [Hash]
     # @option options [MotionAL::Group] :group Default is the Camera Roll.
     # @option options [Symbol] :filter :all, :photo or :video
     # @option options [Symbol] :order :asc or :desc
     # @option options [NSIndexSet] :indexset
-    # @return [Array] Found assets.
-    # @return [nil] When block given or fail to find.
+    # @return [nil]
+    #
+    # @yield [asset, error]
+    # @yieldparam asset [MotionAL::Asset] A found asset.
+    # @yieldparam error [error]
     #
     # @example
     #   MotionAL::Asset.find_all do |asset, error|
@@ -89,14 +95,21 @@ module MotionAL
     #     p asset.url.absoluteString
     #   end
     #
-    #   group = MotionAL::find_by_name('MyAppAlbum')
-    #   assets = MotionAL::Asset.find_all(group: group, order: :desc, filter: :photo)
-    #   urls  = assets.map {|a| a.url }
+    #   MotionAL::find_by_name('MyAppAlbum') do |group|
+    #     MotionAL::Asset.find_all(group: group, order: :desc, filter: :photo) do |asset|
+    #       p asset.url.absoluteString
+    #     end
+    #   end
     #
     #   indexset = NSMutableIndexSet.indexSetWithIndexesInRange(1..3)
-    #   assets = MotionAL::Asset.find_all(group: group, indexset: indexset)
+    #   MotionAL::Asset.find_all(indexset: indexset, order: :desc) do |asset|
+    #     p asset.url.absoluteString
+    #   end
     def self.find_all(options = {}, &block)
       self.origin_find_all(options, block)
+    end
+    class << self
+      alias_method :each, :find_all
     end
 
     # @return [Boolean] false means ALAssetLibrary cannot treat the video file.
@@ -105,16 +118,14 @@ module MotionAL
     end
 
 
-    # Returns a thumbnail of the asset.
-    # @return [CGImageRef]
+    # @return [CGImageRef] Returns a thumbnail of the asset.
     def thumbnail
-      self.al_asset.send(:thumbnail)
+      self.al_asset.thumbnail
     end
 
-    # Returns an aspect ratio thumbnail of the asset.
-    # @return [CGImageRef]
+    # @return [CGImageRef] Returns an aspect ratio thumbnail of the asset.
     def aspect_ratio_thumbnail
-      self.al_asset.send(:aspectRatioThumbnail)
+      self.al_asset.aspectRatioThumbnail
     end
 
     # Return true if the app haves write access for the asset.
@@ -126,8 +137,10 @@ module MotionAL
     end
 
     # The original version of the asset.
+    #
     # @return [MotionAL::Asset]
     # @return [nil] The asset has no original asset.
+    #
     # @note The original asset was set when the asset was created by `#save_new`
     def original_asset
       original_al_asset = @al_asset.originalAsset
@@ -208,37 +221,46 @@ module MotionAL
     #
     # @param source [NSData, NSURL] NSData for the photo, NSURL for the video.
     # @param metadata [Hash] Metadata for the photo.
-    # @return [MotionAL::Asset] A created asset that has the asset as the orignal asset.
     # @return [nil]
+    #
+    # @yield [asset, error]
+    # @yieldparam asset [MotionAL::Asset] A created asset.
+    # @yieldparam error [error]
+    #
     # @note use `MotionAL::Asset.video_compatible?(video_path_url)` before creating video.
     #
     # @example
-    #   asset.create(imagedata, meta) do |asset, error| do
+    #   asset_a.save_new(imagedata, meta) do |asset, error| do
     #     # asynchronous if a block given
     #     p asset.url.absoluteString
+    #     p asset.original_asset.url.absoluteString 
     #   end
     #
-    #   new_asset = asset.create(imagedata, meta)
-    #   new_asset.original_asset #=> asset
+    #   asset_a.create(imagedata, meta)
     def save_new(source, metadata = nil, &block)
       origin_save_new(source, metadata, block)
     end
 
     # Update the asset.
-    # In other words update the asset's representation.
+    # In other words replacing the asset's representation.
     #
     # @param source [NSData, NSURL] NSData for the photo, NSURL for the video.
     # @param metadata [Hash] Metadata for the photo.
     # @return [nil]
+    #
+    # @yield [asset, error]
+    # @yieldparam asset [MotionAL::Asset] A updated asset.
+    # @yieldparam error [error]
+    #
     # @note use `MotionAL::Asset.video_compatible?(video_path_url)` before updating video.
     #
     # @example
-    #   asset.update(imagedata, meta) do |asset, error| do
+    #   asset_a.update(imagedata, meta) do |asset, error| do
     #     # asynchronous if a block given
     #     p asset.url.absoluteString
     #   end
     #
-    #   asset.update(imagedata, meta)
+    #   asset_a.update(imagedata, meta)
     def update(source, metadata = nil, &block)
       origin_update(source, metadata, block)
     end

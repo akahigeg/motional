@@ -25,7 +25,7 @@ module MotionAL
     # @return [nil]
     #
     # @yield [group, error]
-    # @yieldparam group [MotionAL::Group] A Created group.
+    # @yieldparam group [MotionAL::Group] A created group.
     # @yieldparam error [error]
     #
     # @example
