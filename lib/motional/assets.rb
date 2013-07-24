@@ -84,10 +84,11 @@ module MotionAL
       end
     end
 
-    # TODO: rename to `count`
-    # @param filter [Symbol] :all, :photo or :video
-    # @return [Fixnum] Filtered count of assets in the group. 
+    # @param filter [Symbol] :all(default), :photo or :video
+    # @return [Fixnum] Count of assets in the group. 
+    #
     # @example
+    #   group.assets.count
     #   group.assets.count(:photo)
     def count(filter = :all)
       AssetsFilter.set(@group, filter)
@@ -98,18 +99,12 @@ module MotionAL
     end
 
     # Add an asset to the group.
+    #
     # @param asset [MotionAL::Asset]
     def push(asset)
-      add_asset_to_group(asset)
+      @group.add_asset(asset)
       self
     end
     alias_method "<<", :push
-
-    # note: cannot remove ALAsset from ALAssetGroup
-    
-    private
-    def add_asset_to_group(asset)
-      @group.al_asset_group.addAsset(asset.al_asset)
-    end
   end
 end

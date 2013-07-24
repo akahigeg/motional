@@ -106,5 +106,18 @@ describe MotionAL::Group do
       end
     end
   end
+
+  describe "#add_asset" do
+    it "should add an asset to the group." do
+        call_asset_save_new_and_add_group = Proc.new do
+          new_asset = nil
+          @test_asset.save_new(@test_asset.data) {|a| new_asset = a }
+          wait_async(0.5)
+
+          @test_group.add_asset(new_asset)
+        end
+        call_asset_save_new_and_add_group.should.change { wait_async; @test_group.assets.count }
+    end
+  end
 end
 

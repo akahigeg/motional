@@ -116,7 +116,14 @@ module MotionAL
       @al_asset_group.posterImage
     end
 
-    # TODO: add_asset
+    # Add an asset to the group.
+    #
+    # @param asset [MotionAL::Asset]
+    #
+    # @note cannot remove ALAsset from ALAssetGroup by yor app
+    def add_asset(asset)
+      @al_asset_group.addAsset(asset.al_asset)
+    end
 
     # wrapper of valueForProperty
     class << self
