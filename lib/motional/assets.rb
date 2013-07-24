@@ -2,8 +2,8 @@
 
 module MotionAL
   #
-  # A collection of assets.
-  # Assets belongs to the group.
+  # A collection of assets in the group.
+  # Assets has to belong to the group.
   #
   class Assets
     attr_reader :group

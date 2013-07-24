@@ -76,7 +76,7 @@ module MotionAL
     # Find assets by options.
     #
     # @param options [Hash]
-    # @option options [MotionAL::Group] :group Default is MotionAL.library.camera_roll.
+    # @option options [MotionAL::Group] :group Default is the Camera Roll.
     # @option options [Symbol] :filter :all, :photo or :video
     # @option options [Symbol] :order :asc or :desc
     # @option options [NSIndexSet] :indexset

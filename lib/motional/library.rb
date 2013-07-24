@@ -31,10 +31,10 @@ module MotionAL
 
     # Open the special group named 'Camera Roll' or 'Saved Photos'.
     #
-    # This is the built-in group. Any iOS devices and any iOS Simurator have this. 
+    # This is the built-in group. Any iOS devices and any iOS simurator have this. 
     # And all assets that are created in the device belong to this group automatically.
     #
-    # A device has the group named 'Camera Roll', a simurator has the group named 'Saved Photos'.
+    # 'Camera Roll' is the name on a device, 'Saved Photos' is the name on a simurator.
     #
     # @yield [group, error]
     # @yieldparam group [MotionAL::Group] 'Camera Roll' or 'Saved Photos'

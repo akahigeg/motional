@@ -13,8 +13,6 @@ module MotionAL
     # An instance of ALAssetGroup.
     attr_reader :al_asset_group
 
-    @@thread_safe_data_store = {}
-
     # @param al_asset_group [ALAssetsGroup]
     def initialize(al_asset_group)
       @al_asset_group = al_asset_group
@@ -26,45 +24,52 @@ module MotionAL
     # @param group_name [String]
     # @return [nil]
     #
+    # @yield [group, error]
+    # @yieldparam group [MotionAL::Group] A Created group.
+    # @yieldparam error [error]
+    #
     # @example
     #   MotionAL::Group.create('MyAlbum') do |group, error|
     #     # asynchronous if a block given
     #     p group.name
     #   end
     #
-    #   group = MotionAL::Group.create('MyAlbum')
-    #   p group.name
+    #   MotionAL::Group.create('MyAlbum')
     def self.create(group_name, &block)
       self.origin_create(group_name, block)
     end
 
-    # Find an asset by a specified asset_url.
+    # Find a group by a specified group_url.
     #
     # @param group_url [NSURL]
-    # @return [MotionAL::group] A found group.
-    # @return [nil] When block given or fail to find.
+    # @return [nil]
+    #
+    # @yield [group, error]
+    # @yieldparam group [MotionAL::Group] A found group.
+    # @yieldparam error [error]
     #
     # @example
     #   MotionAL::group.find_by_url(url) do |group, error|
-    #     # asynchronous if a block given
+    #     # asynchronous
     #     p group.name
     #   end
-    #
-    #   group = MotionAL::group.find_by_url(url)
-    #   p group.name
     def self.find_by_url(group_url, &block)
       origin_find_by_url(group_url, block)
     end
 
-    # Find an group by a specified group name.
+    # Find a group by a specified group name.
     #
     # @param group_name [String]
-    # @return [MotionAL::Group] A found group.
-    # @return [nil] When fail to find.
+    # @return [nil]
+    #
+    # @yield [group, error]
+    # @yieldparam group [MotionAL::Group] A found group.
+    # @yieldparam error [error]
     #
     # @example
-    #   group = MotionAL::Group.find_by_name('MyAlbum')
-    #   p group.name
+    #   group = MotionAL::Group.find_by_name('MyAlbum') do |group, error|
+    #     p group.name
+    #   end
     def self.find_by_name(group_name, &block)
       group_name = /^#{group_name}$/ if group_name.kind_of? String
       find_all do |group, error|
@@ -72,28 +77,56 @@ module MotionAL
       end
     end
 
+    # Find the Camera Roll(built-in default group)
+    #
+    # @return [nil]
+    #
+    # @yield [group, error]
+    # @yieldparam group [MotionAL::Group] 'Camera Roll' or 'Saved Photos'
+    # @yieldparam error [error]
+    #
+    # @example
+    #   group = MotionAL::Group.find_camera_roll do |group, error|
+    #     p group.name #=> 'Camera Roll' or 'Saved Photos'
+    #   end
     def self.find_camera_roll(&block)
       find_by_name(/Camera Roll|Saved Photos/) {|group, error| block.call(group, error) }
     end
 
+    # Find the Photo Library(synced from iTunes)
+    #
+    # @return [nil]
+    #
+    # @yield [group, error]
+    # @yieldparam group [MotionAL::Group] 'Photo Library'
+    # @yieldparam error [error]
+    #
+    # @example
+    #   group = MotionAL::Group.find_photo_library do |group, error|
+    #     p group.name #=> 'Photo Library'
+    #   end
     def self.find_photo_library(&block)
       find_all({group_type: :library}) { |group, error| block.call(group, error) }
     end
 
-    # Find all groups in the AssetLibrary.
+    # Find and enumerate all groups in the AssetLibrary.
     #
     # @param options [Hash]
     # @option options :group_type [Symbol] An asset group type. default: :all.
     # @return [Array] Found groups.
     #
+    # @yield [group, error]
+    # @yieldparam group [MotionAL::Group] A found group.
+    # @yieldparam error [error]
+    #
+    # @see MotionAL.asset_group_types
+    # @note group_type :all includes all groups except 'Photo Library'
+    #
     # @example
-    #   MotionAL::group.all do |group, error|
-    #     # asynchronous if a block given
+    #   MotionAL::group.find_all do |group, error|
+    #     # asynchronous
     #     p group.name
     #   end
-    #
-    #   groups = MotionAL::group.all
-    #   names  = groups.map {|g| g.name }
     def self.find_all(options = {}, &block)
       origin_find_all(options, block)
     end
@@ -101,7 +134,8 @@ module MotionAL
       alias_method :each, :find_all
     end
 
-    # @return [MotionAL::Assets] The collection of assets in the group.
+    # The collection of assets in the group.
+    # @return [MotionAL::Assets] A instance of MotionAL::Assets belongs to the group.
     def assets
       @assets ||= Assets.new(self)
     end
@@ -144,7 +178,7 @@ module MotionAL
         end
       end
     end
-    make_wrapper_for_property(:name, ALAssetsGroupPropertyName, "Stirng")
+    make_wrapper_for_property(:name, ALAssetsGroupPropertyName, "String")
     make_wrapper_for_property(:persistent_id, ALAssetsGroupPropertyPersistentID, "String")
     make_wrapper_for_property(:url, ALAssetsGroupPropertyURL, "NSURL")
 
