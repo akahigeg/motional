@@ -133,11 +133,12 @@ describe MotionAL::Asset do
   end
 
   describe "#find_by_url" do
-    it "should return Asset object" do
+    it "should find the Asset" do
       asset = nil
-
-      MotionAL::Asset.find_by_url(@existent_asset.url) {|a| asset = a }
-      wait_async(0.5)
+      MotionAL::Asset.find_by_url(@existent_asset.url) do |asset| 
+        asset = asset
+      end
+      wait_async
 
       asset.should.instance_of MotionAL::Asset
     end
@@ -145,11 +146,20 @@ describe MotionAL::Asset do
     it "should return nil when unknown url given" do
       url = NSURL.URLWithString("http://hogehoge")
       asset = nil
-
       MotionAL::Asset.find_by_url(url) {|a| asset = a }
       wait_async
 
       asset.should.be.nil
+    end
+
+    it "should accept url string" do
+      asset = nil
+      MotionAL::Asset.find_by_url(@existent_asset.url.absoluteString) do |asset|
+        asset = asset
+      end
+      wait_async
+
+      asset.url.should.equal @existent_asset.url
     end
   end
 

@@ -73,7 +73,8 @@ module MotionAL
     #     p asset.url.absoluteString
     #   end
     def self.find_by_url(asset_url, &block)
-      self.origin_find_by_url(asset_url, block)
+      url = asset_url.is_a?(String) ? NSURL.alloc.initWithString(asset_url) : asset_url
+      self.origin_find_by_url(url, block)
     end
 
     # Find and enumerate assets by options.

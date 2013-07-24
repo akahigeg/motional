@@ -40,8 +40,15 @@ describe MotionAL::Group do
 
   describe ".find_by_url" do
     it "should return Group object" do
-      @group = nil
       MotionAL::Group.find_by_url(@test_group.url) do |group, error|
+        @group = group
+      end
+      wait_async
+      @group.url.should.equal @test_group.url
+    end
+
+    it "should accept url string" do
+      MotionAL::Group.find_by_url(@test_group.url.absoluteString) do |group, error|
         @group = group
       end
       wait_async

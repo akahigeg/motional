@@ -54,7 +54,8 @@ module MotionAL
     #     p group.name
     #   end
     def self.find_by_url(group_url, &block)
-      origin_find_by_url(group_url, block)
+      url = group_url.is_a?(String) ? NSURL.alloc.initWithString(group_url) : group_url
+      origin_find_by_url(url, block)
     end
 
     # Find a group by a specified group name.
@@ -65,6 +66,8 @@ module MotionAL
     # @yield [group, error]
     # @yieldparam group [MotionAL::Group] A found group.
     # @yieldparam error [error]
+    #
+    # @note It is recommended to use find_by_url instead of this. Because the name could be renamed.
     #
     # @example
     #   group = MotionAL::Group.find_by_name('MyAlbum') do |group, error|
@@ -135,7 +138,7 @@ module MotionAL
     end
 
     # The collection of assets in the group.
-    # @return [MotionAL::Assets] A instance of MotionAL::Assets belongs to the group.
+    # @return [MotionAL::Assets] An instance of MotionAL::Assets belongs to the group.
     def assets
       @assets ||= Assets.new(self)
     end
