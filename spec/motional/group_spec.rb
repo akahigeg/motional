@@ -2,7 +2,7 @@
 
 describe MotionAL::Group do
   before do
-    MotionAL::Group.all do |group, error|
+    MotionAL::Group.find_all do |group, error|
       @test_group = group if group.name == TEST_GROUP_NAME
     end
 
@@ -10,7 +10,7 @@ describe MotionAL::Group do
       @camera_roll = group
     end
 
-    MotionAL::Asset.all do |asset, error|
+    MotionAL::Asset.find_all do |asset, error|
       @test_asset = asset
     end
     wait_async(0.5)
@@ -22,7 +22,7 @@ describe MotionAL::Group do
     before do
       @group = nil
       @groups = []
-      MotionAL::Group.all do |group, error|
+      MotionAL::Group.find_all do |group, error|
         @group = group
         @groups << group
       end

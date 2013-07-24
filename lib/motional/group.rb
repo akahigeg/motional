@@ -67,7 +67,7 @@ module MotionAL
     #   p group.name
     def self.find_by_name(group_name, &block)
       group_name = /^#{group_name}$/ if group_name.kind_of? String
-      all do |group, error|
+      find_all do |group, error|
         block.call(group, error) if group.name =~ group_name
       end
     end
@@ -77,7 +77,7 @@ module MotionAL
     end
 
     def self.find_photo_library(&block)
-      MotionAL::Group.all({group_type: :library}) { |group, error| block.call(group, error) }
+      find_all({group_type: :library}) { |group, error| block.call(group, error) }
     end
 
     # Find all groups in the AssetLibrary.
@@ -94,8 +94,11 @@ module MotionAL
     #
     #   groups = MotionAL::group.all
     #   names  = groups.map {|g| g.name }
-    def self.all(options = {}, &block)
-      origin_all(options, block)
+    def self.find_all(options = {}, &block)
+      origin_find_all(options, block)
+    end
+    class << self
+      alias_method :each, :find_all
     end
 
     # @return [MotionAL::Assets] The collection of assets in the group.
@@ -185,7 +188,7 @@ module MotionAL
       )
     end
 
-    def self.origin_all(options, callback = nil)
+    def self.origin_find_all(options, callback = nil)
       options[:group_type] ||= :all
       MotionAL.library.al_asset_library.enumerateGroupsWithTypes(
         MotionAL.asset_group_types[options[:group_type].to_sym],

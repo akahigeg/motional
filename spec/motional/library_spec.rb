@@ -4,7 +4,7 @@ describe MotionAL::Library do
   before do
     @library = MotionAL.library
 
-    MotionAL::Group.all do |group, error|
+    MotionAL::Group.find_all do |group, error|
       @test_group = group if group.name == TEST_GROUP_NAME
     end
     wait_async

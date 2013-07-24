@@ -84,19 +84,19 @@ module MotionAL
     # @return [nil] When block given or fail to find.
     #
     # @example
-    #   MotionAL::Asset.all do |asset, error|
+    #   MotionAL::Asset.find_all do |asset, error|
     #     # asynchronous if a block given
     #     p asset.url.absoluteString
     #   end
     #
     #   group = MotionAL::find_by_name('MyAppAlbum')
-    #   assets = MotionAL::Asset.all(group: group, order: :desc, filter: :photo)
+    #   assets = MotionAL::Asset.find_all(group: group, order: :desc, filter: :photo)
     #   urls  = assets.map {|a| a.url }
     #
     #   indexset = NSMutableIndexSet.indexSetWithIndexesInRange(1..3)
-    #   assets = MotionAL::Asset.all(group: group, indexset: indexset)
-    def self.all(options = {}, &block)
-      self.origin_all(options, block)
+    #   assets = MotionAL::Asset.find_all(group: group, indexset: indexset)
+    def self.find_all(options = {}, &block)
+      self.origin_find_all(options, block)
     end
 
     # @return [Boolean] false means ALAssetLibrary cannot treat the video file.
@@ -280,7 +280,7 @@ module MotionAL
       )
     end
 
-    def self.origin_all(options = {}, callback = nil)
+    def self.origin_find_all(options = {}, callback = nil)
       if options[:group]
         group_name = options[:group].name
       else

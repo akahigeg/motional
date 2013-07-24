@@ -47,19 +47,16 @@ module MotionAL
     # @return [Array] Found assets.
     # @return [nil] When block given or fail to find.
     # @example
-    #   group.assets.all do |asset, error|
-    #     # asynchronous if a block given
+    #   group.assets.each do |asset, error|
+    #     # asynchronous
     #     p asset.url.absoluteString
     #   end
-    #
-    #   assets = group.assets.all(order: :desc, filter: :photo)
-    #   urls  = assets.map {|a| a.url }
     def each(options = {}, &block)
-      raise "MotionAL::Assets.each does not support :group option. Use MotionAL::Asset.all to get other group assets." if options[:group]
+      raise "MotionAL::Assets.each does not support :group option. Use MotionAL::Asset.find_all to get other group assets." if options[:group]
 
       options[:group] = @group
 
-      MotionAL::Asset.all(options) do |asset, error|
+      MotionAL::Asset.find_all(options) do |asset, error|
         block.call(asset, error)
       end
     end

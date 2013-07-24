@@ -4,7 +4,7 @@ describe MotionAL::Asset do
   before do
     @library = MotionAL.library
 
-    MotionAL::Asset.all do |asset, error|
+    MotionAL::Asset.find_all do |asset, error|
       @existent_asset = asset if asset.asset_type == :photo && @existent_asset.nil?
       @existent_video_asset = asset if asset.asset_type == :video && @existent_video_asset.nil?
     end
@@ -12,7 +12,7 @@ describe MotionAL::Asset do
 
     @video_url = NSBundle.mainBundle.URLForResource('sample', withExtension:"mp4")
 
-    MotionAL::Group.all do |group, error|
+    MotionAL::Group.find_all do |group, error|
       @test_group = group if group.name == TEST_GROUP_NAME
     end
     wait_async
@@ -157,7 +157,7 @@ describe MotionAL::Asset do
     it "should avail order asc" do
       assets = []
 
-      MotionAL::Asset.all(order: :asc) {|a| assets << a }
+      MotionAL::Asset.find_all(order: :asc) {|a| assets << a }
       wait_async
 
       assets.size.should > 1
@@ -167,7 +167,7 @@ describe MotionAL::Asset do
     it "should avail order desc" do
       assets = []
 
-      MotionAL::Asset.all(order: :desc) {|a| assets << a }
+      MotionAL::Asset.find_all(order: :desc) {|a| assets << a }
       wait_async
 
       assets.size.should > 1
@@ -178,8 +178,8 @@ describe MotionAL::Asset do
       assets_a = []
       assets_b = []
 
-      MotionAL::Asset.all {|a| assets_a << a }
-      MotionAL::Asset.all(group: @test_group) {|a| assets_b << a }
+      MotionAL::Asset.find_all {|a| assets_a << a }
+      MotionAL::Asset.find_all(group: @test_group) {|a| assets_b << a }
       wait_async
 
       assets_a.size.should.equal @saved_photos.assets.count(:all)
@@ -190,7 +190,7 @@ describe MotionAL::Asset do
       indexset = NSMutableIndexSet.indexSetWithIndexesInRange(1..2)
       assets = []
 
-      MotionAL::Asset.all(indexset: indexset) {|a| assets << a }
+      MotionAL::Asset.find_all(indexset: indexset) {|a| assets << a }
       wait_async
 
       assets.size.should.equal 2
@@ -202,7 +202,7 @@ describe MotionAL::Asset do
       indexset = NSMutableIndexSet.indexSetWithIndexesInRange(1..3)
       assets = []
 
-      MotionAL::Asset.all(indexset: indexset, order: :desc) {|a| assets << a }
+      MotionAL::Asset.find_all(indexset: indexset, order: :desc) {|a| assets << a }
       wait_async
 
       assets.size.should.equal 3
@@ -214,8 +214,8 @@ describe MotionAL::Asset do
       assets = []
       photos = []
 
-      MotionAL::Asset.all(filter: :all) {|a| assets << a }
-      MotionAL::Asset.all(filter: :photo) {|a| photos << a }
+      MotionAL::Asset.find_all(filter: :all) {|a| assets << a }
+      MotionAL::Asset.find_all(filter: :photo) {|a| photos << a }
       wait_async
 
       assets.size.should.not.equal photos.size

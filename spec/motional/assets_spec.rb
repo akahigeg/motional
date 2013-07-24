@@ -2,7 +2,7 @@
 
 describe MotionAL::Assets do
   before do 
-    MotionAL::Asset.all do |asset, error|
+    MotionAL::Asset.find_all do |asset, error|
       @existent_asset = asset if asset.asset_type == :photo && @no_group_asset.nil?
     end
     wait_async
@@ -12,7 +12,7 @@ describe MotionAL::Assets do
     end
 
     @test_group_name = 'MotionAL'
-    MotionAL::Group.all do |group, error|
+    MotionAL::Group.find_all do |group, error|
       @test_group = group if group.name == TEST_GROUP_NAME
     end
     wait_async
