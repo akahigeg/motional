@@ -14,28 +14,42 @@ module MotionAL
     # Find a representation by a specified representation UTI.
     #
     # @option representation_uti [String] A representation's UTI
-    # @return [MotionAL::Representation]
-    # @return [nil] No representation for a specified UTI.
+    # @return [nil]
+    #
+    # @yield [representation]
+    # @yieldparam representation [MotionAL::Representation] A found representation.
     #
     # @example
-    #   rep = asset.representations.find_by_uti(representation_uti)
-    def find_by_uti(representation_uti)
+    #   asset.representations.find_by_uti(representation_uti) do |rep|
+    #     p rep.filename
+    #   end
+    def find_by_uti(representation_uti, &block)
       al_rep = @asset.al_asset.representationForUTI(representation_uti)
       if al_rep
-        Representation.new(al_rep)
+        block.call(Representation.new(al_rep))
       else
-        nil
+        nil # not found
       end
     end
 
-    # Return all representations of the asset.
+    # Find and enumerate representations of the asset.
     #
-    # @return [Array] An Array of representation.
+    # @return [nil]
+    #
+    # @yield [representation]
+    # @yieldparam representation [MotionAL::Representation] A found representation.
     #
     # @example
-    #   reps = asset.representations.all
-    def all
-      @asset.representation_utis.map {|uti| find_by_uti(uti) }
+    #   asset.representations.find_all do |rep|
+    #     p rep.filename
+    #   end
+    def find_all(&block)
+      @asset.representation_utis.each do |uti|
+        find_by_uti(uti) do |rep|
+          block.call(rep)
+        end
+      end
     end
+    alias_method :each, :find_all
   end
 end

@@ -25,9 +25,9 @@ module MotionAL
     def data
       ui_image = UIImage.imageWithCGImage(self.cg_image)
       if self.filename =~ /.jpe?g$/i
-        NSData.dataWithData(UIImageJPEGRepresentation(ui_image, 0.0))
+        NSData.alloc.initWithData(UIImageJPEGRepresentation(ui_image, 0.0))
       elsif self.filename =~ /.png$/i
-        NSData.dataWithData(UIImagePNGRepresentation(ui_image))
+        NSData.alloc.initWithData(UIImagePNGRepresentation(ui_image))
       else
         nil
       end
@@ -42,6 +42,8 @@ module MotionAL
     # The orientation of the representation.
     #
     # @return [Symbol] :up, :down :left, :right, :up_mirrored, :down_mirrored, :left_mirrored or :right_mirrored
+    #
+    # @see MotionAL.asset_orientations
     def orientation
       MotionAL.asset_orientations.key(@al_asset.valueForProperty(ALAssetPropertyOrientation))
     end
@@ -65,7 +67,7 @@ module MotionAL
 
     # Metadata of the representation.
     #
-    # @return [Hash] A multidimensional hash for the representation.
+    # @return [Hash] A multidimensional hash.
     # @return [nil] When the representation has no metadata or incompatible metadata.
     def metadata
       @al_asset_representation.metadata

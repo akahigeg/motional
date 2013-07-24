@@ -241,7 +241,10 @@ describe MotionAL::Asset do
     end
 
     it "should have Representation instance" do
-      @existent_asset.representations.all.first.should.instance_of MotionAL::Representation
+      @existent_asset.representations.find_all do |rep|
+        @rep = rep
+      end
+      @rep.should.instance_of MotionAL::Representation
     end
   end
 

@@ -15,8 +15,11 @@ describe MotionAL::Representations do
 
   describe "#find_by_uti" do
     it "should return Representation object" do
-      rep = @asset.representations.find_by_uti(@asset.rep.UTI)
-      rep.should.instance_of MotionAL::Representation
+      @asset.representations.find_by_uti(@asset.rep.UTI) do |rep|
+        @rep = rep
+
+      end
+      @rep.should.instance_of MotionAL::Representation
     end
 
     it "should return nil when unknown UTI given" do
@@ -25,13 +28,15 @@ describe MotionAL::Representations do
     end
   end
 
-  describe "#all" do
+  describe "#find_all" do
     before do
-      @reps = @asset.representations.all
+      @reps = []
+      @asset.representations.find_all do |rep|
+        @reps << rep
+      end
     end
 
     it "should return array" do
-      @reps.should.kind_of Array
       @reps.first.should.instance_of MotionAL::Representation
     end
   end
