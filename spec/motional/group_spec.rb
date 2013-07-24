@@ -50,15 +50,22 @@ describe MotionAL::Group do
   end
 
   describe ".find_by_name" do
+    before do
+      if UIDevice.currentDevice.model =~ /simulator/i
+        @camera_roll_name = 'Saved Photos'
+      else
+        @camera_roll_name = 'Camera Roll'
+      end
+    end
+
     it "can find 'Saved Photos'" do
-      # TODO: analyze device or simulator, and set group name
       @group = nil
-      MotionAL::Group.find_by_name('Saved Photos') do |group, error|
+      MotionAL::Group.find_by_name(@camera_roll_name) do |group, error|
         @group = group
       end
 
       wait_async
-      @group.name.should.equal 'Saved Photos'
+      @group.name.should.equal @camera_roll_name
     end
 
     it "regexp" do
@@ -68,7 +75,7 @@ describe MotionAL::Group do
       end
 
       wait_async
-      @group.name.should.equal 'Saved Photos'
+      @group.name.should.equal @camera_roll_name
 
     end
   end

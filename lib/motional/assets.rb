@@ -38,31 +38,11 @@ module MotionAL
       end
     end
 
-    # Find an asset by a specified asset_url.
-    #
-    # @param asset_url [NSURL]
-    # @return [MotionAL::Asset] A found asset.
-    # @return [nil] When block given or fail to find.
-    # @example
-    #   group.assets.find_by_url(url) do |asset, error|
-    #     # asynchronous if a block given
-    #     p asset.url.absoluteString
-    #   end
-    #
-    #   asset = group.assets.find_by_url(url)
-    #   p asset.url.absoluteString
-    def find_by_url(asset_url, &block)
-      # TODO: only in the group
-      MotionAL::Asset.find_by_url(asset_url) do |asset, error|
-        block.call(asset, error)
-      end
-    end
-
-    # Find all assets in the group.
+    # Enumrate assets in the group.
     #
     # @param options [Hash]
-    # @option options [Symbol] :filter :all, :photo or :video
-    # @option options [Symbol] :order :asc or :desc
+    # @option options [Symbol] :filter :all(default), :photo or :video
+    # @option options [Symbol] :order :asc(default) or :desc
     # @option options [NSIndexSet] :indexset
     # @return [Array] Found assets.
     # @return [nil] When block given or fail to find.
@@ -74,8 +54,8 @@ module MotionAL
     #
     #   assets = group.assets.all(order: :desc, filter: :photo)
     #   urls  = assets.map {|a| a.url }
-    def all(options = {}, &block)
-      raise "MotionAL::Assets.all does not support :group option. Use MotionAL::Asset.all to get other group assets." if options[:group]
+    def each(options = {}, &block)
+      raise "MotionAL::Assets.each does not support :group option. Use MotionAL::Asset.all to get other group assets." if options[:group]
 
       options[:group] = @group
 

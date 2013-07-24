@@ -7,7 +7,7 @@ describe MotionAL::Representations do
     end
     wait_async(1)
 
-    @saved_photos.assets.all do |asset|
+    @saved_photos.assets.each do |asset|
       @asset = asset
     end
     wait_async(1)

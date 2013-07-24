@@ -7,7 +7,7 @@ describe MotionAL::Representation do
     end
     wait_async(0.5)
 
-    @saved_photos.assets.all(filter: :photo) do |asset|
+    @saved_photos.assets.each(filter: :photo) do |asset|
       @asset = asset
     end
     wait_async(0.5)
@@ -53,5 +53,5 @@ describe MotionAL::Representation do
     end
   end
 
-  # TODO: meta to more handy
+  # TODO: meta will be more handy
 end

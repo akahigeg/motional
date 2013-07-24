@@ -2,6 +2,15 @@
 
 describe MotionAL::Assets do
   before do 
+    MotionAL::Asset.all do |asset, error|
+      @existent_asset = asset if asset.asset_type == :photo && @no_group_asset.nil?
+    end
+    wait_async
+
+    MotionAL::Asset.create(@existent_asset.full_resolution_image) do |created|
+      @no_group_asset = created
+    end
+
     @test_group_name = 'MotionAL'
     MotionAL::Group.all do |group, error|
       @test_group = group if group.name == TEST_GROUP_NAME
@@ -11,34 +20,34 @@ describe MotionAL::Assets do
     MotionAL::Group.find_camera_roll do |group, error|
       @saved_photos = group
     end
-    wait_async
+    wait_async(0.5)
 
-    @assets = @saved_photos.assets
+    @all_assets = @saved_photos.assets
   end
 
   describe "#count" do
     it "should work assets filter" do
-      @assets.count(:photo).should.not.equal @assets.count(:video)
-      @assets.count(:photo).should.not.equal @assets.count(:all)
+      @all_assets.count(:photo).should.not.equal @all_assets.count(:video)
+      @all_assets.count(:photo).should.not.equal @all_assets.count(:all)
     end
 
     it "should return Fixnum" do
-      @assets.count(:all).should.instance_of Fixnum
+      @all_assets.count(:all).should.instance_of Fixnum
     end
   end
 
-  describe "#all" do
+  describe "#each" do
     it "should return assets in the group" do
       test_assets = []
 
-      @test_group.assets.all {|a| test_assets << a }
+      @test_group.assets.each {|a| test_assets << a }
       wait_async
 
       @test_group.assets.count(:all).should.equal test_assets.size
     end
 
     it "cannot specify :group option" do
-      Proc.new { @test_group.assets.all(:group => @saved_photos) }.should.raise StandardError
+      Proc.new { @test_group.assets.each(:group => @saved_photos) }.should.raise StandardError
     end
   end
 end
