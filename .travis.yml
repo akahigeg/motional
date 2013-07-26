@@ -1,4 +1,5 @@
 language: objective-c
 before_script: 
-  - chown travis -R /Users/travis/Library/RubyMotion/
+  - ls -l /Users/travis/Library/
+  - ls -l /Users/travis/Library/RubyMotion/
   - rake spec files=spec_helper
