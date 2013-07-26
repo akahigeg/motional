@@ -6,11 +6,11 @@ require 'motional/version'
 Gem::Specification.new do |spec|
   spec.name          = "motional"
   spec.version       = MotionAL::VERSION
-  spec.authors       = ["akahige"]
+  spec.authors       = ["akahigeg"]
   spec.email         = ["akahigeg@gmail.com"]
   spec.description   = %q{AssetLibrary framework wrapper for RubyMotion}
   spec.summary       = %q{AssetLibrary framework wrapper for RubyMotion}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/akahigeg/motional"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
