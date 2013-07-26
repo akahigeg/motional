@@ -1,2 +1,2 @@
 language: objective-c
-before_script: rake spec files=spec_helper
+# before_script: rake spec files=spec_helper
