@@ -28,9 +28,6 @@ Add this code to your application's Rakefile.
     # singleton for the lifetime.
     library = MotionAL.library # should not call `Motional::Library.new` directly.
 
-    library.open_camera_roll {|group| ... # asynchronous }   # open Camera Roll
-    library.open_photo_library {|group| ... # asynchronous } # open Photo Library synced from itunes
-
     library.groups # An alias of MotionAL::Group
     library.groups.each do |group|
       # asynchronous
