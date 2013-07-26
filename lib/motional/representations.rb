@@ -13,7 +13,7 @@ module MotionAL
 
     # Find a representation by a specified representation UTI.
     #
-    # @option representation_uti [String] A representation's UTI
+    # @param representation_uti [String] A representation's UTI
     # @return [nil]
     #
     # @yield [representation]
@@ -26,7 +26,7 @@ module MotionAL
     def find_by_uti(representation_uti, &block)
       al_rep = @asset.al_asset.representationForUTI(representation_uti)
       if al_rep
-        block.call(Representation.new(al_rep))
+        block.call(Representation.new(@asset, al_rep))
       else
         nil # not found
       end

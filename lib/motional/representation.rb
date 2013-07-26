@@ -10,10 +10,12 @@ module MotionAL
   # And added some convinience methods.
   #
   class Representation
-    # An instance of ALAssetRepresentation.
-    attr_reader :al_asset_representation
+    attr_reader :asset, :al_asset_representation
     
-    def initialize(al_asset_representation)
+    # @param asset [MotionAL::Asset] A parent asset.
+    # @param al_asset_representation [ALAssetRepresentation] An instance of ALAssetRepresentation.
+    def initialize(asset, al_asset_representation)
+      @asset = asset
       @al_asset_representation = al_asset_representation
     end
 

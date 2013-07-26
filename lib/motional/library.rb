@@ -10,7 +10,7 @@ module MotionAL
   # And added some convinience methods.
   #
   class Library
-    # An alias of MotionAL::Group class
+    # @return [Class] An alias of MotionAL::Group class
     attr_reader :groups
 
     # @return [MotionAL::Library] Singleton instance.
@@ -34,7 +34,9 @@ module MotionAL
     # This is the built-in group. Any iOS devices and any iOS simurator have this. 
     # And all assets that are created in the device belong to this group automatically.
     #
-    # 'Camera Roll' is the name on a device, 'Saved Photos' is the name on a simurator.
+    # It is named 'Camera Roll' on a device, It is named 'Saved Photos' on a simurator.
+    #
+    # @return [nil]
     #
     # @yield [group, error]
     # @yieldparam group [MotionAL::Group] 'Camera Roll' or 'Saved Photos'
@@ -48,6 +50,8 @@ module MotionAL
     # Open the special group named 'Photo Library'.
     #
     # This group includes all assets that are synced from iTunes.
+    #
+    # @return [nil]
     #
     # @yield [group, error]
     # @yieldparam group [MotionAL::Group] 'Photo Library'

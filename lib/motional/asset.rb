@@ -150,7 +150,7 @@ module MotionAL
 
     # @return [MotionAL::Representation] The default representation of the asset. A representation is an actual file.
     def default_representation
-      @default_representation ||= Representation.new(@al_asset.defaultRepresentation)
+      @default_representation ||= Representation.new(@asset, @al_asset.defaultRepresentation)
     end
     alias_method :rep, :default_representation
     alias_method :file, :default_representation

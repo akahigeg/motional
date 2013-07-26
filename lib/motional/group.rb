@@ -41,7 +41,7 @@ module MotionAL
 
     # Find a group by a specified group_url.
     #
-    # @param group_url [NSURL]
+    # @param group_url [NSURL, String]
     # @return [nil]
     #
     # @yield [group, error]
@@ -67,10 +67,10 @@ module MotionAL
     # @yieldparam group [MotionAL::Group] A found group.
     # @yieldparam error [error]
     #
-    # @note It is recommended to use find_by_url instead of this. Because the name could be renamed.
+    # @note It is recommended to use find_by_url instead of this. Because a group could be renamed.
     #
     # @example
-    #   group = MotionAL::Group.find_by_name('MyAlbum') do |group, error|
+    #   MotionAL::Group.find_by_name('MyAlbum') do |group, error|
     #     p group.name
     #   end
     def self.find_by_name(group_name, &block)
@@ -89,7 +89,7 @@ module MotionAL
     # @yieldparam error [error]
     #
     # @example
-    #   group = MotionAL::Group.find_camera_roll do |group, error|
+    #   MotionAL::Group.find_camera_roll do |group, error|
     #     p group.name #=> 'Camera Roll' or 'Saved Photos'
     #   end
     def self.find_camera_roll(&block)
@@ -105,7 +105,7 @@ module MotionAL
     # @yieldparam error [error]
     #
     # @example
-    #   group = MotionAL::Group.find_photo_library do |group, error|
+    #   MotionAL::Group.find_photo_library do |group, error|
     #     p group.name #=> 'Photo Library'
     #   end
     def self.find_photo_library(&block)
@@ -116,7 +116,7 @@ module MotionAL
     #
     # @param options [Hash]
     # @option options :group_type [Symbol] An asset group type. default: :all.
-    # @return [Array] Found groups.
+    # @return [nil]
     #
     # @yield [group, error]
     # @yieldparam group [MotionAL::Group] A found group.
@@ -143,8 +143,8 @@ module MotionAL
       @assets ||= Assets.new(self)
     end
 
-    # Return true if the app haves write access for the group.
-    # In other words true means the app can add assets to the group.
+    # Return true if your app has write access for the group.
+    # In other words true means your app can add assets to the group.
     #
     # @return [Boolean]
     def editable?
@@ -159,6 +159,7 @@ module MotionAL
     # Add an asset to the group.
     #
     # @param asset [MotionAL::Asset]
+    # @return [Boolean] true if asset was added successfully, otherwise false
     #
     # @note cannot remove ALAsset from ALAssetGroup by yor app
     def add_asset(asset)

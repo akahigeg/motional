@@ -14,10 +14,6 @@ And then execute:
 
     $ bundle
 
-Or install it yourself as:
-
-    $ gem install motional
-
 ## Setup
 
 Add this code to your application's Rakefile.
@@ -25,32 +21,19 @@ Add this code to your application's Rakefile.
     require 'bundler'
     Bundler.require(:development)
 
-## Headfirst
+## Overview
 
-1. Save any photo to your iOS simurator's Photos.(use Safari)
-2. Type `rake` on the command line.
-3. Then type the below code in REPL.
-
----
-
-    library = MotionAL.library
-
-    library.open_camera_roll do |camera_roll|
-      camera_roll.assets.each do |asset|
-        p asset.filename
-      end
-    end
-
-## Library
+### Library
 
     # singleton for the lifetime.
     library = MotionAL.library # should not call `Motional::Library.new` directly.
 
-    library.open_camera_roll {|group| ... }   # open Camera Roll
-    library.open_photo_library {|group| ... } # open Photo Library synced from itunes
+    library.open_camera_roll {|group| ... # asynchronous }   # open Camera Roll
+    library.open_photo_library {|group| ... # asynchronous } # open Photo Library synced from itunes
 
     library.groups # An alias of MotionAL::Group
     library.groups.each do |group|
+      # asynchronous
       # enumerate all groups except Photo Library
     end
 
@@ -61,6 +44,7 @@ Add this code to your application's Rakefile.
 ### Group
 
     MotionAL::Group.create('MyAppAlbum') do |group|
+      # asynchronous
       group.name #=> 'MyAppAlbum'
       group.url.absoluteString # save this to permanent strage
     end
@@ -72,9 +56,9 @@ Add this code to your application's Rakefile.
     end
 
     group.assets # An instance of MotionAL::Assets
-    group.assets.each {|asset| ... }
-    group.assets.create(image_data, metadata) {|asset| ... }
-    group.assets << some_asset
+    group.assets.each {|asset| ... # asynchronous }
+    group.assets.create(image_data, metadata) {|asset| ... # asynchronous } # create asset and add to the group
+    group.assets << some_asset # an asset add to the group.
 
     group.al_asset_group # An instance of ALAssetGroup
     
@@ -84,26 +68,35 @@ Add this code to your application's Rakefile.
       asset.url.absoluteString # save this to permanent strage
     end
 
-    MotionAL::Asset.find_by_url(saved_url_absolute_string) {|asset| ... }
+    MotionAL::Asset.find_by_url(saved_url_absolute_string) {|asset| ...  # asynchronous }
 
     asset.representations # An instance of Representations
-    asset.representations.each {|rep| ... }
+    asset.representations.each {|rep| ... # not asynchronous }
 
     asset.default_representation # An instance of MotionAL::Representation for default representation.
-    asset.filename
-    asset.metadata
-    asset.full_resolution_image
-    asset.full_screen_image
-    asset.location
 
+    # properties
+    asset.location
     asset.media_type # :photo or :video
     MotionAL.asset_types(asset.media_type) # to get objective-c constant value
     asset.orientation # :up, :down, :left...
     MotionAL.asset_orientations(asset.orientation) # to get objective-c constant value
+
+    # default representation properties
+    asset.filename
+    asset.metadata
+    asset.full_resolution_image
+    asset.full_screen_image
     
     asset.al_asset # An instance of ALAsset
 
 ### Representation
+
+    # properties
+    rep.filename
+    rep.metadata
+    rep.full_resolution_image
+    rep.full_screen_image
 
     rep.al_asset_representation # An instance of ALAssetRepresentation
 
