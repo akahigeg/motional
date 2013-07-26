@@ -13,5 +13,5 @@ require 'motional'
 
 Motion::Project::App.setup do |app|
   app.name = 'MotionAL'
-  app.redgreen_style = :full # :focused, :full
+  # app.redgreen_style = :full # :focused, :full
 end
