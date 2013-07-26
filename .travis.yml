@@ -1,7 +1,5 @@
 language: objective-c
-before_install:
-  - (ruby --version)
-
+before_install: rvm use ruby-1.9.3-p392
 script: 
-  - rake spec files=spec_helper
-  - rake spec
+  - bundle exec rake spec files=spec_helper
+  - bundle exec rake spec
