@@ -1,6 +1,4 @@
-#
-# This file is for test application.
-#
+require "bundler/gem_tasks"
 
 $:.unshift("/Library/RubyMotion/lib")
 $:.unshift("#{File.dirname(__FILE__)}/lib")
@@ -14,5 +12,4 @@ require 'motional'
 Motion::Project::App.setup do |app|
   app.name = 'MotionAL'
   app.redgreen_style = :full # :focused, :full
-  app.build_dir = '/tmp/build'
 end
