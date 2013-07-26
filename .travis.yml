@@ -1,4 +1,4 @@
 language: objective-c
 before_script: 
-  - mkdir -p /Users/travis/Library/RubyMotion/build
+  - chown travis -R /Users/travis/Library/RubyMotion/
   - rake spec files=spec_helper
