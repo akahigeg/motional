@@ -37,6 +37,17 @@ Add this code to your application's Rakefile.
       # enumerate all groups except Photo Library
     end
 
+    # open Camera Roll
+    library.groups.find_camera_roll do |group| 
+      # asynchronous    
+      group.assets.each do |asset|
+        # enumerate all assets in the camera roll
+      end
+    end
+
+    # open Photo Library synced from itunes
+    library.groups.find_photo_library {|group| ... # asynchronous }
+
     library.al_asset_library # An instance of ALAssetLibrary
 
     MotionAL.authorized? # check permission to access Asset Library. see Settings > Privacy > Photos

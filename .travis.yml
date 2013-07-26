@@ -1,5 +1,7 @@
 language: objective-c
-before_script: 
-  - ls -l /Users/travis/Library/
-  - mkdir /Users/travis/Library/RubyMotion/build
+before_install:
+  - (ruby --version)
+
+script: 
   - rake spec files=spec_helper
+  - rake spec
