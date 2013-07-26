@@ -28,38 +28,5 @@ module MotionAL
     def al_asset_library
       @al_asset_library ||= ALAssetsLibrary.new
     end
-
-    # Open the special group named 'Camera Roll' or 'Saved Photos'.
-    #
-    # This is the built-in group. Any iOS devices and any iOS simurator have this. 
-    # And all assets that are created in the device belong to this group automatically.
-    #
-    # It is named 'Camera Roll' on a device, It is named 'Saved Photos' on a simurator.
-    #
-    # @return [nil]
-    #
-    # @yield [group, error]
-    # @yieldparam group [MotionAL::Group] 'Camera Roll' or 'Saved Photos'
-    # @yieldparam error [error]
-    def open_camera_roll(&block)
-      MotionAL::Group.find_camera_roll do |group, error|
-        block.call(group, error)
-      end
-    end
-
-    # Open the special group named 'Photo Library'.
-    #
-    # This group includes all assets that are synced from iTunes.
-    #
-    # @return [nil]
-    #
-    # @yield [group, error]
-    # @yieldparam group [MotionAL::Group] 'Photo Library'
-    # @yieldparam error [error]
-    def open_photo_library(&block)
-      MotionAL::Group.find_photo_library do |group, error|
-        block.call(group, error)
-      end
-    end
   end
 end
