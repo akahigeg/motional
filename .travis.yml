@@ -1,5 +1,5 @@
 language: objective-c
 before_script: 
   - ls -l /Users/travis/Library/
-  - ls -l /Users/travis/Library/RubyMotion/
+  - mkdir /Users/travis/Library/RubyMotion/build
   - rake spec files=spec_helper
