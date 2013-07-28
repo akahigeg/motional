@@ -2,8 +2,6 @@
 
 AssetLibrary framework wrapper for RubyMotion.
 
-*This gem is a beta quality.*
-
 ## Installation
 
 Add this line to your application's Gemfile:
