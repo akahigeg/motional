@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = MotionAL::VERSION
   spec.authors       = ["akahigeg"]
   spec.email         = ["akahigeg@gmail.com"]
-  spec.description   = %q{AssetLibrary framework wrapper for RubyMotion}
-  spec.summary       = %q{AssetLibrary framework wrapper for RubyMotion}
+  spec.description   = %q{Assets Library framework wrapper for RubyMotion}
+  spec.summary       = %q{Assets Library framework wrapper for RubyMotion}
   spec.homepage      = "https://github.com/akahigeg/motional"
   spec.license       = "MIT"
 

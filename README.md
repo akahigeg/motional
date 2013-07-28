@@ -108,6 +108,10 @@ Add this code to your application's Rakefile.
 
     rep.al_asset_representation # An instance of ALAssetRepresentation
 
+## Sample App
+
+[akahigeg/motional-sample](https://github.com/akahigeg/motional-sample)
+
 ## How to run specs
 
 ### Preparing test data

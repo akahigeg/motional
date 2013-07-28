@@ -33,7 +33,7 @@ describe "prepare" do
     @test_group.assets << @test_asset
   end
 
-  it "dummy spec for waiting creating test files" do
+  it "dummy spec to wait for creating test files" do
     1.should == 1
   end
 end
