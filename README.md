@@ -76,6 +76,14 @@ Add this code to your application's Rakefile.
 
     MotionAL::Asset.find_by_url(saved_url_absolute_string) {|asset| ...  # asynchronous }
 
+    MotionAL::Asset.find_all(order: :desc) {|asset| ...  # asynchronous }
+    MotionAL::Asset.find_all(filter: :photo) {|asset| ...  # asynchronous }
+    MotionAL::Asset.find_all(group: @group) {|asset| ...  # asynchronous }
+
+    indexset = NSMutableIndexSet.indexSetWithIndexesInRange(1..3)
+    MotionAL::Asset.find_all(indexset: indexset) {|asset| ...  # asynchronous }
+    MotionAL::Asset.find_all(indexset: indexset, order: :desc) {|asset| ...  # asynchronous }
+
     asset.representations # An instance of Representations
     asset.representations.each {|rep| ... # not asynchronous }
 
@@ -83,8 +91,8 @@ Add this code to your application's Rakefile.
 
     # properties
     asset.location
-    asset.media_type # :photo or :video
-    MotionAL.asset_types(asset.media_type) # to get objective-c constant value
+    asset.asset_type # :photo or :video
+    MotionAL.asset_types(asset.asset_type) # to get objective-c constant value
     asset.orientation # :up, :down, :left...
     MotionAL.asset_orientations(asset.orientation) # to get objective-c constant value
 
